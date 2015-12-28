@@ -27,7 +27,7 @@ useful information about relevant historical changes as they work.
 
 ## Spikes
 
-### 1 - Code Growth
+### 1 - Code Overview
 
 Can we pull data from a repo that enables us to identify how the architectural shape of the project
 changed over time?

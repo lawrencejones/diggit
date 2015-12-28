@@ -1,0 +1,18 @@
+{
+  "name": "code-overview",
+  "version": "1.0.0",
+  "description": "Similar to GrandPerspective, but generalised visualisation",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LawrenceJones/diggit"
+  },
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "author": "Lawrence Jones",
+  "license": "MIT",
+  "devDependencies": {
+    "electron-prebuilt": "^0.36.0"
+  }
+}
