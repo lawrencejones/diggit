@@ -1,5 +1,8 @@
 # diggit
 
+This project is a collection of tools that aim to expose coding behavioural patterns by examining
+how code changes over time in projects under version control.
+
 ## Abstract
 
 When working on a large codebase, it is easy not to see all of the dependencies and relationships.
@@ -22,4 +25,24 @@ context sensitive information mined from software repositories, based on the pro
 task and coding context to help them understand and change large codebases reliably, giving them
 useful information about relevant historical changes as they work.
 
+## Spikes
+
+### 1 - Code Growth
+
+Can we pull data from a repo that enables us to identify how the architectural shape of the project
+changed over time?
+
+This represents an experiment in data parsing and presentation. Aims are to gain familiarity with
+the git API and gain some experience with data visualisation toolkits, along with extract genuine
+insights from the code.
+
 ## References
+
+#### [1] Code as a Crime Scene - http://www.adamtornhill.com/articles/crimescene/codeascrimescene.htm
+
+- Motivation on why we want data; 60% of project cost is in maintainance
+- "...we want to optimize any aspect of software development, maintenance is the most important part
+  to focus on"
+- Intuition doesn't scale
+- Problem similar to that of geographically profiling criminal activities in an effort to predict
+  next occurances
