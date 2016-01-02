@@ -24,6 +24,8 @@ def main
   metric = {
     'file-size' => ->(target) { File.size(target) },
     'lines-of-code' => ->(target) do
+      return 0 if File.directory?(target)
+
       %x{wc -l "#{target}"}.split.first.to_i
     end
   }.fetch(metric_label)

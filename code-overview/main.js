@@ -1,25 +1,24 @@
 'use strict';
 
 if (process.argv.length !== 3) {
-  console.error('Requires path to data.json');
+  console.error('Requires path to repo');
   process.exit(255);
 }
 
 const fs = require('fs');
+const execSync = require('child_process').execSync;
 const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
-const loadSnapshot = (dataFile) => {
-  if (!fs.existsSync(dataFile)) {
-    console.error(`Could not find file ${dataFile}`);
-    process.exit(255);
-  }
+const GIT_WALKER = "../utils/git_walker.rb";
 
-  return require(dataFile);
+const loadFrame = (repoPath) => {
+  let stdout = execSync(`${GIT_WALKER} lines-of-code ${repoPath}`).toString();
+  return JSON.parse(stdout);
 };
 
-global.snapshot = loadSnapshot(process.argv[2]);
+global.frame = loadFrame(process.argv[2]);
 
 let mainWindow;
 
@@ -29,5 +28,4 @@ app.on('ready', () => {
   mainWindow = new BrowserWindow({width: 800, height: 600});
   mainWindow.loadURL('file://' + __dirname + '/index.html');
   mainWindow.on('closed', () => mainWindow = null);
-  mainWindow.hello = 'world';
 });

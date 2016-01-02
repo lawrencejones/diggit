@@ -1,6 +1,6 @@
 'use strict';
 
 const remote = require('remote');
-const snapshot = remote.getGlobal('snapshot');
+const frame = remote.getGlobal('frame');
 
-$('body').append(`<pre>${JSON.stringify(snapshot, null, 2)}</pre>`);
+$('body').append(`<pre>${JSON.stringify(frame, null, 2)}</pre>`);
