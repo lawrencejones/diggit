@@ -6,20 +6,20 @@ const frame = remote.getGlobal('frame');
 function rectangularAreaChartDefaultSettings(){
   return {
     expandFromLeft: true, // Areas expand from left to right.
-      expandFromTop: false, // Areas expand from top to bottom.
-      animate: true, // Controls animation when chart loads.
-      animateDuration: 2000, // The duration of the animation when the chart loads.
-      animateDelay: 0, // The delay between the chart loading and the actual load animation starting.
-      animateDelayBetweenBoxes: 200, // Adds a delay between box expansions during the load animation.
-      colorsScale: d3.scale.category20b(), // The color scale to use for the chart areas.
-      textColorScale: d3.scale.ordinal().range(["#fff"]), // The color scale to use for the chart text.
-      textPadding: {top: 0, bottom: 0, left: 3, right: 3}, // Category text padding.
-      maxValue: -1, // The charts maximum value. If this value is greater than the largest value displayed on the chart, this will cause the largest chart value to take up less area than the maximum height and width of the chart.
-      labelAlignDiagonal: false, // Aligns the category label text to the charts diagonal.
-      valueTextAlignDiagonal: false, // Aligns the value text to the charts diagonal.
-      displayValueText: true, // Display the value text.
-      valueTextPadding: {top: 0, bottom: 0, left: 3, right: 3}, // Value text padding.
-      valueTextCountUp: true // Causes the value text to count up from 0 during the chart load animation.
+    expandFromTop: false, // Areas expand from top to bottom.
+    animate: true, // Controls animation when chart loads.
+    animateDuration: 2000, // The duration of the animation when the chart loads.
+    animateDelay: 0, // The delay between the chart loading and the actual load animation starting.
+    animateDelayBetweenBoxes: 200, // Adds a delay between box expansions during the load animation.
+    colorsScale: d3.scale.category20b(), // The color scale to use for the chart areas.
+    textColorScale: d3.scale.ordinal().range(["#fff"]), // The color scale to use for the chart text.
+    textPadding: {top: 0, bottom: 0, left: 3, right: 3}, // Category text padding.
+    maxValue: -1, // The charts maximum value. If this value is greater than the largest value displayed on the chart, this will cause the largest chart value to take up less area than the maximum height and width of the chart.
+    labelAlignDiagonal: false, // Aligns the category label text to the charts diagonal.
+    valueTextAlignDiagonal: false, // Aligns the value text to the charts diagonal.
+    displayValueText: true, // Display the value text.
+    valueTextPadding: {top: 0, bottom: 0, left: 3, right: 3}, // Value text padding.
+    valueTextCountUp: true // Causes the value text to count up from 0 during the chart load animation.
   };
 }
 
@@ -282,56 +282,3 @@ config1.expandFromLeft = false;
 config1.colorsScale = d3.scale.category20b();
 config1.maxValue = 100;
 loadRectangularAreaChart("rectangularareachart1", data1, config1);
-
-var data2 = [
-  { value: "78", label: "Duis", valuePrefix: "Area of " },
-  { value: "37", label: "Cras", valuePrefix: "Area of " },
-  { value: "55", label: "elit sed consequat", valuePrefix: "Area of " },
-];
-
-var config2 = rectangularAreaChartDefaultSettings();
-config2.colorsScale = d3.scale.ordinal().range(["#fc8d59","#ffffbf","#91bfdb"]); //palette from colorbrewer https://github.com/mbostock/d3/tree/master/lib/colorbrewer
-config2.textColorScale = d3.scale.ordinal().range(["#444","#333","#222"]);
-config2.labelAlignDiagonal = true;
-config2.valueTextAlignDiagonal = true;
-config2.valueTextPadding.right = 18;
-config2.animateDelay = 1000;
-config2.animateDelayBetweenBoxes = 0;
-config2.valueTextCountUp = false;
-loadRectangularAreaChart("rectangularareachart2", data2, config2);
-
-var data3 = [
-  { value: "40", label: "massa. Quisque" },
-  { value: "34", label: "rhoncus. Proin nisl" },
-  { value: "45", label: "ipsum nunc" },
-  { value: "64", label: "pharetra" },
-  { value: "95", label: "parturient montes" },
-  { value: "87", label: "pede, ultrices" },
-  { value: "80", label: "nascetur" }
-];
-
-var config3 = rectangularAreaChartDefaultSettings();
-config3.expandFromLeft = false;
-config3.expandFromTop = true;
-config3.maxValue = 100;
-config3.colorsScale = d3.scale.ordinal().range(["#fff7fb","#ece2f0","#d0d1e6","#a6bddb","#67a9cf","#3690c0","#02818a","#016c59","#014636"]);  //palette from colorbrewer https://github.com/mbostock/d3/tree/master/lib/colorbrewer
-config3.textColorScale = d3.scale.ordinal().range(["#555","#777","#999","#aaa","#ddd","#fff","#fff"]);
-config3.animateDelay = 2000;
-loadRectangularAreaChart("rectangularareachart3", data3, config3);
-
-var data4 = [
-  { value: "32", label: "consectetuer adipiscing" },
-  { value: "62", label: "ipsum" }
-];
-
-var config4 = rectangularAreaChartDefaultSettings();
-config4.expandFromLeft = true;
-config4.expandFromTop = true;
-config4.maxValue = 100;
-config4.labelAlignDiagonal = true;
-config4.animateDelay = 3500;
-config4.displayValueText = false;
-config4.animateDelayBetweenBoxes = 0;
-config4.colorsScale = d3.scale.ordinal().range(["#7570b3","#e7298a","#66a61e"]);  //palette from colorbrewer https://github.com/mbostock/d3/tree/master/lib/colorbrewer
-config4.textColorScale = d3.scale.ordinal().range(["#e7298a","#7570b3","#66a61e"]);
-loadRectangularAreaChart("rectangularareachart4", data4, config4);
