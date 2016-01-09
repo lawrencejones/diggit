@@ -35,14 +35,3 @@ changed over time?
 This represents an experiment in data parsing and presentation. Aims are to gain familiarity with
 the git API and gain some experience with data visualisation toolkits, along with extract genuine
 insights from the code.
-
-## References
-
-#### [1] Code as a Crime Scene - http://www.adamtornhill.com/articles/crimescene/codeascrimescene.htm
-
-- Motivation on why we want data; 60% of project cost is in maintainance
-- "...we want to optimize any aspect of software development, maintenance is the most important part
-  to focus on"
-- Intuition doesn't scale
-- Problem similar to that of geographically profiling criminal activities in an effort to predict
-  next occurances
