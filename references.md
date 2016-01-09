@@ -11,6 +11,13 @@
 
 ## [2] Detecting Refactoring Deligence - https://michaelfeathers.silvrback.com/detecting-refactoring-diligence
 
+- Create profile of a repo that states how many methods have been increased in size last n times
+  they have been changed
+- Highlights whether the codebase as a whole is increasing, and whether there is sufficient
+  care paid to resist code growth by refactor
+- Profile looks like [135, 89, 14, 2, 1, 1, 1, 1, 1] - one method has been increased in size the
+  last 9 times it was modified
+
 ## [3] Mining Software Respositories 2015 - http://2015.msrconf.org/program.php
 
 ## [4] TICOSA Programme - http://www.ticosa.org/programme.html
