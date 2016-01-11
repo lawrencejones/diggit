@@ -26,7 +26,7 @@ global.frame = loadFrame(process.argv[2]);
 const reloadMainWindow = _.debounce(() => {
   console.info('Reloading mainWindow...');
   mainWindow.reload();
-}, 250);
+}, 10);
 
 let mainWindow;
 

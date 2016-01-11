@@ -7,15 +7,16 @@
     <script>
       window.$ = window.jQuery = require('../bower_components/jquery/dist/jquery.js');
       window.d3 = window.d3 = require('../bower_components/d3/d3.js');
-      require('remote').getCurrentWindow().toggleDevTools();
+
+      var win = require('remote').getCurrentWindow();
+      if (!win.isDevToolsOpened()) { win.toggleDevTools(); }
     </script>
   </head>
   <body>
     <div class="col-md-12">
       <h1 class="text-center">Code Overview</h1>
     </div>
-    <div width="800" height="480">
-      <svg id="rectangularareachart1" width="800" height="480"></svg>
+    <div id="d3-target" width="800" height="480">
     </div>
     <script
       type="application/javascript"
