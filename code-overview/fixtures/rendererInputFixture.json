@@ -1,0 +1,48 @@
+{
+  "path": "/Users/lawrencejones/Desktop/Projects/diggit",
+  "metric": 7856,
+  "entries": {
+    ".gitignore": {
+      "path": ".gitignore",
+      "metric": 10
+    },
+    ".rubocop.yml": {
+      "path": ".rubocop.yml",
+      "metric": 2726
+    },
+    "code-overview": {
+      "path": "/Users/lawrencejones/Desktop/Projects/diggit/code-overview",
+      "metric": 5120,
+      "entries": {
+        "README.md": {
+          "path": "code-overview/README.md",
+          "metric": 144
+        },
+        "client": {
+          "path": "/Users/lawrencejones/Desktop/Projects/diggit/code-overview/client",
+          "metric": 4217,
+          "entries": {
+            "renderer.js": {
+              "path": "code-overview/client/renderer.js",
+              "metric": 41
+            },
+            "vis.js": {
+              "path": "code-overview/client/vis.js",
+              "metric": 4176
+            }
+          }
+        },
+        "views": {
+          "path": "/Users/lawrencejones/Desktop/Projects/diggit/code-overview/views",
+          "entries": {
+            "index.html": {
+              "path": "code-overview/views/index.html",
+              "metric": 759
+            }
+          },
+          "metric": 759
+        }
+      }
+    }
+  }
+}
