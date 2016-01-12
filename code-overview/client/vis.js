@@ -14,8 +14,8 @@ const defaultGraphOptions = () => {
 };
 
 const processFrames = (frames) => {
-  let maxWidth = _.max(frames.map((f) => { return f.x + f.width }));
-  let maxHeight = _.max(frames.map((f) => { return f.y + f.height }));
+  let maxWidth = _.max(frames.map((f) => { return f.x + f.w }));
+  let maxHeight = _.max(frames.map((f) => { return f.y + f.h }));
   let totalVolume = maxWidth * maxHeight;
 
   return {
@@ -24,7 +24,7 @@ const processFrames = (frames) => {
       _.extend(f, {
         index: i,
         pathDepth: f.label.split('/').length,
-        score: f.score || 100 * (f.width * f.height) / totalVolume,
+        score: f.score || Math.round(100 * (f.w * f.h) / totalVolume),
         parent: _.find(frames, (_f) => {
           return f !== _f && f.label.lastIndexOf(_f.label) === 0
         }),
@@ -79,10 +79,10 @@ const renderGraph = (svgContainerId, unprocessedFrames, options) => {
   let height = parseInt(chart.style('height'));
 
   let xScale = d3.scale.linear()
-    .domain([0, _.max(frames.map((f) => { return f.x + f.width }))])
+    .domain([0, _.max(frames.map((f) => { return f.x + f.w }))])
     .range([0, width]);
   let yScale = d3.scale.linear()
-    .domain([0, _.max(frames.map((f) => { return f.y + f.height }))])
+    .domain([0, _.max(frames.map((f) => { return f.y + f.h }))])
     .range([0, height]);
 
   // Create binding
@@ -100,8 +100,8 @@ const renderGraph = (svgContainerId, unprocessedFrames, options) => {
     .style('stroke', 'none')
     .style('stroke-width', '3px')
     .style('opacity', '.9')
-    .attr('width',  (d) => { return Math.max(1, xScale(d.width) - options.framePadding) })
-    .attr('height', (d) => { return Math.max(1, yScale(d.height) - options.framePadding) })
+    .attr('width',  (d) => { return Math.max(1, xScale(d.w) - options.framePadding) })
+    .attr('height', (d) => { return Math.max(1, yScale(d.h) - options.framePadding) })
     .on('mousemove', (d) => {
       frameGroup.selectAll(parentFrameSelector(d))
         .style('stroke', '#00ffff');

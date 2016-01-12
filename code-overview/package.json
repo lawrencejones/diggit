@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "electron main.js",
-    "test": "mocha specHelper.js $(find client -name '*.spec.js' -print0 | xargs -0)"
+    "test": "mocha --harmony --harmony_destructuring --harmony_spread_arrays specHelper.js $(find client -name '*.spec.js' -print0 | xargs -0)"
   },
   "author": "Lawrence Jones",
   "license": "MIT",

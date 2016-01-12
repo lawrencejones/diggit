@@ -11,32 +11,32 @@ let renderOutputFixture = [
   {
     label: '/Users',
     x: 0, y: 0,
-    width: 100,
-    height: 80,
+    w: 100,
+    h: 80,
     score: 76,
   }, {
     label: '/Users/Guest',
     x: 75, y: 0,
-    width: 25,
-    height: 80,
+    w: 25,
+    h: 80,
     score: 19,
   }, {
     label: '/Users/lawrencejones',
     x: 0, y: 0,
-    width: 75,
-    height: 80,
+    w: 75,
+    h: 80,
     score: 57,
   }, {
     label: '/etc',
     x: 100, y: 0,
-    width: 30,
-    height: 50,
+    w: 30,
+    h: 50,
     score: 14,
   }, {
     label: '/Applications',
     x: 100, y: 50,
-    width: 30,
-    height: 30,
+    w: 30,
+    h: 30,
     score: 8,
   }
 ];
