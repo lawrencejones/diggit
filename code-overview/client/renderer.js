@@ -1,3 +1,6 @@
 'use strict';
 
-module.exports = 'DUMMY';
+const balance = (data, dimensions, offset) => {
+};
+
+module.exports = { balance };
