@@ -17,6 +17,9 @@ const VIEWS_DIR = path.join(__dirname, 'views');
 const GIT_WALKER = "../utils/git_walker.rb";
 
 const loadFrame = (repoPath) => {
+  // TODO - Remove!
+  return require('./fixtures/rendererInputFixture.json');
+
   let stdout = execSync(`${GIT_WALKER} lines-of-code ${repoPath}`).toString();
   return JSON.parse(stdout);
 };
@@ -30,6 +33,7 @@ const reloadMainWindow = _.debounce(() => {
 
 let mainWindow;
 
+app.commandLine.appendSwitch('js-flags', '--harmony-destructuring');
 app.on('window-all-closed', () => app.quit());
 
 app.on('ready', () => {

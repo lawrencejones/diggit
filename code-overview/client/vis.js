@@ -5,39 +5,13 @@ const _ = require('lodash');
 const remote = require('remote');
 const frame = remote.getGlobal('frame');
 
-let data = [
-  {
-    label: '/Users',
-    x: 0, y: 0,
-    width: 100,
-    height: 80,
-    score: 76,
-  }, {
-    label: '/Users/Guest',
-    x: 75, y: 0,
-    width: 25,
-    height: 80,
-    score: 19,
-  }, {
-    label: '/Users/lawrencejones',
-    x: 0, y: 0,
-    width: 75,
-    height: 80,
-    score: 57,
-  }, {
-    label: '/etc',
-    x: 100, y: 0,
-    width: 30,
-    height: 50,
-    score: 14,
-  }, {
-    label: '/Applications',
-    x: 100, y: 50,
-    width: 30,
-    height: 30,
-    score: 8,
-  }
-];
+const defaultGraphOptions = () => {
+  return {
+    framePadding: 1,  // padding between frame rects
+    textPadding: { top: 0, bottom: 0, left: 3, right: 3 },  // text label padding
+    colorScale: d3.scale.category20b(),  // color scale for chart colors
+  };
+};
 
 const processFrames = (frames) => {
   let maxWidth = _.max(frames.map((f) => { return f.x + f.width }));
@@ -58,14 +32,6 @@ const processFrames = (frames) => {
     }),
   };
 }
-
-const defaultGraphOptions = () => {
-  return {
-    framePadding: 1,  // padding between frame rects
-    textPadding: { top: 0, bottom: 0, left: 3, right: 3 },  // text label padding
-    colorScale: d3.scale.category20b(),  // color scale for chart colors
-  };
-};
 
 const renderGraph = (svgContainerId, unprocessedFrames, options) => {
   if (!options) { options = defaultGraphOptions(); }
@@ -127,15 +93,15 @@ const renderGraph = (svgContainerId, unprocessedFrames, options) => {
 
   // Create the rectangles
   let frameRectGroup = frameGroup.append('rect')
-    .attr('x', (d) => { return xScale(d.x) + d.pathDepth + options.framePadding })
-    .attr('y', (d) => { return yScale(d.y) + d.pathDepth + options.framePadding })
+    .attr('x', (d) => { return xScale(d.x) + options.framePadding })
+    .attr('y', (d) => { return yScale(d.y) + options.framePadding })
     .attr('id', (d) => { return `${svgContainerId}FrameRect-${d.index}` })
     .style('fill', (d) => { return options.colorScale(d.label) })
     .style('stroke', 'none')
     .style('stroke-width', '3px')
     .style('opacity', '.9')
-    .attr('width',  (d) => { return xScale(d.width) - 2 * d.pathDepth - options.framePadding })
-    .attr('height', (d) => { return yScale(d.height) - 2 * d.pathDepth - options.framePadding })
+    .attr('width',  (d) => { return Math.max(1, xScale(d.width) - options.framePadding) })
+    .attr('height', (d) => { return Math.max(1, yScale(d.height) - options.framePadding) })
     .on('mousemove', (d) => {
       frameGroup.selectAll(parentFrameSelector(d))
         .style('stroke', '#00ffff');
@@ -150,4 +116,4 @@ const renderGraph = (svgContainerId, unprocessedFrames, options) => {
   return chart;
 };
 
-renderGraph('d3-target', data);
+module.exports = { defaultGraphOptions, processFrames, renderGraph };
