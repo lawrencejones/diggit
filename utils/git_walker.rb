@@ -12,6 +12,19 @@ def usage
         #{prog} file-size /Projects/arm
         #{prog} lines-of-code /Projects/linux
 
+    Example output...
+
+        {
+          "path": "/dir",
+          "score": 123,
+          "items": {
+            "file": {
+              "path": "/dir/file",
+              "score": 123
+            }
+          }
+        }
+
     NB: More complex use cases (such as filtering files) should require
         the GitWalker and instrument from there.
   )
@@ -71,23 +84,23 @@ class GitWalker
 
   def compute_frame
     all_tracked_files.each_with_object(new_frame) do |file, frame|
-      metric_value = compute_metric(file)
-      frame[:metric] += metric_value
+      frame_score = compute_metric(file)
+      frame[:score] += frame_score
 
       directories = file.split(File::SEPARATOR)
       basename = directories.pop
 
       sub_frame = directories.reduce(frame) do |frm, dir|
-        frm[:entries][dir] ||= new_frame(File.join(frm[:path], dir))
-        frm[:entries][dir].tap { |f| f[:metric] += metric_value }
+        frm[:items][dir] ||= new_frame(File.join(frm[:path], dir))
+        frm[:items][dir].tap { |f| f[:score] += frame_score }
       end
 
-      sub_frame[:entries][basename] = { path: file, metric: metric_value }
+      sub_frame[:items][basename] = { path: File.join(File.basename(@root), file), score: frame_score }
     end
   end
 
-  def new_frame(path = @root)
-    { path: path, entries: {}, metric: 0 }
+  def new_frame(path = File.basename(@root))
+    { path: path, items: {}, score: 0 }
   end
 
   def compute_metric(target)
@@ -100,36 +113,48 @@ main if __FILE__ == $0
 
 RSpec.describe(GitWalker) do
   subject(:walker) do
-    described_class.new(tmp, metric_lambda: metric)
+    described_class.new(@tmp, metric_lambda: metric)
   end
 
-  let(:tmp) { Dir.mktmpdir }
   let(:metric) { ->(target) { File.size(target) } }
 
-  before do
+  before(:all) do
+    @tmp = Dir.mktmpdir
+
     raise 'Bad setup command' unless system %(
-    mkdir #{tmp}/root
-    cd #{tmp}
+    mkdir #{@tmp}/root
+    cd #{@tmp}
     git init
-    dd if=/dev/zero of="#{tmp}/root/1K"  bs=1k  count=1
-    dd if=/dev/zero of="#{tmp}/root/2M"  bs=1m  count=2
+    dd if=/dev/zero of="#{@tmp}/root/1K"  bs=1k  count=1
+    dd if=/dev/zero of="#{@tmp}/root/2M"  bs=1m  count=2
     git add -A
     git commit -am "Initial commit"
     )
   end
 
-  after { FileUtils.rm_rf(tmp) }
+  after(:all) { FileUtils.rm_rf(@tmp) }
+
+  def flatten_frames(frame)
+    [frame, *frame.fetch(:items, {}).values.flat_map { |frm| flatten_frames(frm) }]
+  end
 
   describe '.frame' do
     subject(:frame) { walker.frame }
+    let(:all_frames) { flatten_frames(frame) }
+
+    it 'computes all paths from basename of repo' do
+      for frame in all_frames
+        expect(frame[:path]).to start_with(File.basename(@tmp))
+      end
+    end
 
     it 'computes metric for files', :aggregate_failures do
-      expect(frame[:entries]['root'][:entries]['1K'][:metric]).to eq(1 << 10)  # 1KB
-      expect(frame[:entries]['root'][:entries]['2M'][:metric]).to eq(2 * (1 << 20))  # 2MB
+      expect(frame[:items]['root'][:items]['1K'][:score]).to eq(1 << 10)  # 1KB
+      expect(frame[:items]['root'][:items]['2M'][:score]).to eq(2 * (1 << 20))  # 2MB
     end
 
     it 'aggregates metric for directories' do
-      expect(frame[:metric]).to be_within(1 << 9).of((1 << 10) + (2 * (1 << 20)))
+      expect(frame[:score]).to be_within(1 << 9).of((1 << 10) + (2 * (1 << 20)))
     end
   end
 end if defined?(RSpec)
