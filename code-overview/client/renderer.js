@@ -3,17 +3,17 @@
 
 const _ = require('lodash');
 
-/* Given a root frame of {score, entries}, will generate rectangles for each subframe
+/* Given a root frame of {path, score, items?}, will generate rectangles for each subframe
  * that fill the space defined as [x, y, w, h]. */
 const generateFrameRectangles = (rootFrame, [x, y, w, h], drawDirectories) => {
   if (_.isUndefined(drawDirectories)) { let drawDirectories = false; }
 
-  if (rootFrame.entries.length === 1) {
-    let frame = rootFrame.entries[0];
+  if (rootFrame.items.length === 1) {
+    let frame = rootFrame.items[0];
     let rects = [];
 
     /* Only output this rectangle if we're drawing directories, or it's not a directory */
-    if (drawDirectories || !_.isObject(frame.entries)) {
+    if (drawDirectories || !_.isObject(frame.items)) {
       rects.push({
         label: frame.path,
         score: frame.score,
@@ -21,10 +21,10 @@ const generateFrameRectangles = (rootFrame, [x, y, w, h], drawDirectories) => {
       });
     }
 
-    if (_.isObject(frame.entries)) {
+    if (_.isObject(frame.items)) {
       rects = rects.concat(generateFrameRectangles({
         score: frame.score,
-        entries: _.values(frame.entries),
+        items: _.values(frame.items),
       }, [x, y, w, h], drawDirectories));
     }
 
@@ -32,14 +32,14 @@ const generateFrameRectangles = (rootFrame, [x, y, w, h], drawDirectories) => {
   }
 
   return _
-    .chain(evenlySplit(rootFrame.entries, 'score', 2))
+    .chain(evenlySplit(rootFrame.items, 'score', 2))
     .reduce(function(rects, {score, items}) {
       let dims = splitDimensions(this.totalDim, score / this.totalScore);
 
       this.totalScore -= score;  // remove this item from the available space
       this.totalDim = dims[1];  // set remaining space to dimensions from after split
 
-      return [...rects, generateFrameRectangles({ score, entries: items }, dims[0], drawDirectories)];
+      return [...rects, generateFrameRectangles({ score, items }, dims[0], drawDirectories)];
 
     }, [], {totalDim: [x, y, w, h], totalScore: rootFrame.score})
     .flatten()
@@ -77,7 +77,5 @@ const splitDimensions = ([x, y, w, h], ratio) => {
     ];
   }
 };
-
-
 
 module.exports = { generateFrameRectangles, evenlySplit, splitDimensions };

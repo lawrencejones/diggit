@@ -85,6 +85,8 @@ class GitWalker
   def compute_frame
     all_tracked_files.each_with_object(new_frame) do |file, frame|
       frame_score = compute_metric(file)
+      next if frame_score == 0
+
       frame[:score] += frame_score
 
       directories = file.split(File::SEPARATOR)
@@ -125,6 +127,7 @@ RSpec.describe(GitWalker) do
     mkdir #{@tmp}/root
     cd #{@tmp}
     git init
+    touch "#{@tmp}/root/zero"
     dd if=/dev/zero of="#{@tmp}/root/1K"  bs=1k  count=1
     dd if=/dev/zero of="#{@tmp}/root/2M"  bs=1m  count=2
     git add -A
@@ -146,6 +149,10 @@ RSpec.describe(GitWalker) do
       for frame in all_frames
         expect(frame[:path]).to start_with(File.basename(@tmp))
       end
+    end
+
+    it 'does not produce frames that have scores of 0' do
+      expect(frame[:items]['root'][:items]).not_to include('zero')
     end
 
     it 'computes metric for files', :aggregate_failures do

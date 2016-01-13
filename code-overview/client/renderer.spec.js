@@ -2,12 +2,12 @@
 
 const _ = require('lodash');
 const Renderer = require('./renderer.js');
-const frameInputFixture = require('../fixtures/rendererInputFixture.json');
+const gitWalkerData = require('../fixtures/gitWalkerData.json');
 
 describe('Renderer', () => {
   describe('.generateFrameRectangles', () => {
     const gen = () => {
-      return Renderer.generateFrameRectangles(frameInputFixture, dim, drawDirectories);
+      return Renderer.generateFrameRectangles(gitWalkerData, dim, drawDirectories);
     };
 
     let dim = [0, 0, 100, 100];  // initial dimensions
