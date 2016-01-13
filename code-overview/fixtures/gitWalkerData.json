@@ -1,0 +1,106 @@
+{
+  "path": "diggit",
+  "items": {
+    ".gitignore": {
+      "path": "diggit/.gitignore",
+      "score": 2
+    },
+    ".rubocop.yml": {
+      "path": "diggit/.rubocop.yml",
+      "score": 123
+    },
+    "Gemfile": {
+      "path": "diggit/Gemfile",
+      "score": 7
+    },
+    "Gemfile.lock": {
+      "path": "diggit/Gemfile.lock",
+      "score": 47
+    },
+    "README.md": {
+      "path": "diggit/README.md",
+      "score": 37
+    },
+    "code-overview": {
+      "path": "diggit/code-overview",
+      "items": {
+        ".gitignore": {
+          "path": "diggit/code-overview/.gitignore",
+          "score": 3
+        },
+        ".jshintrc": {
+          "path": "diggit/code-overview/.jshintrc",
+          "score": 6
+        },
+        "README.md": {
+          "path": "diggit/code-overview/README.md",
+          "score": 4
+        },
+        "bower.json": {
+          "path": "diggit/code-overview/bower.json",
+          "score": 23
+        },
+        "client": {
+          "path": "diggit/code-overview/client",
+          "items": {
+            "app.js": {
+              "path": "diggit/code-overview/client/app.js",
+              "score": 11
+            },
+            "renderer.js": {
+              "path": "diggit/code-overview/client/renderer.js",
+              "score": 81
+            },
+            "renderer.spec.js": {
+              "path": "diggit/code-overview/client/renderer.spec.js",
+              "score": 104
+            },
+            "vis.js": {
+              "path": "diggit/code-overview/client/vis.js",
+              "score": 119
+            }
+          },
+          "score": 315
+        },
+        "main.js": {
+          "path": "diggit/code-overview/main.js",
+          "score": 54
+        },
+        "package.json": {
+          "path": "diggit/code-overview/package.json",
+          "score": 27
+        },
+        "specHelper.js": {
+          "path": "diggit/code-overview/specHelper.js",
+          "score": 15
+        },
+        "views": {
+          "path": "diggit/code-overview/views",
+          "items": {
+            "index.html": {
+              "path": "diggit/code-overview/views/index.html",
+              "score": 26
+            }
+          },
+          "score": 26
+        }
+      },
+      "score": 473
+    },
+    "references.md": {
+      "path": "diggit/references.md",
+      "score": 23
+    },
+    "utils": {
+      "path": "diggit/utils",
+      "items": {
+        "git_walker.rb": {
+          "path": "diggit/utils/git_walker.rb",
+          "score": 162
+        }
+      },
+      "score": 162
+    }
+  },
+  "score": 874
+}
