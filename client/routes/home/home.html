@@ -6,20 +6,7 @@
   </div>
 
   <div class="row">
-    <dl class="dl-horizontal repo-summary">
-
-      <dt>Repo Path</dt>
-      <dd class="monospace">{{ ctrl.repo.path }}</dd>
-
-      <dt>Total Size</dt>
-      <dd>{{ ctrl.repo.totalSize }}</dd>
-
-      <dt>No of Files</dt>
-      <dd>{{ ctrl.repo.noOfFiles }}</dd>
-
-      <dt>SHA</dt>
-      <dd class="monospace">{{ ctrl.repo.sha }}</dd>
-
-    </dl>
+    <div repo-summary-well repo="ctrl.repo">
+    </div>
   </div>
 </div>
