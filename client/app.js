@@ -24,6 +24,5 @@ angular.module('diggit', [
 })
 
 .run(($state) => {
-  // $state.go(HOME_ROUTE_STATE); // TODO
-  $state.go('app.codeOverview');
+  $state.go(HOME_ROUTE_STATE);
 });
