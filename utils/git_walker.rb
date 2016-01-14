@@ -6,11 +6,11 @@ def usage
   prog = File.basename(__FILE__)
   puts %(
     Desc:  Walk given repo to output file tree
-    Usage: #{prog} <metric> <repo>
+    Usage: #{prog} <repo> <metric>
     Examples...
 
-        #{prog} file-size /Projects/arm
-        #{prog} lines-of-code /Projects/linux
+        #{prog} /Projects/arm file-size
+        #{prog} /Projects/linux lines-of-code
 
     Example output...
 
@@ -32,7 +32,7 @@ end
 
 def main
   usage || exit(-1) unless ARGV.count == 2
-  metric_label, root = ARGV
+  root, metric_label = ARGV
 
   metric = {
     'file-size' => ->(target) { File.size(target) },
