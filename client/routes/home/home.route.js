@@ -1,9 +1,12 @@
 'use strict';
 /* globals angular */
 
+const {repoSummaryWellComponentModule} = require('../../components/repo-summary-well/repo-summary-well.directive.js');
+
 const HOME_ROUTE_STATE = 'app.home';
 const homeRouteModule = angular.module('homeRouteModule', [
   'ui.router',
+  repoSummaryWellComponentModule.name,
 ])
 .config([
   '$stateProvider',

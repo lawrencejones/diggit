@@ -18,13 +18,13 @@
   ],
   "dependencies": {
     "bootstrap": "~3.3.1",
-    "d3": "~3.5.12",
     "angular": "~1.4.8",
     "angular-ui-router": "~0.2.15",
     "font-awesome": "~4.5.0",
     "sass.js": "~0.9.4",
     "angularjs-humanize": "saymedia/angularjs-humanize#master",
-    "humanize": "~0.0.9"
+    "humanize": "~0.0.9",
+    "jquery": "~2.2.0"
   },
   "resolutions": {
     "angular": "~1.4.8"
