@@ -6,7 +6,7 @@
   </div>
 
   <div class="fill-screen">
-    <div class="loading-placeholder">
+    <div class="loading-placeholder" ng-show="!(ctrl.gitWalkerData || ctrl.err)">
       <i class="fa fa-xl fa-cog fa-spin loading-cog"></i>
       <code class="loading-code-label">$ git_walker &lt;repo&gt;</code>
     </div>
