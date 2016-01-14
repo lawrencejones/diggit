@@ -1,6 +1,10 @@
 'use strict';
 /* globals angular */
 
+/* This component borrows heavily from GrandPerspective (http://grandperspectiv.sourceforge.net)
+ * as inspiration in displaying detailed hierarchical data without getting lost in the
+ * details. Creative license only - implementation is entirely novel. */
+
 const _ = require('lodash');
 
 const {generateFrameRectangles} = require('./rectangle-generator.js');
