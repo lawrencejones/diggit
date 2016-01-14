@@ -1,0 +1,35 @@
+{
+  "name": "diggit",
+  "version": "1.0.0",
+  "description": "Mining git repositories for hidden treasure",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LawrenceJones/diggit"
+  },
+  "scripts": {
+    "start": "electron client/main.js",
+    "test": "mocha --harmony --harmony_destructuring --harmony_spread_arrays specHelper.js $(find client -name '*.spec.js' -print0 | xargs -0)"
+  },
+  "author": "Lawrence Jones",
+  "license": "MIT",
+  "devDependencies": {
+    "electron-prebuilt": "^0.36.0",
+    "electron-rebuild": "^1.1.1",
+    "watch": "^0.17.1"
+  },
+  "engines": {
+    "atom-shell": "0.36.0",
+    "electron": "0.36.0"
+  },
+  "dependencies": {
+    "chai": "^3.4.1",
+    "lodash": "^3.10.1",
+    "mocha": "^2.3.4",
+    "node-sass": "^3.4.2",
+    "nodegit": "^0.7.0",
+    "sass.js": "^0.9.4",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0"
+  }
+}

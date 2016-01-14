@@ -1,0 +1,17 @@
+<div class="repo-summary-well">
+  <dl class="dl-horizontal block-center">
+
+    <dt>Repo Path</dt>
+    <dd class="monospace">{{ ctrl.repo().path }}</dd>
+
+    <dt>SHA</dt>
+    <dd class="monospace">{{ ctrl.repo().sha }}</dd>
+
+    <dt>Total Size</dt>
+    <dd><span class="badge">{{ 1024 * ctrl.repo().totalSize | humanizeFilesize }}</span></dd>
+
+    <dt>No of Files</dt>
+    <dd><span class="badge">{{ ctrl.repo().noOfFiles | humanizeNumberFormat:0 }}</span></dd>
+
+  </dl>
+</div>
