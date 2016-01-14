@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const path = require('path');
+const sass = require('node-sass');
 const execSync = require('child_process').execSync;
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
@@ -24,7 +25,13 @@ app.commandLine.appendSwitch('js-flags', '--harmony_destructuring --harmony_spre
 app.on('window-all-closed', () => app.quit());
 
 app.on('ready', () => {
-  mainWindow = new BrowserWindow({width: 1400, height: 680});
+  electron.protocol.registerBufferProtocol('sass', (request, cb) => {
+    sass.render({file: path.join(__dirname, request.url.substr(7))}, (err, result) => {
+      cb({mimeType: 'text/css', data: result.css});
+    });
+  });
+
+  mainWindow = new BrowserWindow({width: 920, height: 680});
   mainWindow.loadURL(`file://${__dirname}/index.html`);
   mainWindow.on('closed', () => mainWindow = null);
 });
@@ -41,7 +48,7 @@ if (process.env.WATCH) {
     if (typeof f === 'object' && curr === null && prev === null) {
       console.info(`Watching ${__dirname} for file changes`);
     } else {
-      if (!/\.(js|css|html|json)$/.test(f)) { return; }
+      if (!/\.(js|css|scss|html|json)$/.test(f)) { return; }
       console.info(`Change! [${f}]`);
       reloadMainWindow();
     }

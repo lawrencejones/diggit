@@ -1,0 +1,23 @@
+.block-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.repo-summary-well {
+  dl {
+    width: 640px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    margin-bottom: 0px;
+
+    dt { width: 160px; }
+    dt { width: 440px; }
+  }
+}
+
+.monospace {
+  font-family: monospace;
+}

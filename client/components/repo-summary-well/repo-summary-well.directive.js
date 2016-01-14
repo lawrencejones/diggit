@@ -7,6 +7,7 @@ const repoSummaryWellComponentModule = angular.module('repoSummaryWellComponentM
 .directive('repoSummaryWell', [() => {
   return {
     template,
+    replace: true,
     controller: angular.noop,
     controllerAs: 'ctrl',
     bindToController: true,

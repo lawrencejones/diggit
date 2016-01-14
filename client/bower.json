@@ -21,6 +21,7 @@
     "d3": "~3.5.12",
     "angular": "~1.4.8",
     "angular-ui-router": "~0.2.15",
-    "font-awesome": "~4.5.0"
+    "font-awesome": "~4.5.0",
+    "sass.js": "~0.9.4"
   }
 }
