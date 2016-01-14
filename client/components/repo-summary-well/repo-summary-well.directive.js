@@ -3,6 +3,7 @@
 
 const template = require('./repo-summary-well.template.html');
 const repoSummaryWellComponentModule = angular.module('repoSummaryWellComponentModule', [
+  'angular-humanize',
 ])
 .directive('repoSummaryWell', [() => {
   return {

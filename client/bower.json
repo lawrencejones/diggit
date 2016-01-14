@@ -22,6 +22,11 @@
     "angular": "~1.4.8",
     "angular-ui-router": "~0.2.15",
     "font-awesome": "~4.5.0",
-    "sass.js": "~0.9.4"
+    "sass.js": "~0.9.4",
+    "angularjs-humanize": "saymedia/angularjs-humanize#master",
+    "humanize": "~0.0.9"
+  },
+  "resolutions": {
+    "angular": "~1.4.8"
   }
 }

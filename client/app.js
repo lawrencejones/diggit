@@ -2,6 +2,7 @@
 /* globals angular */
 
 const remote = require('remote');
+const {loadRepoSummary} = require('./lib/repo.js');
 
 /* Routes */
 const {homeRouteModule, HOME_ROUTE_STATE} = require('./routes/home/home.route.js');
@@ -15,14 +16,14 @@ angular.module('diggit', [
   repoSummaryWellComponentModule.name,
 ])
 
+.constant('repo', loadRepoSummary(remote.getGlobal('REPO_PATH')))
+
 .config(($locationProvider, $stateProvider) => {
   $locationProvider.html5Mode(false);
   $stateProvider.state('app', {
     abstract: true,
   });
 })
-
-.constant('REPO_PATH', remote.getGlobal('REPO_PATH'))
 
 .run(($state) => {
   $state.go(HOME_ROUTE_STATE);

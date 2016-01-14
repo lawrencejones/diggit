@@ -1,9 +1,7 @@
 'use strict';
 /* globals angular */
 
-const {loadRepoSummary} = require('../../lib/repo.js');
 const HOME_ROUTE_STATE = 'app.home';
-
 const homeRouteModule = angular.module('homeRouteModule', [
   'ui.router',
 ])
@@ -13,9 +11,6 @@ const homeRouteModule = angular.module('homeRouteModule', [
     $stateProvider.state(HOME_ROUTE_STATE, {
       url: '/home',
       template: require('./home.html'),
-      resolve: {
-        repo: (REPO_PATH) => { return loadRepoSummary(REPO_PATH); },
-      },
       controllerAs: 'ctrl',
       controller: function($scope, repo) {
         const ctrl = this;

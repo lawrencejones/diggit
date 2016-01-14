@@ -39,8 +39,10 @@ app.on('ready', () => {
 /* Watching logic to reload on changes */
 
 const reloadMainWindow = _.debounce(() => {
-  console.info('Reloading mainWindow...');
-  mainWindow.reload();
+  if (mainWindow) {
+    console.info('Reloading mainWindow...');
+    mainWindow.reload();
+  }
 }, 10);
 
 if (process.env.WATCH) {
