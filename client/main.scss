@@ -1,6 +1,6 @@
 /* Routes ***********************************************************/
 
-.home .repo-summary-well { margin-top: 100px; }
+.home .repo-summary-panel { margin-top: 16px; }
 
 .code-overview .loading-placeholder {
   position: relative;
@@ -46,16 +46,9 @@
 
 /* Components *******************************************************/
 
-.repo-summary-well {
-  dl {
-    width: 640px;
-    padding-top: 24px;
-    padding-bottom: 24px;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    margin-bottom: 0px;
+.repo-summary-panel {
+  padding-top: 16px;
+  padding-bottom: 16px;
 
-    dt { width: 160px; }
-    dd { width: 440px; }
-  }
+  dl { margin-bottom: 0; }
 }
