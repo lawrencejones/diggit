@@ -7,8 +7,9 @@
 </head>
 <body ui-view ng-app="diggit">
 
-  <ui-view>
-  </ui-view>
+  <div ui-view>
+    <!-- ui-router loads this content -->
+  </div>
 
   <script>
     var win = require('remote').getCurrentWindow();
@@ -19,11 +20,10 @@
       module.exports = require('fs').readFileSync(filename, 'utf8');
     };
   </script>
-  <script src="./bower_components/jquery/dist/jquery.js"></script>
-  <script src="./bower_components/d3/d3.js"></script>
+
   <script src="./bower_components/angular/angular.js"></script>
-  <script src="./bower_components/humanize/humanize.js"></script>
-  <script src="./bower_components/angularjs-humanize/src/angular-humanize.js"></script>
   <script src="./bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+  <script src="./bower_components/angularjs-humanize/src/angular-humanize.js"></script>
+  <script src="./bower_components/humanize/humanize.js"></script>
   <script src="./app.js"></script>
 </body>

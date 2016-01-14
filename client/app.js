@@ -8,14 +8,10 @@ const {loadRepoSummary} = require('./lib/repo.js');
 const {homeRouteModule, HOME_ROUTE_STATE} = require('./routes/home/home.route.js');
 const {codeOverviewRouteModule} = require('./routes/code-overview/code-overview.route.js');
 
-/* Components */
-const {repoSummaryWellComponentModule} = require('./components/repo-summary-well/repo-summary-well.directive.js');
-
 angular.module('diggit', [
   'ui.router',
   homeRouteModule.name,
   codeOverviewRouteModule.name,
-  repoSummaryWellComponentModule.name,
 ])
 
 .constant('repo', loadRepoSummary(remote.getGlobal('REPO_PATH')))

@@ -1,9 +1,10 @@
 'use strict';
-/* globals window, $, d3 */
 
 const _ = require('lodash');
 const remote = require('remote');
 const frame = remote.getGlobal('frame');
+const d3 = require('d3');
+const $ = require('jquery');
 
 const defaultGraphOptions = () => {
   return {
@@ -23,7 +24,6 @@ const processFrames = (frames) => {
     frames: _.each(frames, (f, i) => {
       _.extend(f, {
         index: i,
-        pathDepth: f.label.split('/').length,
         score: f.score || Math.round(100 * (f.w * f.h) / totalVolume),
         parent: _.find(frames, (_f) => {
           return f !== _f && f.label.lastIndexOf(_f.label) === 0
@@ -33,8 +33,10 @@ const processFrames = (frames) => {
   };
 }
 
-const renderGraph = (svgContainerId, unprocessedFrames, options) => {
-  if (!options) { options = defaultGraphOptions(); }
+const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) => {
+  let options = _.transform(defaultGraphOptions(), (options, value, key) => {
+    options[key] = userOptions[key] || value;
+  });
 
   let data = processFrames(unprocessedFrames);
   let frames = data.frames;
@@ -53,7 +55,7 @@ const renderGraph = (svgContainerId, unprocessedFrames, options) => {
     return (d) => {
       $path.html(template({ subdirs: d.label.split('/'), score: d.score }));
     };
-  })($('<ol class="breadcrumb"><li/></ol>').appendTo(`#${svgContainerId}`))
+  })($('<ol class="breadcrumb"><li>&nbsp;</li></ol>').appendTo(`#${svgContainerId}`))
 
   let parentFrameSelector = (d) => {
     let ids = [];
@@ -116,4 +118,4 @@ const renderGraph = (svgContainerId, unprocessedFrames, options) => {
   return chart;
 };
 
-module.exports = { defaultGraphOptions, processFrames, renderGraph };
+module.exports = { defaultGraphOptions, processFrames, renderGrandPerspective };

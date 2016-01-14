@@ -1,20 +1,21 @@
 'use strict';
 
 const _ = require('lodash');
-const Renderer = require('./renderer.js');
-const gitWalkerData = require('../fixtures/gitWalkerData.json');
 
-describe('Renderer', () => {
+const gitWalkerData = require('./gitWalkerData.fixture.json');
+const {generateFrameRectangles, evenlySplit, splitDimensions} = require('./rectangle-generator.js');
+
+describe('RectangleGenerator', () => {
   describe('.generateFrameRectangles', () => {
     const gen = () => {
-      return Renderer.generateFrameRectangles(gitWalkerData, dim, drawDirectories);
+      return generateFrameRectangles(gitWalkerData, dim, drawDirectories);
     };
 
     let dim = [0, 0, 100, 100];  // initial dimensions
     let drawDirectories = false;
 
     it('exports method', () => {
-      expect(Renderer.generateFrameRectangles).to.be.a('function');
+      expect(generateFrameRectangles).to.be.a('function');
     });
 
     it('generates an array', () => {
@@ -53,7 +54,7 @@ describe('Renderer', () => {
   });
 
   describe('.evenlySplit', () => {
-    const split = () => { return Renderer.evenlySplit(sample, scoreKey, noOfPartitions) };
+    const split = () => { return evenlySplit(sample, scoreKey, noOfPartitions) };
     const scoreKey = 'score';
     const noOfPartitions = 2;
 
@@ -76,7 +77,7 @@ describe('Renderer', () => {
     });
 
     it('exports method', () => {
-      expect(Renderer.evenlySplit).to.be.a('function');
+      expect(evenlySplit).to.be.a('function');
     });
 
     it('generates an array', () => {
