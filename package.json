@@ -10,7 +10,7 @@
   "scripts": {
     "start": "electron client/main.js",
     "test": "./bin/test",
-    "prepublish": "bundle install"
+    "prepublish": "bundle install && bower install"
   },
   "author": "Lawrence Jones",
   "license": "MIT",
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "bluebird": "^3.1.1",
+    "bower": "^1.7.2",
     "chai": "^3.4.1",
     "d3": "^3.5.12",
     "jquery": "^2.2.0",

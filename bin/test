@@ -18,7 +18,7 @@ verify_version('node', diggit.node_version, %x{node --version}.chomp.gsub(/^v/,'
 Dir.chdir(diggit.path) {
 
   print "\nRunning node tests..."
-  system %(
+  nodePassed = system %(
   ./node_modules/.bin/mocha \
     --harmony \
     --harmony_destructuring \
@@ -31,10 +31,12 @@ Dir.chdir(diggit.path) {
   )
 
   puts "Running ruby tests...\n\n"
-  system %(
+  rubyPassed = system %(
     find . \
       -path ./node_modules -prune -o \
       -name '*.rb' \
       -print0 | xargs -0 bundle exec rspec --color
   )
+
+  process.exit(255) unless nodePassed && rubyPassed
 }
