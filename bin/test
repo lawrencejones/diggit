@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+require_relative '../utils/diggit'
+
+def verify_version(program, expected, actual)
+  unless expected == actual
+    raise "[diggit] Requires version #{expected} for `#{program}` but got #{actual}"
+  end
+end
+
+diggit = Diggit.new
+
+puts({ diggit: diggit.info })
+
+verify_version('ruby', diggit.ruby_version, RUBY_VERSION)
+verify_version('node', diggit.node_version, %x{node --version}.chomp.gsub(/^v/,''))
+
+Dir.chdir(diggit.path) {
+
+  print "\nRunning node tests..."
+  system %(
+  ./node_modules/.bin/mocha \
+    --harmony \
+    --harmony_destructuring \
+    --harmony_spread_arrays \
+    ./client/specHelper.js \
+    $(find client \
+        -path client/bower_components -prune -o \
+        -name '*.spec.js' \
+        -print0 | xargs -0)
+  )
+
+  puts "Running ruby tests...\n\n"
+  system %(
+    find . \
+      -path ./node_modules -prune -o \
+      -name '*.rb' \
+      -print0 | xargs -0 bundle exec rspec --color
+  )
+}
