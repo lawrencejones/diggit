@@ -1,0 +1,11 @@
+dependencies:
+  override:
+    - git config --global user.email "bot@circle.ci"
+    - git config --global user.name "Circle"
+    - npm install
+
+machine:
+  ruby:
+    version: '2.2.3'
+  node:
+    version: '5.1.1'

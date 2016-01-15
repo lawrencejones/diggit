@@ -1,4 +1,4 @@
-# diggit
+# diggit ![diggit Build Status](https://circleci.com/gh/lawrencejones/diggit.png)
 
 This project is a collection of tools that aim to expose coding behavioural patterns by examining
 how code changes over time in projects under version control.
@@ -27,7 +27,7 @@ useful information about relevant historical changes as they work.
 
 ## Spikes
 
-### 1 - Code Overview
+### Code Overview
 
 Can we pull data from a repo that enables us to identify how the architectural shape of the project
 changed over time?

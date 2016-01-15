@@ -124,12 +124,14 @@ RSpec.describe(GitWalker) do
     @tmp = Dir.mktmpdir
 
     raise 'Bad setup command' unless system %(
+    set -e
+
     mkdir #{@tmp}/root
     cd #{@tmp}
     git init
     touch "#{@tmp}/root/zero"
     dd if=/dev/zero of="#{@tmp}/root/1K"  bs=1k  count=1
-    dd if=/dev/zero of="#{@tmp}/root/2M"  bs=1m  count=2
+    dd if=/dev/zero of="#{@tmp}/root/2M"  bs=1024k  count=2
     git add -A
     git commit -am "Initial commit"
     )
