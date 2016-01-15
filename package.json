@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "electron client/main.js",
-    "test": "mocha --harmony --harmony_destructuring --harmony_spread_arrays ./client/specHelper.js $(find client/components client/routes client/lib -name '*.spec.js' -print0 | xargs -0)"
+    "test": "./bin/test",
+    "prepublish": "bundle install"
   },
   "author": "Lawrence Jones",
   "license": "MIT",
