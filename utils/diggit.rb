@@ -1,5 +1,6 @@
 PROJECT_ROOT = File.realpath(File.join(File.dirname(__FILE__), '..'))
 
+# Detects required system config for the diggit project
 class Diggit
   def initialize(path = PROJECT_ROOT)
     @path = path
@@ -23,6 +24,8 @@ class Diggit
   end
 
   def ruby_version
-    @ruby_version ||= File.read(File.join(@path, '.ruby-version')).match(/\d+\.\d+\.\d+|/).to_s
+    @ruby_version ||= File.
+                      read(File.join(@path, '.ruby-version')).
+                      match(/\d+\.\d+\.\d+|/).to_s
   end
 end
