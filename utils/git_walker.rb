@@ -118,29 +118,28 @@ main if __FILE__ == $PROGRAM_NAME
 
 RSpec.describe(GitWalker) do
   subject(:walker) do
-    described_class.new(@tmp, metric_lambda: metric)
+    described_class.new(tmp, metric_lambda: metric)
   end
 
+  let(:tmp) { Dir.mktmpdir }
   let(:metric) { ->(target) { File.size(target) } }
 
-  before(:all) do
-    @tmp = Dir.mktmpdir
-
+  before do
     fail 'Bad setup command' unless system %(
     set -e
 
-    mkdir #{@tmp}/root
-    cd #{@tmp}
+    mkdir #{tmp}/root
+    cd #{tmp}
     git init
-    touch "#{@tmp}/root/zero"
-    dd if=/dev/zero of="#{@tmp}/root/1K"  bs=1k  count=1
-    dd if=/dev/zero of="#{@tmp}/root/2M"  bs=1024k  count=2
+    touch "#{tmp}/root/zero"
+    dd if=/dev/zero of="#{tmp}/root/1K"  bs=1k  count=1
+    dd if=/dev/zero of="#{tmp}/root/2M"  bs=1024k  count=2
     git add -A
     git commit -am "Initial commit"
     )
   end
 
-  after(:all) { FileUtils.rm_rf(@tmp) }
+  after { FileUtils.rm_rf(tmp) }
 
   def flatten_frames(frame)
     [frame, *frame.fetch(:items, {}).values.flat_map { |frm| flatten_frames(frm) }]
@@ -152,7 +151,7 @@ RSpec.describe(GitWalker) do
 
     it 'computes all paths from basename of repo' do
       all_frames.each do |frame|
-        expect(frame[:path]).to start_with(File.basename(@tmp))
+        expect(frame[:path]).to start_with(File.basename(tmp))
       end
     end
 
