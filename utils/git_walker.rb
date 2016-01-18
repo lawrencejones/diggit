@@ -36,13 +36,12 @@ def main
 
   metric = {
     'file-size' => ->(target) { File.size(target) },
-    'lines-of-code' => ->(target) do
+    'lines-of-code' => lambda(target) do
       return 0 if File.directory?(target)
 
-      %x{wc -l "#{target}"}.split.first.to_i
-    end
+      `wc -l "#{target}"`.split.first.to_i
+    end,
   }.fetch(metric_label)
-
 
   puts(JSON.pretty_generate(GitWalker.new(root, metric_lambda: metric).frame))
 end
@@ -66,16 +65,17 @@ class GitWalker
   end
 
   attr_reader :frame, :root
+
   private
 
   def verify_root!
     unless git_exec('rev-parse --is-inside-work-tree') == 'true'
-      raise "Is not valid git repository! #{@root}"
+      fail "Is not valid git repository! #{@root}"
     end
   end
 
   def git_exec(cmd)
-    %x{GIT_DIR="#{@root}/.git" git #{cmd}}.chomp
+    `GIT_DIR="#{@root}/.git" git #{cmd}`.chomp
   end
 
   def all_tracked_files
@@ -97,7 +97,10 @@ class GitWalker
         frm[:items][dir].tap { |f| f[:score] += frame_score }
       end
 
-      sub_frame[:items][basename] = { path: File.join(File.basename(@root), file), score: frame_score }
+      sub_frame[:items][basename] = {
+        path: File.join(File.basename(@root), file),
+        score: frame_score,
+      }
     end
   end
 
@@ -111,7 +114,7 @@ class GitWalker
 end
 
 # Run as a script if running as an executable
-main if __FILE__ == $0
+main if __FILE__ == $PROGRAM_NAME
 
 RSpec.describe(GitWalker) do
   subject(:walker) do
@@ -123,7 +126,7 @@ RSpec.describe(GitWalker) do
   before(:all) do
     @tmp = Dir.mktmpdir
 
-    raise 'Bad setup command' unless system %(
+    fail 'Bad setup command' unless system %(
     set -e
 
     mkdir #{@tmp}/root
@@ -148,7 +151,7 @@ RSpec.describe(GitWalker) do
     let(:all_frames) { flatten_frames(frame) }
 
     it 'computes all paths from basename of repo' do
-      for frame in all_frames
+      all_frames.each do |frame|
         expect(frame[:path]).to start_with(File.basename(@tmp))
       end
     end
@@ -158,8 +161,8 @@ RSpec.describe(GitWalker) do
     end
 
     it 'computes metric for files', :aggregate_failures do
-      expect(frame[:items]['root'][:items]['1K'][:score]).to eq(1 << 10)  # 1KB
-      expect(frame[:items]['root'][:items]['2M'][:score]).to eq(2 * (1 << 20))  # 2MB
+      expect(frame[:items]['root'][:items]['1K'][:score]).to eq(1 << 10) # 1KB
+      expect(frame[:items]['root'][:items]['2M'][:score]).to eq(2 * (1 << 20)) # 2MB
     end
 
     it 'aggregates metric for directories' do
