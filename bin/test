@@ -33,7 +33,7 @@ Dir.chdir(diggit.path) do
   ruby_passed = system %(
     find . \
       -path ./node_modules -prune -o \
-      -name '*.rb' \
+      -name '*_spec.rb' \
       -print0 | xargs -0 bundle exec rspec --color
   )
 

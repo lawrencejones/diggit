@@ -18,3 +18,9 @@ Style/TrailingCommaInLiteral:
 
 Style/DotPosition:
   EnforcedStyle: trailing
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/MultilineMethodCallIndentation:
+  Enabled: false
