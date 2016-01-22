@@ -7,8 +7,12 @@
 
   <div class="fill-screen">
 
-    <div class="loading-placeholder" ng-if="!(ctrl.refactorDiligenceProfile || ctrl.err)">
-      <!-- Loading html goes here -->
+    <div class="loading-placeholder" ng-if="!(ctrl.rrefactorDiligenceProfile || ctrl.err)">
+      <div progress-circle circle-size="150px" total="ctrl.progress.total" count="ctrl.progress.count">
+        <code ng-show="!!ctrl.progress.sha" class="loading-code-label">
+          $ git checkout {{ ctrl.progress.sha }}
+        </code>
+      </div>
     </div>
 
     <!-- Visualisation here -->

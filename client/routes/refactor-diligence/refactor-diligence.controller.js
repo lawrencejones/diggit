@@ -11,9 +11,11 @@ const refactorDiligenceControllerModule = angular.module('refactorDiligenceContr
   function RefactorDiligenceController($scope, $log, repo) {
     const ctrl = this;
 
+    ctrl.progress = { count: 0, total: 0 };
+
     refactorDiligence(repo.path)
-      .on('commit', (commit) => { $log.info(`Processed commit ${commit.sha}`) })
       .on('done', (profile) => { $scope.$apply(() => { ctrl.refactorDiligenceProfile = profile }) })
+      .on('commit', (commit) => { $scope.$apply(() => { ctrl.progress = commit }) })
       .on('exit', (exitStatus) => {
         if (exitStatus !== 0) {
           alert(`Attempting to run refactorDiligence raised an error!`);
@@ -23,4 +25,3 @@ const refactorDiligenceControllerModule = angular.module('refactorDiligenceContr
 ]);
 
 module.exports = {refactorDiligenceControllerModule};
-
