@@ -3,7 +3,7 @@
 const _ = require('lodash');
 
 const gitWalkerData = require('./gitWalkerData.fixture.json');
-const {generateFrameRectangles, evenlySplit, splitDimensions} = require('./rectangle-generator.js');
+const {generateFrameRectangles, evenlySplit} = require('./rectangle-generator.js');
 
 describe('RectangleGenerator', () => {
   describe('.generateFrameRectangles', () => {
