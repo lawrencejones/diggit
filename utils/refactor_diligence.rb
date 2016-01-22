@@ -1,37 +1,39 @@
 #!/usr/bin/env ruby
+require 'json'
+require 'commander/import'
 require_relative './refactor_diligence/profile'
 
-def usage
-  prog = File.basename(__FILE__)
-  puts %(
-    Desc:  Produce code profile for given ruby repo
-    Usage: #{prog} <repo>
-    Examples...
+program :name, 'Refactor Diligence'
+program :version, '1.0.0'
+program :description, 'Analyze ruby methods for continual increase in size'
+program :help, 'Profile', %(
+Example array profile...
 
-        #{prog} /Projects/arm
+    [135, 89, 14, 2, 1, 1, 1, 1, 1]
 
-    Example output...
+The nth element of the profile is the number of methods detected that have
+increased in size over the last n consecutive changes.)
 
-        [135, 89, 14, 2, 1, 1, 1, 1, 1]
+command :profile do |c|
+  c.syntax = 'profile <repo> [options]'
+  c.description = 'Scan repo to generate a refactor profile for each method'
 
-    The nth element of the profile is the number of methods detected that have
-    increased in size over the last n consecutive changes.
-  )
-end
+  c.option '--stream-progress', 'Logs commit SHAs during repo scan'
+  c.option '--output-json', 'Outputs final profile as json object'
 
-usage || exit(-1) unless ARGV.count == 1
-repo_path = File.realpath(ARGV.first)
+  c.action do |(repo_path), options|
+    RefactorDiligence::Profile.temp_git_repo(repo_path) do |repo|
+      ENV['LOG_LEVEL'] = 'info' if options.stream_progress
+      profile = RefactorDiligence::Profile.new(repo, initial_ref: 'master')
 
-RefactorDiligence::Profile.
-  temp_git_repo(repo_path) do |repo|
-    profile = RefactorDiligence::Profile.
-      new(repo, initial_ref: 'master')
-
-    puts %(
-    Profile for #{repo_path} is...
-
-      [#{profile.array_profile.join(', ')}]
-
-    ...for #{profile.array_profile.inject(:+)} methods.
-    )
+      if options.output_json
+        puts(JSON.pretty_generate(
+               repo_path: repo_path,
+               profile: profile.array_profile,
+               method_histories: profile.method_histories))
+      else
+        puts("[#{profile.array_profile.join(', ')}]")
+      end
+    end
   end
+end
