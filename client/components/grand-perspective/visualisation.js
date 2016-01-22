@@ -9,6 +9,7 @@ const defaultGraphOptions = () => {
     framePadding: 1,  // padding between frame rects
     textPadding: { top: 0, bottom: 0, left: 3, right: 3 },  // text label padding
     colorScale: d3.scale.category20b(),  // color scale for chart colors
+    separator: '/',  // default separator for path of each element
   };
 };
 
@@ -51,7 +52,7 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
     `);
 
     return (d) => {
-      $path.html(template({ subdirs: d.label.split('/'), score: d.score }));
+      $path.html(template({ subdirs: d.label.split(userOptions.separator), score: d.score }));
     };
   })($('<ol class="breadcrumb"><li>&nbsp;</li></ol>').appendTo(`#${svgContainerId}`))
 
