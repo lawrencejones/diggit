@@ -3,27 +3,19 @@
 .home .repo-summary-panel { margin-top: 16px; }
 
 .code-overview .loading-placeholder {
-  position: relative;
-  display: inline-block;
-  text-align: center;
-  width: 180px;
-
-  left: 50%;
-  margin-left: -90px;
-  margin-top: 160px;
-
   i.loading-cog {
     opacity: 0.95;
     font-size: 136px;
   }
 
   code.loading-code-label {
-    position: absolute;
-    white-space: nowrap;
-    box-shadow: black 0px 0px 1px;
-    top: 50%; left: 50%;
-    /* These will require updating if text changes */
     margin-top: -9px; margin-left: -76px;
+  }
+}
+
+.refactor-diligence .loading-placeholder {
+  code.loading-code-label {
+    margin-top: 97px; margin-left: -208;
   }
 }
 
@@ -52,3 +44,22 @@
 
   dl { margin-bottom: 0; }
 }
+
+.loading-placeholder {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  width: 180px;
+
+  left: 50%;
+  margin-left: -90px;
+  margin-top: 160px;
+
+  code.loading-code-label {
+    position: absolute;
+    white-space: nowrap;
+    box-shadow: black 0px 0px 1px;
+    top: 50%; left: 50%;
+  }
+}
+
