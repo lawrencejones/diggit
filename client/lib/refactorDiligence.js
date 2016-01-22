@@ -53,6 +53,9 @@ const refactorDiligence = (repoPath) => {
     eventEmitter.emit('done', profile);
   });
 
+  /* Proxy the exit status */
+  prog.on('exit', (exitStatus) => { eventEmitter.emit('exit', exitStatus) });
+
   return eventEmitter;
 }
 
