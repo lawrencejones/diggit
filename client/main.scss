@@ -13,9 +13,14 @@
   }
 }
 
-.refactor-diligence .loading-placeholder {
-  code.loading-code-label {
+.refactor-diligence {
+  .loading-placeholder code.loading-code-label {
     margin-top: 97px; margin-left: -208;
+  }
+
+  /* This changes the default breadcrumb separator to be a ruby module namespace */
+  .breadcrumb > li + li::before {
+    content: "::" !important;
   }
 }
 

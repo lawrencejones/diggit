@@ -7,7 +7,7 @@
 
   <div class="fill-screen">
 
-    <div class="loading-placeholder" ng-if="!(ctrl.rrefactorDiligenceProfile || ctrl.err)">
+    <div class="loading-placeholder" ng-if="!(ctrl.profile || ctrl.err)">
       <div progress-circle circle-size="150px" total="ctrl.progress.total" count="ctrl.progress.count">
         <code ng-show="!!ctrl.progress.sha" class="loading-code-label">
           $ git checkout {{ ctrl.progress.sha }}
@@ -15,6 +15,11 @@
       </div>
     </div>
 
-    <!-- Visualisation here -->
+    <div grand-perspective
+         frame-data="ctrl.hierarchalProfile"
+         ng-if="!!ctrl.hierarchalProfile"
+         width="800" height="480"
+         separator="::">
+    </div>
   </div>
 </div>

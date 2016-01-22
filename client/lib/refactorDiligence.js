@@ -28,14 +28,14 @@ const parseCommitSha = (loggedSha) => {
 const generateModuleHierarchy = (methodHistories, separator) => {
   if (_.isUndefined(separator)) { separator = '::' }
 
-  const newFrame = (path) => { return {path, items: {}, score: 0}; };
+  const newFrame = (path) => { return {path, score: 0}; };
 
-  return _(methodHistories)
-    .chain()
+  return _.chain(methodHistories)
     .pick((__, key) => { return _.includes(key, separator) })
     .mapValues((sizes) => { return sizes.length })
     .reduce((root, score, key) => {
       key.split(separator).reduce((frame, group) => {
+        frame.items = frame.items || {};
         frame.items[group] = frame.items[group] || newFrame(`${frame.path}${separator}${group}`);
         frame.items[group].score += score;
 
