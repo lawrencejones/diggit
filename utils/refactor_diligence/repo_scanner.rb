@@ -1,4 +1,5 @@
 require 'hamster'
+require 'logger'
 require_relative './commit_scanner'
 
 module RefactorDiligence
@@ -12,27 +13,37 @@ module RefactorDiligence
     def initialize(repo)
       @repo = repo
       @scanner = CommitScanner.new(repo)
+      @logger = Logger.new(STDERR).tap do |log|
+        log.progname = 'RepoScanner'
+        log.level = Logger.const_get(ENV.fetch('LOG_LEVEL', 'WARN').upcase)
+      end
     end
 
     def scan_back_from(initial_ref)
-      commit = repo.object(initial_ref)
-      history_of_method_sizes = [Hamster::Hash.new(scan(commit.sha))]
+      initial_commit = repo.object(initial_ref)
 
-      while (commit = commit.parent)
-        modified_files = modified_ruby_files(commit.diff_parent)
-        method_sizes = scan(commit.sha, files: modified_files)
+      all_commits_from(initial_ref).
+        tap { |commits| logger.debug("NO OF COMMITS #{commits.size}") }.
+        each_with_object([Hamster::Hash[scan(initial_commit.sha)]]) do |commit, history|
+          modified_files = modified_ruby_files(commit.diff_parent)
+          method_sizes = scan(commit.sha, files: modified_files)
 
-        history_of_method_sizes.push(history_of_method_sizes.last.merge(method_sizes))
-      end
-
-      history_of_method_sizes
+          history.push(history.last.merge(method_sizes))
+        end
     end
 
     private
 
-    attr_reader :repo, :scanner
+    attr_reader :repo, :scanner, :logger
 
     delegate :scan, to: :scanner
+
+    def all_commits_from(ref)
+      Enumerator.new do |y|
+        commit = repo.object(ref)
+        y << commit while (commit = commit.parent)
+      end.to_a
+    end
 
     def modified_ruby_files(diff)
       diff.stats[:files].keys.

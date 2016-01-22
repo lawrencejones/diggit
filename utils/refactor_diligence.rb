@@ -23,14 +23,14 @@ command :profile do |c|
 
   c.action do |(repo_path), options|
     RefactorDiligence::Profile.temp_git_repo(repo_path) do |repo|
-      ENV['LOG_LEVEL'] = 'info' if options.stream_progress
+      ENV['LOG_LEVEL'] = 'debug' if options.stream_progress
       profile = RefactorDiligence::Profile.new(repo, initial_ref: 'master')
 
       if options.output_json
-        puts(JSON.pretty_generate(
-               repo_path: repo_path,
+        puts(JSON.generate(
+               repo_path: File.realpath(repo_path),
                profile: profile.array_profile,
-               method_histories: profile.method_histories))
+               method_histories: profile.method_histories.to_h))
       else
         puts("[#{profile.array_profile.join(', ')}]")
       end
