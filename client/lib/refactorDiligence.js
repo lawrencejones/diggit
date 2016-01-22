@@ -50,6 +50,7 @@ const generateModuleHierarchy = (methodHistories, separator) => {
 const refactorDiligence = (repoPath) => {
   let eventEmitter = new EventEmitter();
   let progress = { total: 0, count: -1 };  // start at -1 so count is 0 indexed
+  let profileBuffer = new Buffer('', 'utf-8');
 
   let prog = spawn(REFACTOR_DILIGENCE, [
       'profile',
@@ -72,13 +73,17 @@ const refactorDiligence = (repoPath) => {
   });
 
   /* Wait for the json profile output */
-  prog.stdout.on('data', (jsonString) => {
-    let profile = JSON.parse(jsonString);
-    eventEmitter.emit('done', profile);
+  prog.stdout.on('data', (profileSegment) => {
+    profileBuffer = Buffer.concat([profileBuffer, profileSegment]);
   });
 
   /* Proxy the exit status */
-  prog.on('exit', (exitStatus) => { eventEmitter.emit('exit', exitStatus) });
+  prog.on('exit', (exitStatus) => {
+    if (exitStatus === 0) {
+      eventEmitter.emit('done', JSON.parse(profileBuffer.toString()));
+    }
+    eventEmitter.emit('exit', exitStatus)
+  });
 
   return eventEmitter;
 }
