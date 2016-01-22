@@ -1,3 +1,4 @@
+require 'logger'
 require_relative './ruby_method_parser'
 
 module RefactorDiligence
@@ -6,14 +7,14 @@ module RefactorDiligence
   class CommitScanner
     def initialize(repo)
       @repo = repo
-      @logger = Logger.new(STDOUT).tap do |log|
+      @logger = Logger.new(STDERR).tap do |log|
         log.progname = 'CommitScanner'
         log.level = Logger.const_get(ENV.fetch('LOG_LEVEL', 'WARN').upcase)
       end
     end
 
     def scan(ref, files: nil)
-      logger.info("SCAN #{ref}")
+      logger.debug("SCAN #{ref}")
       checkout(ref)
       scan_method_sizes(files || all_ruby_files)
     end

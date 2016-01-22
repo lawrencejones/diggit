@@ -6,7 +6,7 @@ const _ = require('lodash');
 /* Given a root frame of {path, score, items?}, will generate rectangles for each subframe
  * that fill the space defined as [x, y, w, h]. */
 const generateFrameRectangles = (rootFrame, [x, y, w, h], drawDirectories) => {
-  if (_.isUndefined(drawDirectories)) { let drawDirectories = false; }
+  if (_.isUndefined(drawDirectories)) { drawDirectories = false; }
 
   if (rootFrame.items.length === 1) {
     let frame = rootFrame.items[0];

@@ -1,8 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const remote = require('remote');
-const frame = remote.getGlobal('frame');
 const d3 = require('d3');
 const $ = require('jquery');
 
@@ -73,10 +71,6 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
     .style('display', 'block')
     .style('margin', '6px auto')
 
-  let line = d3.svg.line()
-    .x((d) => { return d.x; })
-    .y((d) => { return d.y; });
-
   let width = parseInt(chart.style('width'));
   let height = parseInt(chart.style('height'));
 
@@ -94,7 +88,7 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
     .on('mouseover', updatePath)
 
   // Create the rectangles
-  let frameRectGroup = frameGroup.append('rect')
+  frameGroup.append('rect')
     .attr('x', (d) => { return xScale(d.x) + options.framePadding })
     .attr('y', (d) => { return yScale(d.y) + options.framePadding })
     .attr('id', (d) => { return `${svgContainerId}FrameRect-${d.index}` })

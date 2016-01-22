@@ -1,7 +1,6 @@
 'use strict';
 /* globals angular, alert */
 
-const _ = require('lodash');
 const {gitWalker} = require('../../lib/gitWalker.js');
 
 const codeOverviewControllerModule = angular.module('codeOverviewControllerModule', [

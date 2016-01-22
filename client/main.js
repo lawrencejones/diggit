@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const path = require('path');
 const sass = require('node-sass');
-const execSync = require('child_process').execSync;
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
 const app = electron.app;
