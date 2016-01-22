@@ -23,6 +23,30 @@ const parseCommitSha = (loggedSha) => {
   return _.get(loggedSha.toString().match(/CommitScanner: SCAN (\S+)/), 1);
 }
 
+/* Takes the methodHistories produced as a method key to sizes object and produces
+ * a hierarchal sizing object, where each module is nested within the other. */
+const generateModuleHierarchy = (methodHistories, separator) => {
+  if (_.isUndefined(separator)) { separator = '::' }
+
+  const newFrame = (path) => { return {path, items: {}, score: 0}; };
+
+  return _(methodHistories)
+    .chain()
+    .pick((__, key) => { return _.includes(key, separator) })
+    .mapValues((sizes) => { return sizes.length })
+    .reduce((root, score, key) => {
+      key.split(separator).reduce((frame, group) => {
+        frame.items[group] = frame.items[group] || newFrame(`${frame.path}${separator}${group}`);
+        frame.items[group].score += score;
+
+        return frame.items[group];
+      }, root);
+
+      return _.set(root, 'score', root.score + score);
+    }, newFrame(''))
+    .value();
+}
+
 const refactorDiligence = (repoPath) => {
   let eventEmitter = new EventEmitter();
   let progress = { total: 0, count: -1 };  // start at -1 so count is 0 indexed
@@ -59,4 +83,4 @@ const refactorDiligence = (repoPath) => {
   return eventEmitter;
 }
 
-module.exports = {refactorDiligence, parseNoOfCommits, parseCommitSha};
+module.exports = {refactorDiligence, parseNoOfCommits, parseCommitSha, generateModuleHierarchy};
