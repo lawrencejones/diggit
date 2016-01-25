@@ -41,14 +41,14 @@ describe('RefactorDiligence', () => {
   });
 
   describe('generateModuleHierarchy', () => {
-    const generate = () => {
+    const generate = (scoreMapper) => {
       return generateModuleHierarchy({
         'unscoped_method': [3, 2, 1],
         'Module::a': [2, 1],
         'Module::b': [1],
         'Module::Class::a': [3, 2, 1],
         'Module::Class::b': [2, 1],
-      });
+      }, scoreMapper);
     };
 
     it('ignores unscoped methods', () => {
@@ -65,6 +65,21 @@ describe('RefactorDiligence', () => {
 
     it('aggregates scores for modules', () => {
       expect(_.get(generate(), 'items.Module.score')).to.equal(8);
+    });
+
+    describe('with scoreMapper', () => {
+      let atLeastOneSquared = (score) => { if (score > 1) return score * score };
+      let generateWithMap = generate.bind(null, atLeastOneSquared);
+
+      it('filters scores that modifier translates to 0', () => {
+        expect(_.get(generateWithMap(), 'items.Module.items.b'))
+          .to.be.undefined;
+      });
+
+      it('translates scores via the modifier', () => {
+        expect(_.get(generateWithMap(), 'items.Module.items.a.score'))
+          .to.equal(4);
+      });
     });
   });
 });

@@ -24,15 +24,20 @@ const parseCommitSha = (loggedSha) => {
 }
 
 /* Takes the methodHistories produced as a method key to sizes object and produces
- * a hierarchal sizing object, where each module is nested within the other. */
-const generateModuleHierarchy = (methodHistories, separator) => {
-  if (_.isUndefined(separator)) { separator = '::' }
+ * a hierarchal sizing object, where each module is nested within the other.
+ *
+ * `scoreMapper` is a modifier function that translates the scores of each frame.
+ * Any frame that should be filtered from the output should yield 0 when passed
+ * through the mapper. */
+const generateModuleHierarchy = (methodHistories, scoreMapper, separator) => {
+  if (_.isUndefined(scoreMapper)) { scoreMapper = _.identity }
+  if (_.isUndefined(separator))   { separator = '::' }
 
   const newFrame = (path) => { return {path, score: 0}; };
 
   return _.chain(methodHistories)
-    .pick((__, key) => { return _.includes(key, separator) })
-    .mapValues((sizes) => { return sizes.length })
+    .mapValues((sizes) => { return scoreMapper(sizes.length) })
+    .pick((score, key) => { return _.includes(key, separator) && !!score })
     .reduce((root, score, key) => {
       key.split(separator).reduce((frame, group) => {
         frame.items = frame.items || {};
