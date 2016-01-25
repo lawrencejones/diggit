@@ -1,7 +1,7 @@
 'use strict';
 /* globals angular, alert */
 
-const {gitWalker} = require('../../lib/gitWalker.js');
+const {gitWalker} = require('../../lib/ruby/gitWalker.js');
 
 const codeOverviewControllerModule = angular.module('codeOverviewControllerModule', [
 ]).controller('CodeOverviewController', [

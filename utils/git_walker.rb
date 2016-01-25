@@ -1,46 +1,45 @@
 #!/usr/bin/env ruby
 require 'json'
 require 'fileutils'
+require 'commander/import'
 require_relative './git_walker/walker'
 
-def usage
-  prog = File.basename(__FILE__)
-  puts %(
-    Desc:  Walk given repo to output file tree
-    Usage: #{prog} <repo> <metric>
-    Examples...
+program :name, 'Git Walker'
+program :version, '1.0.0'
+program :description, 'Walk repo to output file tree'
+program :help, %(
+Example output...
 
-        #{prog} /Projects/arm file-size
-        #{prog} /Projects/linux lines-of-code
-
-    Example output...
-
-        {
-          "path": "/dir",
-          "score": 123,
-          "items": {
-            "file": {
-              "path": "/dir/file",
-              "score": 123
-            }
-          }
+    {
+      "path": "/dir",
+      "score": 123,
+      "items": {
+        "file": {
+          "path": "/dir/file",
+          "score": 123
         }
+      }
+    }
 
-    NB: More complex use cases (such as filtering files) should require
-        the GitWalker::Walker and instrument from there.
-  )
-end
+NB: More complex use cases (such as filtering files) should require
+    the GitWalker::Walker and instrument from there.)
 
-usage || exit(-1) unless ARGV.count == 2
-root, metric_label = ARGV
-
-metric = {
+builtin_metric_lambdas = {
   'file-size' => ->(target) { File.size(target) },
   'lines-of-code' => lambda do |target|
     return 0 if File.directory?(target)
 
     `wc -l "#{target}"`.split.first.to_i
   end,
-}.fetch(metric_label)
+}
 
-puts(JSON.pretty_generate(GitWalker::Walker.new(root, metric_lambda: metric).frame))
+command :walk do |c|
+  c.syntax = 'walk <repo> <metric>'
+  c.description = 'Scan repo to output metric score on each checked file'
+  c.action do |(repo_path, metric_label)|
+    walker = GitWalker::Walker.
+      new(repo_path, metric_lambda: builtin_metric_lambdas.fetch(metric_label))
+
+    puts(JSON.pretty_generate(walker.frame))
+  end
+end

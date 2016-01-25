@@ -34,6 +34,7 @@
     "mocha": "^2.3.4",
     "node-sass": "^3.4.2",
     "nodegit": "^0.7.0",
+    "rimraf": "^2.5.1",
     "sass.js": "^0.9.4",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0"
