@@ -34,27 +34,30 @@ const _ = require('lodash');
  *   }
  * }
  */
-const generateHierarchy = (keyValues, separator, valueMapper) => {
-  if (_.isUndefined(separator))   { throw new Error('Requires separator'); }
-  if (_.isUndefined(valueMapper)) { valueMapper = _.identity }
+const generateHierarchy = (keyValues, userOptions) => {
+  let options = _.defaults(userOptions, {
+    separator: '/',               // token with with to split keys
+    valueKey: 'value',            // key to use to store the 'value' of each node
+    valueMapper: _.identity,      // map and filter for values
+  });
 
-  const newFrame = (path) => { return {path, value: 0} };
+  const newFrame = (path) => { return _.set({path}, options.valueKey, 0) };
 
   return _.chain(keyValues)
-    .mapValues(valueMapper)
-    .pick((value, key) => { return _.includes(key, separator) && !!value })
+    .mapValues(options.valueMapper)
+    .pick((value, key) => { return _.includes(key, options.separator) && !!value })
     .reduce((root, value, key) => {
-      key.split(separator).reduce((frame, group) => {
+      key.split(options.separator).reduce((frame, group) => {
         frame.items = frame.items || {};
-        frame.items[group] = frame.items[group] || newFrame(`${frame.path}${separator}${group}`);
-        frame.items[group].value += value;
+        frame.items[group] = frame.items[group] || newFrame(`${frame.path}${options.separator}${group}`);
+        frame.items[group][options.valueKey] += value;
 
         return frame.items[group];
       }, root);
 
-      return _.set(root, 'value', root.value + value);
+      return _.set(root, options.valueKey, root[options.valueKey] + value);
     }, newFrame(''))
-    .set('path', separator)
+    .set('path', options.separator)
     .value();
 }
 

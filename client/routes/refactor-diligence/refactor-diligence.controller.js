@@ -14,21 +14,21 @@ const refactorDiligenceControllerModule = angular.module('refactorDiligenceContr
 
     ctrl.progress = { count: 0, total: 0 };
 
-    refactorDiligence(repo.path)
-      .on('commit', (commit) => { $scope.$apply(() => { ctrl.progress = commit }) })
-      .on('done', (profile) => {
+    refactorDiligence(repo.path, (commit) => {
+      $scope.$apply(() => { ctrl.progress = commit })
+    })
+      .then((profile) => {
         ctrl.profile = profile;
         ctrl.hierarchalProfile =
-          generateHierarchy(profile.method_histories, '::', (methodHistory) => {
-            let score = methodHistory.size;
-            if (score > 1) return score * score;
+          generateHierarchy(profile.method_histories, {
+            separator: '::',
+            valueKey: 'score',
+            valueMapper: (methodHistory) => { return Math.pow(methodHistory.length, 2) },
           });
         $scope.$digest();
       })
-      .on('exit', (exitStatus) => {
-        if (exitStatus !== 0) {
-          alert(`Attempting to run refactorDiligence raised an error!`);
-        }
+      .catch((error) => {
+        alert(`Attempting to run refactorDiligence raised an error! [${error}]`);
       });
   },
 ]);

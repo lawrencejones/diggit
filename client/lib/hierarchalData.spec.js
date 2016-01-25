@@ -12,7 +12,7 @@ describe('HierarchalData', () => {
         'parent/b': 1,
         'parent/child/a': 3,
         'parent/child/b': 2,
-      }, separator, valueMapper);
+      }, {separator, valueMapper});
     };
 
     let separator = '/';
@@ -36,7 +36,7 @@ describe('HierarchalData', () => {
 
     describe('with valueMapper', () => {
       let atLeastOneSquared = (value) => { if (value > 1) return value * value };
-      let generateWithMap = generate.bind(null, atLeastOneSquared);
+      let generateWithMap = () => { return generate(atLeastOneSquared) };
 
       it('filters values that modifier translates to 0', () => {
         expect(_.get(generateWithMap(), 'items.parent.items.b'))

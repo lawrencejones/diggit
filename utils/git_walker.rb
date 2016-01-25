@@ -37,7 +37,6 @@ command :walk do |c|
   c.syntax = 'walk <repo> <metric>'
   c.description = 'Scan repo to output metric score on each checked file'
   c.action do |(repo_path, metric_label)|
-
     walker = GitWalker::Walker.
       new(repo_path, metric_lambda: builtin_metric_lambdas.fetch(metric_label))
 

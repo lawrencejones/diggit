@@ -4,5 +4,6 @@
   "node": true,
   "unused": true,
   "expr": true,
+  "strict": true,
   "jasmine": true
 }

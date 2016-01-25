@@ -7,12 +7,8 @@ describe('RefactorDiligence', () => {
   describe('.refactorDiligence', () => {
     if (!process.env.INTEG) { return }
 
-    it('runs against test repo', (done) => {
-      refactorDiligence(makeTemporaryRepo()).on('exit', (err) => {
-        if (err !== 0) {
-          done(new Error(`Exit status was non-zero [${err}]`));
-        } else { done() }
-      });
+    it('runs against test repo', () => {
+      return refactorDiligence(makeTemporaryRepo());
     });
   });
 

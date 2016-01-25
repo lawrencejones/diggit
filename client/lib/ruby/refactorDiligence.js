@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const P = require('bluebird');
 const fs = require('fs');
 const path = require('path');
-const EventEmitter = require('events');
 const {spawn} = require('child_process');
 
 const REFACTOR_DILIGENCE = path.join(__dirname, '../../..', 'utils', 'refactor_diligence.rb');
@@ -23,11 +23,23 @@ const parseCommitSha = (loggedSha) => {
   return _.get(loggedSha.toString().match(/CommitScanner: SCAN (\S+)/), 1);
 }
 
-const refactorDiligence = (repoPath) => {
-  let eventEmitter = new EventEmitter();
+const streamProgress = (stream, notify) => {
   let progress = { total: 0, count: -1 };  // start at -1 so count is 0 indexed
-  let profileBuffer = new Buffer('', 'utf-8');
 
+  stream.on('data', (data) => {
+    if (progress.total === 0) {
+      progress.total = parseNoOfCommits(data) || 0;
+    }
+
+    let commitSha = parseCommitSha(data);
+    if (commitSha) {
+      progress.count += 1;
+      notify(_.clone(progress));
+    }
+  });
+}
+
+const refactorDiligence = (repoPath, onProgress) => {
   let prog = spawn(REFACTOR_DILIGENCE, [
       'profile',
       '--stream-progress',
@@ -35,33 +47,22 @@ const refactorDiligence = (repoPath) => {
       repoPath,
   ]);
 
-  /* Wait for progress output */
-  prog.stderr.on('data', (data) => {
-    if (progress.total === 0) {
-      progress.total = parseNoOfCommits(data) || 0;
-    }
+  if (_.isFunction(onProgress)) {
+    streamProgress(prog.stderr, onProgress);
+  }
 
-    let commitSha = parseCommitSha(data)
-    if (commitSha) {
-      progress.count += 1;
-      eventEmitter.emit('commit', _.extend({sha: commitSha}, progress));
-    }
+  return new P((resolve, reject) => {
+    let jsonString = '';
+    prog.stdout.on('data', (jsonSegment) => { jsonString += jsonSegment });
+
+    prog.on('exit', (exitStatus) => {
+      if (exitStatus === 0) {
+        resolve(JSON.parse(jsonString));
+      } else {
+        reject(new Error(`refactor_diligence.rb exited with [${exitStatus}]`));
+      }
+    });
   });
-
-  /* Wait for the json profile output */
-  prog.stdout.on('data', (profileSegment) => {
-    profileBuffer = Buffer.concat([profileBuffer, profileSegment]);
-  });
-
-  /* Proxy the exit status */
-  prog.on('exit', (exitStatus) => {
-    if (exitStatus === 0) {
-      eventEmitter.emit('done', JSON.parse(profileBuffer.toString()));
-    }
-    eventEmitter.emit('exit', exitStatus)
-  });
-
-  return eventEmitter;
 }
 
 module.exports = {refactorDiligence, parseNoOfCommits, parseCommitSha};
