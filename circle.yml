@@ -13,5 +13,6 @@ machine:
 
 test:
   pre:
+    - export INTEG=true
     - jshint --reporter node_modules/jshint-stylish-ex/stylish.js $(git ls-files | grep "*.js$" | xargs)
     - bundle exec rubocop

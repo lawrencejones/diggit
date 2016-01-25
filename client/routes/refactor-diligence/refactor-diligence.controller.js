@@ -1,7 +1,8 @@
 'use strict';
 /* globals angular, alert */
 
-const {refactorDiligence, generateModuleHierarchy} = require('../../lib/refactorDiligence.js');
+const {refactorDiligence} = require('../../lib/ruby/refactorDiligence.js');
+const {generateHierarchy} = require('../../lib/hierarchalData.js');
 
 const refactorDiligenceControllerModule = angular.module('refactorDiligenceControllerModule', [
 ]).controller('RefactorDiligenceController', [
@@ -17,9 +18,11 @@ const refactorDiligenceControllerModule = angular.module('refactorDiligenceContr
       .on('commit', (commit) => { $scope.$apply(() => { ctrl.progress = commit }) })
       .on('done', (profile) => {
         ctrl.profile = profile;
-        ctrl.hierarchalProfile = generateModuleHierarchy(profile.method_histories, (score) => {
-          if (score > 1) return score * score;
-        });
+        ctrl.hierarchalProfile =
+          generateHierarchy(profile.method_histories, '::', (methodHistory) => {
+            let score = methodHistory.size;
+            if (score > 1) return score * score;
+          });
         $scope.$digest();
       })
       .on('exit', (exitStatus) => {
