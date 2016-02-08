@@ -1,3 +1,5 @@
+require 'git'
+
 module GitWalker
   # Walks a given git repo to produce a recursive structure of each directory and file
   # found from the root, computing a score for each file/directory using the supplied
@@ -12,58 +14,58 @@ module GitWalker
   class Walker
     def initialize(root, metric_lambda: nil)
       @root = File.realpath(root)
-      verify_root!
-
+      @repo = Git.open(root)
       @metric_lambda = metric_lambda
-      @frame = compute_frame
+
+    rescue ArgumentError
+      raise "Not valid git repository! #{@root}"
     end
 
-    attr_reader :frame, :root
+    attr_reader :root, :repo
+
+    def frame
+      @frame ||= compute_frame
+    end
 
     private
 
-    def verify_root!
-      unless git_exec('rev-parse --is-inside-work-tree') == 'true'
-        fail "Is not valid git repository! #{@root}"
-      end
-    end
+    def compute_frame
+      all_tracked_files.each_with_object(new_frame) do |relative_path, frame|
+        score = compute_metric(relative_path)
+        next if score == 0
 
-    def git_exec(cmd)
-      `GIT_DIR="#{@root}/.git" git #{cmd}`.chomp
+        frame[:score] += score
+        get_or_create_frame(frame, relative_path, score).delete(:items)
+      end
     end
 
     def all_tracked_files
-      git_exec('ls-files').split
+      repo.ls_files.keys
     end
 
-    def compute_frame
-      all_tracked_files.each_with_object(new_frame) do |file, frame|
-        frame_score = compute_metric(file)
-        next if frame_score == 0
+    def get_or_create_frame(frame, relative_path, score)
+      directories = relative_path.split(File::SEPARATOR)
 
-        frame[:score] += frame_score
-
-        directories = file.split(File::SEPARATOR)
-        basename = directories.pop
-
-        sub_frame = directories.reduce(frame) do |frm, dir|
-          frm[:items][dir] ||= new_frame(File.join(frm[:path], dir))
-          frm[:items][dir].tap { |f| f[:score] += frame_score }
-        end
-
-        sub_frame[:items][basename] = {
-          path: File.join(File.basename(@root), file),
-          score: frame_score,
-        }
+      directories.reduce(frame) do |frm, directory|
+        frm[:items][directory] ||= new_frame(File.join(frm[:path], directory))
+        frm[:items][directory].tap { |f| f[:score] += score }
       end
     end
 
-    def new_frame(path = File.basename(@root))
+    def new_frame(path = File.basename(root))
       { path: path, items: {}, score: 0 }
     end
 
-    def compute_metric(target)
-      @metric_lambda[File.join(@root, target)]
+    def compute_metric(relative_path)
+      @metric_lambda[resolve(relative_path), repo]
+    end
+
+    def resolve(relative_path)
+      File.join(root, relative_path)
+    end
+
+    def format_relative_path(path)
+      File.join(File.basename(root), path)
     end
   end
 end

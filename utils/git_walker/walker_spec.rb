@@ -2,6 +2,7 @@ require 'rspec'
 require 'tmpdir'
 require 'git'
 require 'fileutils'
+
 require_relative './walker'
 
 def create_random_file!(path, block_size, count)
@@ -15,30 +16,49 @@ def create_random_file!(path, block_size, count)
   end
 end
 
+# Creates a repo with some dummy files of specific sizes.
+def construct_temporary_repo(repo_path)
+  FileUtils.mkdir_p(File.join(repo_path, 'root'))
+  repo = Git.init(repo_path)
+  FileUtils.touch(File.join(repo_path, 'root', 'zero'))
+
+  create_random_file!(File.join(repo_path, 'root', '1K'), '1k', 1)
+  create_random_file!(File.join(repo_path, 'root', '2M'), '1024k', 2)
+
+  repo.add
+  repo.commit('Initial commit')
+end
+
+def flatten_frames(frame)
+  [frame, *frame.fetch(:items, {}).values.flat_map { |frm| flatten_frames(frm) }]
+end
+
 RSpec.describe(GitWalker::Walker) do
   subject(:walker) do
     described_class.new(repo_path, metric_lambda: metric)
   end
 
   let(:repo_path) { Dir.mktmpdir }
-  let(:metric) { ->(target) { File.size(target) } }
+  let(:metric) { ->(target, _repo) { File.size(target) } }
 
-  before do
-    FileUtils.mkdir_p(File.join(repo_path, 'root'))
-    repo = Git.init(repo_path)
-    FileUtils.touch(File.join(repo_path, 'root', 'zero'))
+  before { construct_temporary_repo(repo_path) }
+  after  { FileUtils.rm_rf(repo_path) }
 
-    create_random_file!(File.join(repo_path, 'root', '1K'), '1k', 1)
-    create_random_file!(File.join(repo_path, 'root', '2M'), '1024k', 2)
+  describe '.new' do
+    context 'with valid git repo' do
+      it 'succeeds' do
+        expect { walker }.not_to raise_exception
+      end
+    end
 
-    repo.add
-    repo.commit('Initial commit')
-  end
-
-  after { FileUtils.rm_rf(repo_path) }
-
-  def flatten_frames(frame)
-    [frame, *frame.fetch(:items, {}).values.flat_map { |frm| flatten_frames(frm) }]
+    context 'with invalid git repo' do
+      it 'raises exception' do
+        Dir.mktmpdir do |dir|
+          expect { GitWalker::Walker.new(dir) }.
+            to raise_exception(/not valid git repo/i)
+        end
+      end
+    end
   end
 
   describe '.frame' do
