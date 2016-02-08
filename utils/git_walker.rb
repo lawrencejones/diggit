@@ -2,7 +2,11 @@
 require 'json'
 require 'fileutils'
 require 'commander/import'
+
 require_relative './git_walker/walker'
+require_relative './git_walker/metrics/file_size'
+require_relative './git_walker/metrics/lines_of_code'
+require_relative './git_walker/metrics/no_of_authors'
 
 program :name, 'Git Walker'
 program :version, '1.0.0'
@@ -20,25 +24,22 @@ Example output...
         }
       }
     }
+)
 
-NB: More complex use cases (such as filtering files) should require
-    the GitWalker::Walker and instrument from there.)
+def get_metric_lambda(metric_label)
+  GitWalker::Metrics.method(metric_label)
 
-builtin_metric_lambdas = {
-  'file-size' => ->(target) { File.size(target) },
-  'lines-of-code' => lambda do |target|
-    return 0 if File.directory?(target)
-
-    `wc -l "#{target}"`.split.first.to_i
-  end,
-}
+rescue NameError
+  STDERR.puts("Metric #{metric_label} not supported!")
+  exit(255)
+end
 
 command :walk do |c|
   c.syntax = 'walk <repo> <metric>'
   c.description = 'Scan repo to output metric score on each checked file'
   c.action do |(repo_path, metric_label)|
     walker = GitWalker::Walker.
-      new(repo_path, metric_lambda: builtin_metric_lambdas.fetch(metric_label))
+      new(repo_path, metric_lambda: get_metric_lambda(metric_label))
 
     puts(JSON.pretty_generate(walker.frame))
   end

@@ -57,7 +57,7 @@ module GitWalker
     end
 
     def compute_metric(relative_path)
-      @metric_lambda[resolve(relative_path)]
+      @metric_lambda[resolve(relative_path), repo]
     end
 
     def resolve(relative_path)

@@ -24,3 +24,6 @@ Style/MultilineBlockChain:
 
 Style/MultilineMethodCallIndentation:
   Enabled: false
+
+Style/Documentation:
+  Enabled: false

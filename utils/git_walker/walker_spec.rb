@@ -2,6 +2,7 @@ require 'rspec'
 require 'tmpdir'
 require 'git'
 require 'fileutils'
+
 require_relative './walker'
 
 def create_random_file!(path, block_size, count)
@@ -38,7 +39,7 @@ RSpec.describe(GitWalker::Walker) do
   end
 
   let(:repo_path) { Dir.mktmpdir }
-  let(:metric) { ->(target) { File.size(target) } }
+  let(:metric) { ->(target, _repo) { File.size(target) } }
 
   before { construct_temporary_repo(repo_path) }
   after  { FileUtils.rm_rf(repo_path) }

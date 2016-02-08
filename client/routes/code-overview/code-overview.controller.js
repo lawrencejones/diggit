@@ -10,7 +10,7 @@ const codeOverviewControllerModule = angular.module('codeOverviewControllerModul
   function CodeOverviewController($scope, repo) {
     const ctrl = this;
 
-    gitWalker(repo.path, 'lines-of-code').then((data) => {
+    gitWalker(repo.path, 'lines_of_code').then((data) => {
       ctrl.gitWalkerData = data;
     }).catch((err) => {
       ctrl.err = err;

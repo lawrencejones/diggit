@@ -8,7 +8,7 @@ describe('GitWalker', () => {
     if (!process.env.INTEG) { return }
 
     it('runs against test repo', (done) => {
-      gitWalker(makeTemporaryRepo(), 'file-size')
+      gitWalker(makeTemporaryRepo(), 'file_size')
         .then(() => { done() })
         .catch(done);
     });
