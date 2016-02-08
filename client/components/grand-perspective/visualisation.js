@@ -100,6 +100,7 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
     .attr('width',  (d) => { return Math.max(1, xScale(d.w) - options.framePadding) })
     .attr('height', (d) => { return Math.max(1, yScale(d.h) - options.framePadding) })
     .on('mousemove', (d) => {
+      console.log(d, parentFrameSelector(d));
       frameGroup.selectAll(parentFrameSelector(d))
         .style('stroke', '#00ffff');
     })
