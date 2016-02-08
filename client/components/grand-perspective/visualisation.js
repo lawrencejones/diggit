@@ -13,22 +13,27 @@ const defaultGraphOptions = () => {
   };
 };
 
-const processFrames = (frames) => {
+const findParent = (frames, label, separator) => {
+  let parentLabel = label.replace(new RegExp(`${separator}[^${separator}]+$`), '');
+
+  return _.find(frames, (frame) => { return frame.label == parentLabel });
+}
+
+const processFrames = (frames, separator) => {
   let maxWidth = _.max(frames.map((f) => { return f.x + f.w }));
   let maxHeight = _.max(frames.map((f) => { return f.y + f.h }));
   let totalVolume = maxWidth * maxHeight;
 
+  _.each(frames, (f, i) => {
+    f.index = i;
+    f.score = f.score || Math.round(100 * (f.w * f.h) / totalVolume);
+    f.parent = findParent(frames, f.label, separator)
+
+    if (!!f.parent) { f.parent.isParent = true }
+  })
+
   return {
-    maxWidth, maxHeight, totalVolume,
-    frames: _.each(frames, (f, i) => {
-      _.extend(f, {
-        index: i,
-        score: f.score || Math.round(100 * (f.w * f.h) / totalVolume),
-        parent: _.find(frames, (_f) => {
-          return f !== _f && f.label.lastIndexOf(_f.label) === 0
-        }),
-      });
-    }),
+    maxWidth, maxHeight, totalVolume, frames,
   };
 }
 
@@ -37,9 +42,12 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
     options[key] = userOptions[key] || value;
   });
 
-  let data = processFrames(unprocessedFrames);
-  let frames = data.frames;
+  let data = processFrames(unprocessedFrames, options.separator);
   let svgContainer = d3.select(`#${svgContainerId}`);
+
+  /* Sort to ensure that directories are drawn last, and therefore rendered on top of
+   * other frames. */
+  let frames = data.frames.sort((a) => { return !!a.isParent ? 1 : -1 });
 
   let updatePath = (($path) => {
     let template = _.template(`
@@ -93,14 +101,13 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
     .attr('x', (d) => { return xScale(d.x) + options.framePadding })
     .attr('y', (d) => { return yScale(d.y) + options.framePadding })
     .attr('id', (d) => { return `${svgContainerId}FrameRect-${d.index}` })
-    .style('fill', (d) => { return options.colorScale(d.label) })
+    .style('fill', (d) => { return (d.isParent) ? 'none' : options.colorScale(d.label) })
     .style('stroke', 'none')
     .style('stroke-width', '3px')
     .style('opacity', '.9')
     .attr('width',  (d) => { return Math.max(1, xScale(d.w) - options.framePadding) })
     .attr('height', (d) => { return Math.max(1, yScale(d.h) - options.framePadding) })
     .on('mousemove', (d) => {
-      console.log(d, parentFrameSelector(d));
       frameGroup.selectAll(parentFrameSelector(d))
         .style('stroke', '#00ffff');
     })
