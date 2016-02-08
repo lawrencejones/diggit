@@ -32,7 +32,8 @@ const grandPerspectiveComponentModule = angular.module('grandPerspectiveComponen
 
       let frames =
         generateFrameRectangles($scope.getFrameData(),
-                                [0, 0, parseInt(attr.width), parseInt(attr.height)]);
+                                [0, 0, parseInt(attr.width), parseInt(attr.height)],
+                                true); // draw directories for hierarchal highlighting
       renderGrandPerspective($elem.attr('id'), frames, attr);
     },
   };
