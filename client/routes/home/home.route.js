@@ -1,11 +1,13 @@
 'use strict';
 /* globals angular */
 
+const {homeControllerModule} = require('./home.controller.js');
 const {repoSummaryPanelComponentModule} = require('../../components/repo-summary-panel/repo-summary-panel.directive.js');
 
 const HOME_ROUTE_STATE = 'app.home';
 const homeRouteModule = angular.module('homeRouteModule', [
   'ui.router',
+  homeControllerModule.name,
   repoSummaryPanelComponentModule.name,
 ])
 .config([
@@ -15,10 +17,7 @@ const homeRouteModule = angular.module('homeRouteModule', [
       url: '/home',
       template: require('./home.html'),
       controllerAs: 'ctrl',
-      controller: function($scope, repo) {
-        const ctrl = this;
-        ctrl.repo = repo;
-      },
+      controller: 'HomeController',
     });
   },
 ]);

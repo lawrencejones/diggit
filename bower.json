@@ -25,7 +25,8 @@
     "angularjs-humanize": "saymedia/angularjs-humanize#master",
     "humanize": "~0.0.9",
     "jquery": "~2.2.0",
-    "progressbar.js": "~0.9.0"
+    "progressbar.js": "~0.9.0",
+    "angular-bootstrap": "~1.1.2"
   },
   "resolutions": {
     "angular": "~1.4.8"

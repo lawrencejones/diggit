@@ -6,11 +6,14 @@ const {gitWalker} = require('../../lib/ruby/gitWalker.js');
 const codeOverviewControllerModule = angular.module('codeOverviewControllerModule', [
 ]).controller('CodeOverviewController', [
   '$scope',
+  '$stateParams',
   'repo',
-  function CodeOverviewController($scope, repo) {
+  function CodeOverviewController($scope, $stateParams, repo) {
     const ctrl = this;
 
-    gitWalker(repo.path, 'lines_of_code').then((data) => {
+    ctrl.metric = $stateParams.metric;
+
+    gitWalker(repo.path, $stateParams.metric).then((data) => {
       ctrl.gitWalkerData = data;
     }).catch((err) => {
       ctrl.err = err;
