@@ -11,6 +11,7 @@ const {refactorDiligenceRouteModule} = require('./routes/refactor-diligence/refa
 
 angular.module('diggit', [
   'ui.router',
+  'ui.bootstrap',
   homeRouteModule.name,
   codeOverviewRouteModule.name,
   refactorDiligenceRouteModule.name,
