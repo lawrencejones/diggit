@@ -12,7 +12,7 @@ if (!fs.existsSync(GIT_WALKER)) {
 }
 
 const gitWalker = (repoPath, metric) => {
-  return P.promisify(exec)(`${GIT_WALKER} walk ${repoPath} ${metric}`, {
+  return P.promisify(exec)(`${GIT_WALKER} walk ${repoPath} --metric ${metric}`, {
     maxBuffer: 20 * 1024 * 1024,  // 20MB
   }).then((stdout) => {
     return JSON.parse(stdout);
