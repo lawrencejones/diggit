@@ -34,7 +34,7 @@ const homeControllerModule = angular.module('homeControllerModule', [
         ],
         template: `
         <ul class="nav nav-pills nav-stacked">
-          <li ng-repeat="metric in ['file_size', 'lines_of_code', 'no_of_authors']">
+          <li ng-repeat="metric in ['file_size', 'lines_of_code', 'no_of_authors', 'complexity']">
             <a href="#" ng-click="close()" ui-sref="app.codeOverview({metric: metric})">
               {{ metric | humanizeMetric }}
             </a>
