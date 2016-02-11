@@ -4,6 +4,8 @@ const _ = require('lodash');
 const d3 = require('d3');
 const $ = require('jquery');
 
+const {copy} = require('./clipboard.js');
+
 const defaultGraphOptions = () => {
   return {
     framePadding: 1,  // padding between frame rects
@@ -115,6 +117,7 @@ const renderGrandPerspective = (svgContainerId, unprocessedFrames, userOptions) 
       frameGroup.selectAll(parentFrameSelector(d))
         .style('stroke', 'none')
     })
+    .on('dblclick', (d) => { copy(d.label) })
     .append('svg:title')
       .text((d) => { return d.label })
 
