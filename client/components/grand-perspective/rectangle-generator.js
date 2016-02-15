@@ -8,6 +8,11 @@ const _ = require('lodash');
 const generateFrameRectangles = (rootFrame, [x, y, w, h], drawDirectories) => {
   if (_.isUndefined(drawDirectories)) { drawDirectories = false; }
 
+  /* Relies upon items being an array for slicing */
+  if (!_.isArray(rootFrame.items)) rootFrame.items = _.values(rootFrame.items);
+
+  if (rootFrame.items.length === 0) return [];
+
   if (rootFrame.items.length === 1) {
     let frame = rootFrame.items[0];
     let rects = [];
