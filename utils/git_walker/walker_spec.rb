@@ -35,10 +35,11 @@ end
 
 RSpec.describe(GitWalker::Walker) do
   subject(:walker) do
-    described_class.new(repo_path, metric_lambda: metric)
+    described_class.new(repo_path, metric_lambda: metric, file_glob: file_glob)
   end
 
   let(:repo_path) { Dir.mktmpdir }
+  let(:file_glob) { nil }
   let(:metric) { ->(target, _repo) { File.size(target) } }
 
   before { construct_temporary_repo(repo_path) }
@@ -82,6 +83,24 @@ RSpec.describe(GitWalker::Walker) do
 
     it 'aggregates metric for directories' do
       expect(frame[:score]).to be_within(1 << 9).of((1 << 10) + (2 * (1 << 20)))
+    end
+
+    context 'with file glob' do
+      let(:file_glob) { '**/1*' }
+      let(:walked_files) { all_frames.map { |f| File.basename(f[:path]) } }
+
+      it 'filters out files not matched by pattern' do
+        expect(walked_files).to include('1K')
+        expect(walked_files).not_to include('2M')
+      end
+
+      context 'of multiple files' do
+        let(:file_glob) { '**/{1K,2M}' }
+
+        it 'permits each pattern' do
+          expect(walked_files).to include('1K', '2M')
+        end
+      end
     end
   end
 end

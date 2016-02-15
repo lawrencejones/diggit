@@ -7,15 +7,19 @@ module GitWalker
   #
   # Example of...
   #
-  #     GitWalker::Walker.new(repo_path, metric_lambda: ->(target) { File.size(target) })
+  #     GitWalker::Walker.
+  #       new(repo_path,
+  #           metric_lambda: ->(target) { File.size(target) }
+  #           file_glob: "**/{*.rb,*.js}")
   #
   # ...would walk the repo at `repo_path`, computing the recursive file size of each
-  # file/directory that is tracked by the repo.
+  # file/directory that is tracked by the repo, and that matches the file_glob.
   class Walker
-    def initialize(root, metric_lambda: nil)
+    def initialize(root, metric_lambda: nil, file_glob: nil)
       @root = File.realpath(root)
       @repo = Git.open(root)
       @metric_lambda = metric_lambda
+      @file_glob = file_glob || '**/*'
 
     rescue ArgumentError
       raise "Not valid git repository! #{@root}"
@@ -40,7 +44,8 @@ module GitWalker
     end
 
     def all_tracked_files
-      repo.ls_files.keys
+      repo.ls_files.keys.
+        select { |file| File.fnmatch(@file_glob, file, File::FNM_EXTGLOB) }
     end
 
     def get_or_create_frame(frame, relative_path, score)

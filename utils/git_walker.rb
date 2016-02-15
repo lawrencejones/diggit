@@ -34,9 +34,13 @@ command :walk do |c|
   c.syntax = 'walk <repo>'
   c.description = 'Scan repo to output metric score on each checked file'
   c.option '--metric METRIC', String, "One of #{available_metrics.join(', ')}"
+  c.option '--pattern PATTERN', String, 'Shell file glob to filter files'
+
   c.action do |(repo_path), options|
     walker = GitWalker::Walker.
-      new(repo_path, metric_lambda: get_metric_lambda(options.metric))
+      new(repo_path,
+          metric_lambda: get_metric_lambda(options.metric),
+          file_glob: options.pattern)
 
     puts(JSON.pretty_generate(walker.frame))
   end
