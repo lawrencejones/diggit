@@ -2,7 +2,9 @@
 /* globals angular */
 
 const remote = require('remote');
+const path = require('path');
 const {loadRepoSummary} = require('./lib/repo.js');
+const {createCache} = require('./lib/cache.js');
 
 /* Routes */
 const {homeRouteModule, HOME_ROUTE_STATE} = require('./routes/home/home.route.js');
@@ -18,6 +20,7 @@ angular.module('diggit', [
 ])
 
 .constant('repo', loadRepoSummary(remote.getGlobal('REPO_PATH')))
+.constant('diggitCache', createCache(path.join(__dirname, '../cache')))
 
 .config(($locationProvider, $stateProvider) => {
   $locationProvider.html5Mode(false);
