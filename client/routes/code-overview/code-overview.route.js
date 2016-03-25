@@ -14,7 +14,7 @@ const codeOverviewRouteModule = angular.module('codeOverviewRouteModule', [
   '$stateProvider',
   ($stateProvider) => {
     $stateProvider.state(CODE_OVERVIEW_ROUTE_STATE, {
-      url: '/code-overview/:metric',
+      url: '/code-overview/:metric/:pattern',
       template: require('./code-overview.html'),
       bindToController: true,
       controllerAs: 'ctrl',
