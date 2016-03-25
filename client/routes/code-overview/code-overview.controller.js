@@ -13,7 +13,7 @@ const codeOverviewControllerModule = angular.module('codeOverviewControllerModul
 
     ctrl.metric = $stateParams.metric;
 
-    gitWalker(repo.path, $stateParams.metric).then((data) => {
+    gitWalker(repo.path, $stateParams.metric, $stateParams.pattern).then((data) => {
       ctrl.gitWalkerData = data;
     }).catch((err) => {
       ctrl.err = err;

@@ -33,12 +33,18 @@ const homeControllerModule = angular.module('homeControllerModule', [
           },
         ],
         template: `
+        <div class="col-md-12" style="margin-bottom: 6px">
+          <label style="margin-top: 4px">File glob</label>
+          <input type="text" class="form-control" ng-model="fileGlob" placeholder="*.{rb,js}">
+          </input>
+        </div>
         <ul class="nav nav-pills nav-stacked">
           <li ng-repeat="metric in ['file_size', 'lines_of_code', 'no_of_authors', 'complexity']">
-            <a href="#" ng-click="close()" ui-sref="app.codeOverview({metric: metric})">
+            <a href="#" ng-click="close()" ui-sref="app.codeOverview({metric: metric, pattern: fileGlob})">
               {{ metric | humanizeMetric }}
             </a>
           </li>
+        </ul>
         `,
       });
     };

@@ -7,8 +7,8 @@ const {generateFrameRectangles, evenlySplit} = require('./rectangle-generator.js
 
 describe('RectangleGenerator', () => {
   describe('.generateFrameRectangles', () => {
-    const gen = () => {
-      return generateFrameRectangles(gitWalkerData, dim, drawDirectories);
+    const gen = (data) => {
+      return generateFrameRectangles(data || gitWalkerData, dim, drawDirectories);
     };
 
     let dim = [0, 0, 100, 100];  // initial dimensions
@@ -49,6 +49,30 @@ describe('RectangleGenerator', () => {
         expect(_.find(gen(), ({label}) => {
           return label == 'diggit/code-overview'
         })).to.exist;
+      });
+    });
+
+    describe('with nested empty dirs', () => {
+      beforeEach(() => { drawDirectories = true });
+
+      const nestedData = {
+        path: 'diggit',
+        score: 874,
+        items: {
+          nested: {
+            path: 'diggit/nested',
+            score: 874,
+            items: {
+              a: { path: 'diggit/nested/a', score: 437 },
+              b: { path: 'diggit/nested/b', score: 437 },
+            },
+          }
+        },
+      };
+
+      /* Regression: infinite loop where algorithm assumed array but got object */
+      it('does not infinitely recurse', () => {
+        expect(gen(nestedData)).to.be.an('array');
       });
     });
   });
