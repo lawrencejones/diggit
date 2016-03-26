@@ -5,7 +5,7 @@ const path = require('path');
 const P = require('bluebird');
 const {spawn} = require('child_process');
 
-const GIT_WALKER = path.join(__dirname, '../../..', 'utils', 'git_walker.rb');
+const GIT_WALKER = path.join(__dirname, '../../../lib/utils/git_walker.rb');
 
 if (!fs.existsSync(GIT_WALKER)) {
   throw new Error(`Cannot locate git_walker.rb at ${GIT_WALKER}`);

@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+gem 'sinatra'
+gem 'prius'
+gem 'dotenv'
 gem 'commander'
 gem 'highline'
 gem 'colorize'

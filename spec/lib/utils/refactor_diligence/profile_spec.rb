@@ -1,6 +1,5 @@
-require 'rspec'
 require 'hamster/hash'
-require_relative './profile'
+require 'utils/refactor_diligence/profile'
 
 RSpec.describe(RefactorDiligence::Profile) do
   subject(:profile) { described_class.new(repo_double) }

@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const {spawn} = require('child_process');
 
-const REFACTOR_DILIGENCE = path.join(__dirname, '../../..', 'utils', 'refactor_diligence.rb');
+const REFACTOR_DILIGENCE = path.join(__dirname, '../../../lib/utils/refactor_diligence.rb');
 
 if (!fs.existsSync(REFACTOR_DILIGENCE)) {
   throw new Error(`Cannot locate refactor_diligence.rb at ${REFACTOR_DILIGENCE}`);

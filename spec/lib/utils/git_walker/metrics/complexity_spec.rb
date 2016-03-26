@@ -1,9 +1,4 @@
-require 'rspec'
-require_relative './complexity'
-
-def load_code_fixture(filename)
-  File.read(File.join(File.dirname(__FILE__), '../../../fixtures/code', filename))
-end
+require 'utils/git_walker/metrics/complexity'
 
 RSpec.describe(GitWalker::Metrics::WhitespaceAnalysis) do
   subject(:metric) { described_class.new(contents) }
@@ -25,7 +20,7 @@ RSpec.describe(GitWalker::Metrics::WhitespaceAnalysis) do
   end
 
   shared_examples(described_class) do |file, expected|
-    let(:contents) { load_code_fixture(file) }
+    let(:contents) { load_fixture(File.join('code', file)) }
 
     context "for #{file}" do
       describe '.std' do

@@ -1,5 +1,4 @@
-require 'rspec'
-require_relative './lines_of_code'
+require 'utils/git_walker/metrics/lines_of_code'
 
 RSpec.describe(GitWalker::Metrics) do
   describe '.lines_of_code' do

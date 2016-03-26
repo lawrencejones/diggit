@@ -8,9 +8,10 @@
     "url": "git@github.com:LawrenceJones/diggit"
   },
   "scripts": {
-    "start": "electron client/main.js",
-    "test": "./bin/test",
-    "prepublish": "bundle install && bower install"
+    "start": "electron main.js",
+    "test": "mocha --harmony --harmony_destructuring --harmony_spread_arrays specHelper.js --recursive lib components/**/*.spec.js",
+    "lint": "jshint --reporter node_modules/jshint-stylish-ex/stylish.js $(git ls-files | grep '.js$')",
+    "prepublish": "bower install"
   },
   "author": "Lawrence Jones",
   "license": "MIT",

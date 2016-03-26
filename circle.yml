@@ -1,9 +1,13 @@
 dependencies:
+  cache_directories:
+    - 'experiments/node_modules'
   override:
     - git config --global user.email "bot@circle.ci"
     - git config --global user.name "Circle"
+    - bundle install
     - npm install -g jshint
-    - npm install
+    - npm install:
+        pwd: experiments
 
 machine:
   ruby:
@@ -13,6 +17,10 @@ machine:
 
 test:
   pre:
-    - export INTEG=true
-    - jshint --reporter node_modules/jshint-stylish-ex/stylish.js $(git ls-files | grep "*.js$" | xargs)
     - bundle exec rubocop
+    - npm run lint:
+        pwd: experiments
+    - npm test:
+        pwd: experiments
+        environment:
+          INTEG: true
