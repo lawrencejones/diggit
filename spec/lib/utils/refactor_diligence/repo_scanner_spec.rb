@@ -1,7 +1,6 @@
-require 'rspec'
 require 'git'
 require 'fileutils'
-require_relative './repo_scanner'
+require 'utils/refactor_diligence/repo_scanner'
 
 RSpec.describe(RefactorDiligence::RepoScanner) do
   subject(:scanner) { described_class.new(@repo) }

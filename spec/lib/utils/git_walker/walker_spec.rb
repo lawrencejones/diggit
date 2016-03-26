@@ -1,9 +1,8 @@
-require 'rspec'
 require 'tmpdir'
 require 'git'
 require 'fileutils'
 
-require_relative './walker'
+require 'utils/git_walker/walker'
 
 def create_random_file!(path, block_size, count)
   stderr = `dd if=/dev/zero of="#{path}" bs=#{block_size} count=#{count} 2>&1`

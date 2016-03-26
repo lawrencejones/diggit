@@ -1,5 +1,4 @@
-require 'rspec'
-require_relative './file_size'
+require 'utils/git_walker/metrics/file_size'
 
 RSpec.describe(GitWalker::Metrics) do
   describe '.file_size' do

@@ -1,9 +1,9 @@
-#!/usr/bin/env zsh
+#!/bin/sh
 # Extracts the test repo to a temporary directory.
 # Used for quick integration tests for scripts that interact with repos.
 
 set -e
 
-DIR=$(mktemp -d -t diggit-test-repo)
-tar xfz "$(dirname $0)/../etc/diggit-test-repo.tar" -C "$DIR"
+DIR=$(mktemp -d -t diggit-test-repo-XXX)
+tar xfz "$(dirname $0)/../fixtures/diggit-test-repo.tar" -C "$DIR"
 echo "$DIR/diggit-test-repo"

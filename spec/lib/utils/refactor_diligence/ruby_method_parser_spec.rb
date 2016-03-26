@@ -1,5 +1,4 @@
-require 'rspec'
-require_relative './ruby_method_parser'
+require 'utils/refactor_diligence/ruby_method_parser'
 
 RSpec.describe(RefactorDiligence::RubyMethodParser) do
   subject(:ruby_file) { described_class.new(contents) }

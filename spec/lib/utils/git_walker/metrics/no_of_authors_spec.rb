@@ -1,5 +1,4 @@
-require 'rspec'
-require_relative './no_of_authors'
+require 'utils/git_walker/metrics/no_of_authors'
 
 RSpec.describe(GitWalker::Metrics) do
   describe '.no_of_authors' do

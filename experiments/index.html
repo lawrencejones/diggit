@@ -13,8 +13,7 @@
 
   <script>
     var win = require('remote').getCurrentWindow();
-    if (!win.isDevToolsOpened()) { win.toggleDevTools(); }
-
+    if (require('remote').process.env['DEV'] && !win.isDevToolsOpened()) { win.toggleDevTools(); }
 
     require.extensions['.html'] = (module, filename) => {
       module.exports = require('fs').readFileSync(filename, 'utf8');

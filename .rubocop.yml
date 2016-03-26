@@ -2,7 +2,7 @@
 
 AllCops:
   Exclude:
-    - 'node_modules/**/*'
+    - 'experiments/**/*'
 
 LineLength:
   Max: 90
