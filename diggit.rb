@@ -4,17 +4,25 @@ require 'que'
 require 'json'
 require 'prius'
 
+if ENV['RACK_ENV'] == 'test'
+  require 'dotenv'
+  Dotenv.load(File.join(settings.root, 'dummy-env'))
+end
+
 # Environment variables
-Prius.load(:diggit_env, env_var: 'RUBY_ENV')
+Prius.load(:diggit_env, env_var: 'RACK_ENV')
 Prius.load(:diggit_domain)
 Prius.load(:diggit_github_token)
 
 module Diggit
   class App < Sinatra::Base
+    set :environment, Prius.get(:diggit_env)
+    enable :logging
+
+    # Database configuration
     register Sinatra::ActiveRecordExtension
     Que.connection = ActiveRecord
-    Que.mode = Prius.get(:diggit_env) == 'production' ? :async : :sync
-    enable :logging
+    Que.mode = settings.environment == 'production' ? :async : :sync
 
     before '/webhooks/github' do
       begin
