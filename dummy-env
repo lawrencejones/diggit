@@ -11,5 +11,6 @@ alias node="node $HARMONY_FLAGS"
 
 # Diggit config
 
+export RUBY_ENV=development
 export DIGGIT_DOMAIN="https://example.com"
 export DIGGIT_GITHUB_TOKEN="token"
