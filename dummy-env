@@ -1,14 +1,3 @@
-#!/usr/bin/env zsh
-
-# Prototype config
-
-export WATCH=true
-export DEV=false
-export HARMONY_FLAGS='--harmony --harmony_destructuring --harmony_modules --harmony_spread_arrays'
-alias node="node $HARMONY_FLAGS"
-
-[[ "$(node --version)" != "v5.1.1" ]] && nvm use 5.1.1
-
 # Diggit config
 
 export DIGGIT_DOMAIN="https://example.com"
