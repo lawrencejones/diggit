@@ -1,5 +1,6 @@
 import angular from 'angular';
 import 'angular-ui-router';
+import 'twbs/bootstrap/css/bootstrap.css!';
 
 import {homeRouteModule} from './routes/home/home.route.js';
 

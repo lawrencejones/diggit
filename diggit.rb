@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'sinatra'
 require 'sinatra/activerecord'
 require 'que'
@@ -16,7 +17,6 @@ Prius.load(:diggit_github_token)
 
 module Diggit
   class App < Sinatra::Base
-    set :public_folder, Proc.new { File.join(root, 'dist') }
     set :environment, Prius.get(:diggit_env)
     enable :logging
 

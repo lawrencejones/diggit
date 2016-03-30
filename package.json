@@ -36,6 +36,8 @@
   "dependencies": {
     "bower": "^1.3.12",
     "gulp-helpers": "^3.2.4",
+    "gulp-jade": "^1.1.0",
+    "jade": "^1.11.0",
     "jspm": "^0.16.29",
     "karma": "^0.13.21",
     "karma-babel-preprocessor": "^6.0.1",
@@ -45,13 +47,14 @@
     "node": ">=5.1.1"
   },
   "jspm": {
-    "configFile": "system.config.js",
     "directories": {
       "packages": "web/jspm_packages"
     },
+    "configFile": "web/system.config.js",
     "dependencies": {
       "angular": "github:angular/bower-angular@^1.5.0",
       "angular-ui-router": "github:angular-ui/ui-router@^0.2.18",
+      "css": "github:systemjs/plugin-css@^0.1.20",
       "lookfirst/oclazyload-systemjs-router": "github:lookfirst/oclazyload-systemjs-router@^1.2.2",
       "pegjs": "npm:pegjs@^0.9.0",
       "systemjs": "npm:systemjs@^0.19.22",
@@ -61,6 +64,7 @@
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",
       "babel-runtime": "npm:babel-runtime@^5.8.24",
+      "clean-css": "npm:clean-css@^3.4.10",
       "core-js": "npm:core-js@^1.1.4",
       "traceur": "github:jmcriffey/bower-traceur@0.0.93",
       "traceur-runtime": "github:jmcriffey/bower-traceur-runtime@0.0.93"
