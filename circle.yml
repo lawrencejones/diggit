@@ -2,7 +2,8 @@ dependencies:
   override:
     - git config --global user.email "bot@circle.ci"
     - git config --global user.name "Circle"
-    - npm install -g jshint
+    - npm install
+    - ./node_modules/.bin/jspm config registries.github.auth $JSPM_GITHUB_AUTH
     - bundle install
 
 machine:
@@ -14,3 +15,4 @@ machine:
 test:
   pre:
     - bundle exec rubocop
+    - ./node_modules/.bin/gulp lint

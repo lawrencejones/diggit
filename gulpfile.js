@@ -13,7 +13,7 @@ const jade        = require('gulp-jade');
 const config = {
   output: 'web/dist/',                                 // output directory for compiled assets
   public: 'public/',                                   // public assets from sinatra app
-  appRoot: 'web/client/app/app.js',                    // root for front-end app
+  appRoot: 'client/app/app.js',                        // root for front-end app
   index: 'web/client/index.jade',                      // root index.html source
   jsSource: ['web/client/**/*.js'],                    // client javascript
   json: 'web/client/**/*.json',                        // client json
@@ -49,7 +49,7 @@ gulp.task('bundle', (cb) => {
   require('jspm').bundleSFX(config.appRoot, path.join(config.public, 'build.js'), {
     sourceMaps: true,
     minify: false, // TODO - At the moment this breaks ng-annotate
-  }).then(cb);
+  }).then(cb, cb);
 });
 
 /* Compile index.jade with different environments */
