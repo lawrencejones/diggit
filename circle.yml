@@ -1,13 +1,9 @@
 dependencies:
-  cache_directories:
-    - 'experiments/node_modules'
   override:
     - git config --global user.email "bot@circle.ci"
     - git config --global user.name "Circle"
-    - bundle install
     - npm install -g jshint
-    - npm install:
-        pwd: experiments
+    - bundle install
 
 machine:
   ruby:
@@ -18,9 +14,3 @@ machine:
 test:
   pre:
     - bundle exec rubocop
-    - npm run lint:
-        pwd: experiments
-    - npm test:
-        pwd: experiments
-        environment:
-          INTEG: true

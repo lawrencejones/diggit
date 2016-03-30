@@ -1,9 +1,0 @@
-{
-  "esversion": 6,
-  "asi": true,
-  "node": true,
-  "unused": true,
-  "expr": true,
-  "strict": true,
-  "jasmine": true
-}
