@@ -1,0 +1,29 @@
+html(lang='en', data-framework='angularjs')
+  head
+    title diggit
+    meta(http-equiv='content-type', content='text/html; charset=UTF8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+    meta(name='apple-mobile-web-app-capable', content='yes')
+    meta(name='apple-mobile-web-app-status-bar-style', content='black')
+    meta(name='viewport', content='width = device-width, minimal-ui, initial-scale = 1, user-scalable = no')
+    meta(name='apple-mobile-web-app-title', content='diggit')
+    base(href='/')
+  body(ng-cloak='', ui-view='', ng-app='app')
+    noscript
+      .deprecation-warning
+        h1 Please enable Javascript
+        p
+          | This site requires your browser to have Javascript enabled.
+          a(href='http://enable-javascript.com', target='_blank') Learn more
+    .container
+      ui-view
+      div
+        if env == 'production'
+          script(type='text/javascript', src='build.js')
+        else
+          script(type='text/javascript', src='jspm_packages/system.js')
+          script(type='text/javascript', src='system.config.js')
+          script(type='text/javascript').
+            System.import('app/app');
+
+

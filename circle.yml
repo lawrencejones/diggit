@@ -2,8 +2,10 @@ dependencies:
   override:
     - git config --global user.email "bot@circle.ci"
     - git config --global user.name "Circle"
-    - npm install -g jshint
     - bundle install
+    - npm install -g jspm
+    - ./bin/auth-jspm
+    - npm install
 
 machine:
   ruby:
@@ -14,3 +16,7 @@ machine:
 test:
   pre:
     - bundle exec rubocop
+    - ./node_modules/.bin/gulp lint
+  override:
+    - bundle exec rspec
+    - ./node_modules/.bin/gulp karma

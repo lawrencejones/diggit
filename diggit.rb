@@ -1,5 +1,7 @@
+#!/usr/bin/env ruby
 require 'sinatra'
 require 'sinatra/activerecord'
+require 'sinatra/subdomain'
 require 'que'
 require 'json'
 require 'prius'
@@ -18,23 +20,32 @@ module Diggit
   class App < Sinatra::Base
     set :environment, Prius.get(:diggit_env)
     enable :logging
+    enable :static
+
+    register Sinatra::Subdomain
 
     # Database configuration
     register Sinatra::ActiveRecordExtension
     Que.connection = ActiveRecord
     Que.mode = settings.environment == 'production' ? :async : :sync
 
-    before '/webhooks/github' do
-      begin
-        request.body.rewind
-        params.merge!(json_body: JSON.parse(request.body.read))
-      rescue JSON::ParserError
-        halt 400, 'Could not parse JSON'
+    subdomain :api do
+      before '/webhooks/github' do
+        begin
+          request.body.rewind
+          params.merge!(json_body: JSON.parse(request.body.read))
+        rescue JSON::ParserError
+          halt 400, 'Could not parse JSON'
+        end
+      end
+
+      get '/ping' do
+        'pong!'
       end
     end
 
-    get '/ping' do
-      'pong!'
+    get '*' do
+      File.read(File.join(settings.root, 'public/index.html'))
     end
   end
 end

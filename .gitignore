@@ -1,3 +1,9 @@
 .DS_Store
 .env
 *.log
+node_modules/
+web/jspm_packages/
+web/dist/
+public/build.js
+public/build.js.map
+public/index.html
