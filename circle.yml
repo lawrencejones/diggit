@@ -8,6 +8,8 @@ dependencies:
     - npm install
 
 machine:
+  environment:
+    RACK_ENV: test
   ruby:
     version: '2.2.3'
   node:

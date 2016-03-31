@@ -3,6 +3,7 @@
 AllCops:
   Exclude:
     - 'node_modules/**/*'
+    - 'db/schema.rb'
 
 LineLength:
   Max: 90

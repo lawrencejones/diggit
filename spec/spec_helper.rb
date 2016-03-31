@@ -1,4 +1,5 @@
 require 'rspec'
+require_relative '../diggit.rb'
 
 $LOAD_PATH << '../lib'
 
