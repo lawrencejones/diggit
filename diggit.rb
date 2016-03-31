@@ -6,6 +6,8 @@ require 'que'
 require 'json'
 require 'prius'
 
+require_relative 'lib/models/project'
+
 if ENV['RACK_ENV'] == 'test'
   require 'dotenv'
   Dotenv.load(File.join(settings.root, 'dummy-env'))
