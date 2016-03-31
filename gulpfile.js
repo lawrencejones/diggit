@@ -3,17 +3,21 @@
 const path        = require('path');
 
 const gulp        = require('gulp');
+const gutil       = require('gulp-util');
 const taskMaker   = require('gulp-helpers').taskMaker(gulp);
 const runSequence = require('gulp-helpers').framework('run-sequence');
 const KarmaServer = require('karma').Server;
 const jshint      = require('gulp-jshint');
-const stylish     = require('jshint-stylish');
 const jade        = require('gulp-jade');
+const ngAnnotate  = require('gulp-ng-annotate');
+const uglify      = require('gulp-uglify');
+const sourcemaps  = require('gulp-sourcemaps');
 
 const config = {
   output: 'web/dist/',                                 // output directory for compiled assets
   public: 'public/',                                   // public assets from sinatra app
   appRoot: 'client/app/app.js',                        // root for front-end app
+  buildJs: 'public/build.js',                          // production js bundle
   index: 'web/client/index.jade',                      // root index.html source
   jsSource: ['web/client/**/*.js'],                    // client javascript
   json: 'web/client/**/*.json',                        // client json
@@ -31,7 +35,7 @@ gulp.task('run', ['recompile', 'serve', 'watch']);
 gulp.task('lint', () => {
   return gulp.src(config.jsSource)
     .pipe(jshint())
-    .pipe(jshint.reporter(stylish));
+    .pipe(jshint.reporter(require('jshint-stylish')));
 });
 
 gulp.task('karma', ['recompile'], (cb) => {
@@ -44,12 +48,24 @@ gulp.task('karma', ['recompile'], (cb) => {
 gulp.task('compile', ['babel', 'systemConfig', 'json', 'index.dev', 'html', 'pegjs']);
 gulp.task('recompile', (cb) => { runSequence('clean', 'compile', cb) });
 
-gulp.task('production', ['bundle', 'index.prod']);
-gulp.task('bundle', (cb) => {
-  require('jspm').bundleSFX(config.appRoot, path.join(config.public, 'build.js'), {
-    sourceMaps: true,
-    minify: false, // TODO - At the moment this breaks ng-annotate
-  }).then(cb, cb);
+gulp.task('bundle', ['index.prod'], (cb) => {
+  gutil.log('Creating production bundle...');
+  require('jspm').bundleSFX(config.appRoot, config.buildJs, {
+    sourceMaps: 'inline',
+    minify: false,
+  }).then(() => {
+    return gulp.src(config.buildJs)
+      .pipe(sourcemaps.init({loadMaps: true}))
+        .on('data', () => { gutil.log('Running ng-annotate...') })
+        .pipe(ngAnnotate())
+        .on('data', () => { gutil.log('Minifying bundle.js...') })
+        .pipe(uglify())
+      .on('data', () => { gutil.log('Finalising sourcemaps...') })
+      .pipe(sourcemaps.write('.'))
+      .pipe(gulp.dest(config.public))
+      .on('end', () => { gutil.log('Done!') })
+      .on('error', cb);
+  }).catch(cb);
 });
 
 /* Compile index.jade with different environments */
@@ -77,7 +93,7 @@ taskMaker.defineTask('watch', {taskName: 'watch', src: config.watch, tasks: ['co
 taskMaker.defineTask('clean', {taskName: 'clean', src: [
   config.output,
   path.join(config.public, 'index.html'),
-  path.join(config.public, 'build.js*'),
+  path.join(config.public, 'build.*'),
 ]});
 
 taskMaker.defineTask('browserSync', {
