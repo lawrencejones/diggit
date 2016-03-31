@@ -80,6 +80,8 @@ GEM
     sinatra-activerecord (2.0.9)
       activerecord (>= 3.2)
       sinatra (~> 1.0)
+    sinatra-subdomain (0.1.2)
+      sinatra
     slop (3.6.0)
     thread_safe (0.3.5)
     tilt (2.0.2)
@@ -108,6 +110,7 @@ DEPENDENCIES
   rubocop
   sinatra
   sinatra-activerecord
+  sinatra-subdomain
 
 BUNDLED WITH
    1.11.2
