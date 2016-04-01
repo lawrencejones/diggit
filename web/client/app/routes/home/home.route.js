@@ -1,5 +1,6 @@
 import angular from 'angular';
 
+import './home.css!';
 import {homeControllerModule} from './home.controller.js';
 import template from './home.html!text';
 

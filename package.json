@@ -39,6 +39,7 @@
     "gulp-jade": "^1.1.0",
     "gulp-jspm-build": "0.0.14",
     "gulp-ng-annotate": "^2.0.0",
+    "gulp-sass": "^2.2.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.3",
     "jade": "^1.11.0",
@@ -61,6 +62,7 @@
       "css": "github:systemjs/plugin-css@^0.1.20",
       "lookfirst/oclazyload-systemjs-router": "github:lookfirst/oclazyload-systemjs-router@^1.2.2",
       "pegjs": "npm:pegjs@^0.9.0",
+      "scss": "github:mobilexag/plugin-sass@^0.4.0",
       "systemjs": "npm:systemjs@^0.19.22",
       "text": "github:systemjs/plugin-text@^0.0.7",
       "twbs/bootstrap": "github:twbs/bootstrap@3.3.6"
