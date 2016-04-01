@@ -58,8 +58,11 @@
     "configFile": "web/system.config.js",
     "dependencies": {
       "angular": "github:angular/bower-angular@^1.5.0",
+      "angular-mock": "npm:angular-mock@^1.0.0",
+      "angular-mocks": "github:angular/bower-angular-mocks@^1.5.3",
       "angular-ui-router": "github:angular-ui/ui-router@^0.2.18",
       "css": "github:systemjs/plugin-css@^0.1.20",
+      "lodash": "npm:lodash@^4.7.0",
       "lookfirst/oclazyload-systemjs-router": "github:lookfirst/oclazyload-systemjs-router@^1.2.2",
       "pegjs": "npm:pegjs@^0.9.0",
       "scss": "github:mobilexag/plugin-sass@^0.4.0",

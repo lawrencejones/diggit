@@ -19,7 +19,7 @@ const config = {
   client: 'web/client/',
   public: 'public/',
   bundle: {
-    root: 'dist/app/app.js',
+    root: 'dist/app.js',
     output: 'public/build.js',
   },
 };
@@ -50,9 +50,9 @@ gulp.task('karma', ['recompile'], (cb) => {
 // ASSET TRANSPILATION //
 
 const transpileTask = (src, transpiler, dst) => {
-  return () => {
-    gulp.src(src)
-      .pipe(transpiler)
+  return (cb) => {
+    return gulp.src(src)
+      .pipe(transpiler()).on('error', cb)
       .pipe(gulp.dest(dst));
   }
 }
@@ -79,11 +79,11 @@ taskMaker.defineTask('copy', {
   dest: config.dist,
 })
 
-gulp.task('jade', transpileTask(assets.jade, jade(), config.dist));
-gulp.task('scss', transpileTask(assets.scss, sass(), config.dist));
+gulp.task('jade', transpileTask(assets.jade, jade, config.dist));
+gulp.task('scss', transpileTask(assets.scss, sass, config.dist));
 
-gulp.task('index.prod', transpileTask(assets.index, jade({locals: {env: 'production'}}), config.public));
-gulp.task('index.dev', transpileTask(assets.index, jade({locals: {env: 'development'}}), config.dist));
+gulp.task('index.prod', transpileTask(assets.index, jade.bind(jade, {locals: {env: 'production'}}), config.public));
+gulp.task('index.dev', transpileTask(assets.index, jade.bind(jade, {locals: {env: 'development'}}), config.dist));
 
 // PRODUCTION BUNDLING //
 

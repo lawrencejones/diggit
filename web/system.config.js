@@ -13,13 +13,16 @@ System.config({
   },
 
   map: {
-    "angular": "github:angular/bower-angular@1.5.0",
+    "angular": "github:angular/bower-angular@1.5.3",
+    "angular-mock": "npm:angular-mock@1.0.0",
+    "angular-mocks": "github:angular/bower-angular-mocks@1.5.3",
     "angular-ui-router": "github:angular-ui/ui-router@0.2.18",
     "babel": "npm:babel-core@5.8.35",
     "babel-runtime": "npm:babel-runtime@5.8.35",
     "clean-css": "npm:clean-css@3.4.10",
     "core-js": "npm:core-js@1.2.6",
     "css": "github:systemjs/plugin-css@0.1.20",
+    "lodash": "npm:lodash@4.7.0",
     "lookfirst/oclazyload-systemjs-router": "github:lookfirst/oclazyload-systemjs-router@1.2.2",
     "pegjs": "npm:pegjs@0.9.0",
     "scss": "github:mobilexag/plugin-sass@0.4.0",
@@ -29,7 +32,10 @@ System.config({
     "traceur-runtime": "github:jmcriffey/bower-traceur-runtime@0.0.93",
     "twbs/bootstrap": "github:twbs/bootstrap@3.3.6",
     "github:angular-ui/ui-router@0.2.18": {
-      "angular": "github:angular/bower-angular@1.5.0"
+      "angular": "github:angular/bower-angular@1.5.3"
+    },
+    "github:angular/bower-angular-mocks@1.5.3": {
+      "angular": "github:angular/bower-angular@1.5.3"
     },
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
@@ -82,7 +88,7 @@ System.config({
       "vm-browserify": "npm:vm-browserify@0.0.4"
     },
     "github:lookfirst/oclazyload-systemjs-router@1.2.2": {
-      "angular": "github:angular/bower-angular@1.5.0",
+      "angular": "github:angular/bower-angular@1.5.3",
       "angular-ui-router": "github:angular-ui/ui-router@0.2.18",
       "oclazyload": "github:ocombe/ocLazyLoad@1.0.9",
       "ui-router-extras": "github:christopherthielen/ui-router-extras@0.0.13"
