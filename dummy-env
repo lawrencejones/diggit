@@ -1,5 +1,4 @@
 # Diggit config
 
-export JSPM_GITHUB_AUTH_TOKEN="<generate from jspm>"
-export DIGGIT_DOMAIN="https://example.com"
+export DIGGIT_HOST="http://diggit.dev:9292"
 export DIGGIT_GITHUB_TOKEN="token"

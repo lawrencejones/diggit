@@ -1,4 +1,4 @@
-require 'models/project'
+require 'diggit/models/project'
 
 RSpec.describe(Project) do
   subject(:repo) { described_class.new(params) }

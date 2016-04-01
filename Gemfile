@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-gem 'sinatra'
+gem 'hanami-router'
+gem 'coach'
 gem 'sinatra-activerecord'
 gem 'pg'
-gem 'sinatra-subdomain'
 gem 'rake'
 gem 'prius'
 gem 'dotenv'
@@ -16,6 +16,10 @@ gem 'rubocop'
 gem 'parser'
 gem 'activesupport'
 gem 'git'
-gem 'hamster'
 gem 'descriptive-statistics'
 gem 'que'
+gem 'hamster'
+
+group :development do
+  gem 'rerun'
+end

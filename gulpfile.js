@@ -59,11 +59,7 @@ const transpileTask = (src, transpiler, dst) => {
 
 gulp.task('assets', ['es6', 'jade', 'scss', 'static-assets', 'index.dev']);
 gulp.task('recompile', (cb) => { runSequence('clean', 'assets', cb) });
-taskMaker.defineTask('clean', {taskName: 'clean', src: [
-  config.dist,
-  path.join(config.public, 'index.html'),
-  path.join(config.public, 'build.*'),
-]});
+taskMaker.defineTask('clean', {taskName: 'clean', src: config.dist});
 
 taskMaker.defineTask('babel', {
   taskName: 'es6',
@@ -87,17 +83,17 @@ gulp.task('index.dev', transpileTask(assets.index, jade.bind(jade, {locals: {env
 
 // PRODUCTION BUNDLING //
 
-gulp.task('bundle', ['compile', 'index.prod'], (cb) => {
+gulp.task('bundle', ['assets', 'index.prod'], (cb) => {
   gutil.log('Creating production bundle...');
   require('jspm').bundleSFX(config.bundle.root, config.bundle.output, {
     sourceMaps: 'inline',
     minify: false,
   }).then(() => {
-    return gulp.src(config.output)
+    return gulp.src(config.bundle.output)
       .pipe(sourcemaps.init({loadMaps: true}))
         .on('data', () => { gutil.log('Running ng-annotate...') })
         .pipe(ngAnnotate())
-        .on('data', () => { gutil.log('Minifying bundle.js...') })
+        .on('data', () => { gutil.log('Minifying build.js...') })
         .pipe(uglify())
       .on('data', () => { gutil.log('Finalising sourcemaps...') })
       .pipe(sourcemaps.write('.'))
