@@ -69,13 +69,13 @@ describe('AuthInterceptor', () => {
     describe('with 401 error', () => {
       beforeEach(() => AuthInterceptor.responseError({status: 401}))
 
-      it('clears AccessTokenStore', () => {
-        expect(AccessTokenStore.clear).toHaveBeenCalled();
+      it('navigates to login state', () => {
+        expect($state.go).toHaveBeenCalled();
+        expect($state.go.calls.mostRecent().args[0]).toMatch(/login/);
       });
 
-      it('changes to login state', () => {
-        expect($state.go).toHaveBeenCalled();
-        expect($state.go.mostRecentCall.args[0]).toMatch(/login/);
+      it('clears AccessTokenStore', () => {
+        expect(AccessTokenStore.clear).toHaveBeenCalled();
       });
     });
   });

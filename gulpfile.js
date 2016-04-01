@@ -119,6 +119,7 @@ taskMaker.defineTask('browserSync', {
   config: {
     open: false,
     port: process.env.PORT || 4567,
+    files: 'web/dist/**/*',
     server: {
       baseDir: [config.dist, config.public],
       routes: {
