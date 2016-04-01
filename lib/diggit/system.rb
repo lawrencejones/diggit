@@ -32,7 +32,7 @@ module Diggit
     end
 
     def self.start
-      app = Diggit::Application.new(@@config)
+      app = Diggit::Application.new(@config)
       Rack::Server.start(app: app.rack_app, Port: app.host.port)
     end
 

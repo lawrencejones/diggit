@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'hanami-router'
 gem 'coach'
-gem 'sinatra-activerecord'
+gem 'activerecord'
 gem 'pg'
 gem 'rake'
 gem 'prius'

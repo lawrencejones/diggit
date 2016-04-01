@@ -27,7 +27,7 @@ module Diggit
 
       Hanami::Router.new(opt).tap do |router|
         router.mount build_front_end, at: '/'
-        router.get '/ping', to: Coach::Handler.new(Routes::Github::Ping)
+        router.get '/ping', to: ->(_env) { [200, {}, ["pong!\n"]] }
       end
     end
 

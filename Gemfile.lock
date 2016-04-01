@@ -83,8 +83,6 @@ GEM
       pry (~> 0.10)
     que (0.11.4)
     rack (1.6.4)
-    rack-protection (1.5.3)
-      rack
     rack-test (0.6.3)
       rack (>= 1.0)
     rails-deprecated_sanitizer (1.0.3)
@@ -121,16 +119,8 @@ GEM
       rainbow (>= 1.99.1, < 3.0)
       ruby-progressbar (~> 1.7)
     ruby-progressbar (1.7.5)
-    sinatra (1.4.7)
-      rack (~> 1.5)
-      rack-protection (~> 1.4)
-      tilt (>= 1.3, < 3)
-    sinatra-activerecord (2.0.9)
-      activerecord (>= 3.2)
-      sinatra (~> 1.0)
     slop (3.6.0)
     thread_safe (0.3.5)
-    tilt (2.0.2)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     url_mount (0.2.1)
@@ -140,6 +130,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord
   activesupport
   coach
   colorize
@@ -159,7 +150,6 @@ DEPENDENCIES
   rerun
   rspec
   rubocop
-  sinatra-activerecord
 
 BUNDLED WITH
    1.11.2
