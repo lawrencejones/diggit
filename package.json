@@ -42,6 +42,7 @@
     "gulp-sass": "^2.2.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.3",
+    "http-proxy-middleware": "^0.13.0",
     "jade": "^1.11.0",
     "jspm": "^0.16.29",
     "karma": "^0.13.21",

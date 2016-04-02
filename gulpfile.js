@@ -12,6 +12,7 @@ const ngAnnotate  = require('gulp-ng-annotate');
 const uglify      = require('gulp-uglify');
 const sourcemaps  = require('gulp-sourcemaps');
 const sass        = require('gulp-sass');
+const proxy       = require('http-proxy-middleware');
 
 const config = {
   web: 'web/',
@@ -118,6 +119,7 @@ taskMaker.defineTask('browserSync', {
     files: 'web/dist/**/*',
     server: {
       baseDir: [config.dist, config.public],
+      middleware: [proxy('http://diggit.dev:9292/api')],
       routes: {
         '/system.config.js': 'web/system.config.js',
         '/jspm_packages': 'web/jspm_packages',
