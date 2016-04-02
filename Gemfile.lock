@@ -59,6 +59,7 @@ GEM
       url_mount (~> 0.2.1)
     i18n (0.7.0)
     json (1.8.3)
+    jwt (1.5.4)
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
@@ -121,6 +122,7 @@ GEM
     ruby-progressbar (1.7.5)
     slop (3.6.0)
     thread_safe (0.3.5)
+    timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     url_mount (0.2.1)
@@ -141,6 +143,7 @@ DEPENDENCIES
   hamster
   hanami-router
   highline
+  jwt
   parser
   pg
   prius
@@ -150,6 +153,7 @@ DEPENDENCIES
   rerun
   rspec
   rubocop
+  timecop
 
 BUNDLED WITH
    1.11.2

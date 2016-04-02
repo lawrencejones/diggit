@@ -1,11 +1,18 @@
 require 'diggit'
 
 RSpec.describe(Diggit::Application) do
-  subject(:app) { described_class.new(host: host, github_token: github_token) }
+  subject(:app) { described_class.new(config) }
+
+  let(:config) do
+    { host: host, github_token: github_token, secret: secret,
+      github_client_id: github_client_id }
+  end
 
   let(:host) { "http://#{endpoint}" }
   let(:endpoint) { 'diggit.herokuapp.com' }
   let(:github_token) { 'gh-token' }
+  let(:secret) { 'secret' }
+  let(:github_client_id) { 'gh-client-id' }
 
   describe '#rack_app' do
     subject(:rack_app) { app.rack_app }
@@ -21,13 +28,9 @@ RSpec.describe(Diggit::Application) do
       end
     end
 
-    context 'on subdomain api' do
-      let(:endpoint) { 'api.diggit.herokuapp.com' }
-
-      it 'responds to health check' do
-        request = Rack::MockRequest.env_for("#{host}/ping")
-        expect(-> { rack_app.call(request) }).to respond_with_body_that_matches(/pong!/)
-      end
+    it 'responds to health check' do
+      request = Rack::MockRequest.env_for("#{host}/api/ping")
+      expect(-> { rack_app.call(request) }).to respond_with_body_that_matches(/pong!/)
     end
   end
 end

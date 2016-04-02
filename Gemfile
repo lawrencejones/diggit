@@ -19,7 +19,12 @@ gem 'git'
 gem 'descriptive-statistics'
 gem 'que'
 gem 'hamster'
+gem 'jwt'
 
 group :development do
   gem 'rerun'
+end
+
+group :test do
+  gem 'timecop'
 end

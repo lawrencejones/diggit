@@ -9,14 +9,7 @@ RSpec.describe(Diggit::Middleware::FrontEnd) do
   let(:rack_static) { instance_double(Rack::Static) }
   let(:fallback_path) { '/index.html' }
 
-  context 'with request to api subdomain' do
-    let(:url) { 'https://api.diggit.com/path' }
-
-    it { is_expected.to respond_with_status(404) }
-    it { is_expected.to respond_with_header('X-Cascade', 'pass') }
-  end
-
-  context 'with non-api request' do
+  context 'with non-api namespaced request' do
     let(:url) { 'https://diggit.com/build.js' }
 
     let(:not_found_build) { [404, {}, []] }

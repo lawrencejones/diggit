@@ -26,6 +26,9 @@ module Diggit
         Hamster::Hash.new(
           env: Prius.get(:diggit_env),
           host: Prius.get(:diggit_host),
+          secret: Prius.get(:diggit_secret),
+          github_client_id: Prius.get(:diggit_github_client_id),
+          github_client_secret: Prius.get(:diggit_github_client_secret),
           github_token: Prius.get(:diggit_github_token)
         )
       end

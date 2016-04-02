@@ -4,6 +4,7 @@ require 'bundler/setup'
 Bundler.setup(:default, :test)
 
 require 'rspec'
+require 'timecop'
 require 'pry'
 require 'coach'
 require 'active_support/core_ext'

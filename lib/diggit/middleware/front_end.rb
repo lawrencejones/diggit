@@ -5,12 +5,8 @@ module Diggit
   module Middleware
     # Acts as a static server, backed by the Rack::Static middleware, with a fallback path
     # to serve from if the original request can't be fulfilled.
-    #
-    # Filters any requests that are on the `api` subdomain onto the next rack middleware.
     class FrontEnd < Coach::Middleware
       def call
-        return cascade if request_host.starts_with?('api.')
-
         response = rack_static.call(request.env)
         response.first == 404 ? rack_static.call(fallback_env) : response
       end
