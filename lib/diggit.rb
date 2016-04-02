@@ -3,7 +3,7 @@ require 'coach'
 require 'uri'
 require 'rack'
 
-require_relative 'diggit/routes/github'
+require_relative 'diggit/routes/auth'
 require_relative 'diggit/middleware/front_end'
 
 module Diggit
@@ -39,8 +39,8 @@ module Diggit
     end
 
     def build_api_rack
-      Hanami::Router.new.tap do |router|
-        router.mount build_github, at: '/github'
+      Hanami::Router.new(parsers: [:json]).tap do |router|
+        router.mount build_auth, at: '/auth'
 
         router.get '/ping', to: ->(_env) { [200, {}, ["pong!\n"]] }
       end
@@ -53,14 +53,18 @@ module Diggit
         fallback_path: '/index.html')
     end
 
-    def build_github
+    def build_auth
       Hanami::Router.new.tap do |router|
         router.get '/redirect', to: Coach::Handler.
-          new(Routes::Github::Redirect,
+          new(Routes::Auth::Redirect,
               secret: config.fetch(:secret),
               client_id: config.fetch(:github_client_id),
-              scope: 'write:repo_hook,repo',
-              redirect_uri: uri_to('/api/github/oauth_callback'))
+              scope: 'write:repo_hook,repo')
+        router.post '/access_token', to: Coach::Handler.
+          new(Routes::Auth::CreateAccessToken,
+              secret: config.fetch(:secret),
+              client_id: config.fetch(:github_client_id),
+              client_secret: config.fetch(:github_client_secret))
       end
     end
   end

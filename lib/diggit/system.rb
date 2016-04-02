@@ -6,8 +6,10 @@ require 'que'
 require 'active_record'
 require 'yaml'
 require 'rack'
+require 'coach'
 
 require_relative '../diggit'
+require_relative 'services/jwt'
 
 module Diggit
   class System
@@ -19,6 +21,12 @@ module Diggit
         load_config!
         configure_active_record!
         configure_que!
+
+        Coach::Middleware.class_eval do
+          define_method(:params) { request.env['router.params'] }
+        end
+
+        Diggit::Services::Jwt.secret = Prius.get(:diggit_secret)
 
         # Load all database models
         require_relative 'models/project'

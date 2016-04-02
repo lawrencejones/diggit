@@ -27,6 +27,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    addressable (2.3.8)
     arel (6.0.3)
     ast (2.2.0)
     builder (3.2.2)
@@ -66,6 +67,7 @@ GEM
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     method_source (0.8.2)
+    mime-types (1.25.1)
     mini_portile2 (2.0.0)
     minitest (5.8.3)
     nokogiri (1.6.7.2)
@@ -101,6 +103,8 @@ GEM
       ffi (>= 0.5.0)
     rerun (0.11.0)
       listen (~> 3.0)
+    rest-client (1.6.9)
+      mime-types (~> 1.16)
     rspec (3.3.0)
       rspec-core (~> 3.3.0)
       rspec-expectations (~> 3.3.0)
@@ -125,6 +129,10 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    unirest (1.1.2)
+      addressable (~> 2.3.5)
+      json (~> 1.8.1)
+      rest-client (~> 1.6.7)
     url_mount (0.2.1)
       rack
 
@@ -154,6 +162,7 @@ DEPENDENCIES
   rspec
   rubocop
   timecop
+  unirest
 
 BUNDLED WITH
    1.11.2

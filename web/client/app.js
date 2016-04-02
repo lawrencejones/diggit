@@ -4,12 +4,14 @@ import 'twbs/bootstrap/css/bootstrap.css!';
 
 import {homeRouteModule} from './routes/home/home.route.js';
 import {loginRouteModule} from './routes/login/login.route.js';
+import {githubCallbackRouteModule} from './routes/githubCallback/githubCallback.route.js';
 import {authInterceptorModule} from './services/authInterceptor';
 
 export const appModule = angular.module('app', [
   'ui.router',
   homeRouteModule.name,
   loginRouteModule.name,
+  githubCallbackRouteModule.name,
   authInterceptorModule.name,
 ])
 
@@ -19,7 +21,7 @@ export const appModule = angular.module('app', [
   $httpProvider.interceptors.push('AuthInterceptor')
   $httpProvider.useApplyAsync(true);
 
-  $urlRouterProvider.otherwise('/home');
+  $urlRouterProvider.otherwise('/login');
   $stateProvider.state('app', {
     abstract: true,
     template: `

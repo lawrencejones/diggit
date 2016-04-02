@@ -20,6 +20,7 @@ gem 'descriptive-statistics'
 gem 'que'
 gem 'hamster'
 gem 'jwt'
+gem 'unirest'
 
 group :development do
   gem 'rerun'
