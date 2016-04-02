@@ -19,3 +19,7 @@ Diggit::System.init
 def load_fixture(file)
   File.read(File.join(File.dirname(__FILE__), 'fixtures', file))
 end
+
+def mock_request_for(url, headers = {})
+  ActionDispatch::Request.new(Rack::MockRequest.env_for(url, headers))
+end

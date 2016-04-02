@@ -12,7 +12,7 @@ module Diggit
         return cascade if request_host.starts_with?('api.')
 
         response = rack_static.call(request.env)
-        rack_static.call(fallback_env) if response.first == 404
+        response.first == 404 ? rack_static.call(fallback_env) : response
       end
 
       private
@@ -33,7 +33,7 @@ module Diggit
       end
 
       def request_host
-        request.headers.fetch('HTTP_HOST', '')
+        request.headers['HTTP_HOST'] || request.headers['SERVER_NAME']
       end
     end
   end
