@@ -1,1 +1,1 @@
-web: bundle exec rackup config.ru -s puma -p $PORT
+web: RACK_ENV=${RACK_ENV:production} ./bin/diggit
