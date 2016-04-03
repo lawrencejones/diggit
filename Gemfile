@@ -21,11 +21,13 @@ gem 'que'
 gem 'hamster'
 gem 'jwt'
 gem 'unirest'
+gem 'octokit'
 
 group :development do
   gem 'rerun'
 end
 
 group :test do
+  gem 'database_cleaner'
   gem 'timecop'
 end

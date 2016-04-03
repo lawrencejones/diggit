@@ -2,7 +2,7 @@ import angular from 'angular';
 import 'angular-ui-router';
 import _ from 'lodash';
 
-import {HOME_ROUTE_STATE} from 'routes/home/home.route.js';
+import {REPOS_ROUTE_STATE} from 'routes/repos/repos.route.js';
 import {LOGIN_ROUTE_STATE} from 'routes/login/login.route.js';
 import {authModule} from 'services/auth.js';
 
@@ -34,6 +34,6 @@ export const githubCallbackRouteModule = angular.module('githubCallbackRouteModu
 
       $log.info('Successful github auth!');
       AccessTokenStore.set(access_token.token);
-      $state.go(HOME_ROUTE_STATE);
+      $state.go(REPOS_ROUTE_STATE);
     }, fail);
 });

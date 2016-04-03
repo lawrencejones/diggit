@@ -2,14 +2,14 @@ import angular from 'angular';
 import 'angular-ui-router';
 import 'twbs/bootstrap/css/bootstrap.css!';
 
-import {homeRouteModule} from './routes/home/home.route.js';
+import {reposRouteModule} from './routes/repos/repos.route.js';
 import {loginRouteModule} from './routes/login/login.route.js';
 import {githubCallbackRouteModule} from './routes/githubCallback/githubCallback.route.js';
 import {authInterceptorModule} from './services/authInterceptor';
 
 export const appModule = angular.module('app', [
   'ui.router',
-  homeRouteModule.name,
+  reposRouteModule.name,
   loginRouteModule.name,
   githubCallbackRouteModule.name,
   authInterceptorModule.name,

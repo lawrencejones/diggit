@@ -4,6 +4,7 @@ require 'uri'
 require 'rack'
 
 require_relative 'diggit/routes/auth'
+require_relative 'diggit/routes/repos'
 require_relative 'diggit/middleware/front_end'
 
 module Diggit
@@ -41,6 +42,7 @@ module Diggit
     def build_api_rack
       Hanami::Router.new(parsers: [:json]).tap do |router|
         router.mount build_auth, at: '/auth'
+        router.mount build_repos, at: '/repos'
 
         router.get '/ping', to: ->(_env) { [200, {}, ["pong!\n"]] }
       end
@@ -63,6 +65,12 @@ module Diggit
           new(Routes::Auth::CreateAccessToken,
               client_id: config.fetch(:github_client_id),
               client_secret: config.fetch(:github_client_secret))
+      end
+    end
+
+    def build_repos
+      Hanami::Router.new.tap do |router|
+        router.get '/', to: Coach::Handler.new(Routes::Repos::Index)
       end
     end
   end

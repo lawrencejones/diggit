@@ -14,7 +14,7 @@ ActiveRecord::Tasks::DatabaseTasks.tap do |config|
   config.db_dir = 'db'
   config.migrations_paths = ['db/migrate']
   config.fixtures_path = 'spec/fixtures'
-  config.seed_loader = seed_loader
+  config.seed_loader = seed_loader.new
   config.database_configuration = YAML.load_file('config/database.yml')
 end
 

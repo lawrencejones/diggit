@@ -17,10 +17,10 @@ ActiveRecord::Schema.define(version: 20160331211012) do
   enable_extension "plpgsql"
 
   create_table "projects", force: :cascade do |t|
-    t.string "github_path", limit: 126, null: false
+    t.string "gh_path", limit: 126, null: false
   end
 
-  add_index "projects", ["github_path"], name: "index_projects_on_github_path", unique: true, using: :btree
+  add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
 
   create_table "que_jobs", id: false, force: :cascade do |t|
     t.integer  "priority",    limit: 2, default: 100,                   null: false
