@@ -5,8 +5,6 @@ dependencies:
     - git config --global user.email "bot@circle.ci"
     - git config --global user.name "Circle"
     - bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
-    - npm install -g jspm
-    - ./bin/auth-jspm
     - npm install
 
 machine:
