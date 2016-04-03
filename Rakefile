@@ -2,14 +2,14 @@ require_relative 'lib/tasks/db'
 
 namespace :deploy do
   desc 'Deploy diggit'
-  task :production, [:branch] do |t, args|
+  task :production, [:branch] do |_t, args|
     app = 'diggit'
     remote = "https://git.heroku.com/#{app}.git"
     branch = args.fetch(:branch, 'master')
 
     system "heroku maintenance:on --app #{app}"
     system "git push --force #{remote} #{branch}:master"
-    system "heroku run rake db:migrate"
+    system 'heroku run rake db:migrate'
     system "heroku maintenance:off --app #{app}"
 
     system 'echo "Pinging diggit... " && curl https://diggit.herokuapp.com/api/ping'
