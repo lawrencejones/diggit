@@ -19,10 +19,11 @@ required environment variables, or the script will fail on boot. These variables
 can be found in the `dummy-env` file or otherwise specified as `Prius` calls.
 
 As each build requires a fresh javascript bundle, the heroku instance will also
-require a node buildpack. This can be added to the instance by running...
+require a node buildpack in addition to ruby. This can be added to the instance
+by running...
 
 ```sh
-heroku buildpacks:add --index 1 heroku/nodejs
+rake heroku::configure_buildpacks
 ```
 
 Running `heroku buildpacks` should now display something like the following,
