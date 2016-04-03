@@ -6,59 +6,95 @@ const gulp        = require('gulp');
 const gutil       = require('gulp-util');
 const taskMaker   = require('gulp-helpers').taskMaker(gulp);
 const runSequence = require('gulp-helpers').framework('run-sequence');
-const KarmaServer = require('karma').Server;
 const jshint      = require('gulp-jshint');
 const jade        = require('gulp-jade');
 const ngAnnotate  = require('gulp-ng-annotate');
 const uglify      = require('gulp-uglify');
 const sourcemaps  = require('gulp-sourcemaps');
+const sass        = require('gulp-sass');
+const proxy       = require('http-proxy-middleware');
 
 const config = {
-  output: 'web/dist/',                                 // output directory for compiled assets
-  public: 'public/',                                   // public assets from sinatra app
-  appRoot: 'client/app/app.js',                        // root for front-end app
-  buildJs: 'public/build.js',                          // production js bundle
-  index: 'web/client/index.jade',                      // root index.html source
-  jsSource: ['web/client/**/*.js'],                    // client javascript
-  json: 'web/client/**/*.json',                        // client json
-  pegjs: 'web/client/**/*.pegjs',                      // client pegjs
-  html: 'web/client/**/*.html',                        // client html
-  jspm: 'web/jspm_packages',                           // location of jspm packages
-  watch: 'web/client/**',                              // watch pattern that triggers server reload
-  karmaConfig: 'web/karma.conf.js',                    // karma test runner configuration file
-  systemConfig: 'web/system.config.js',                // SystemJS configuration file
+  web: 'web/',
+  dist: 'web/dist/',
+  client: 'web/client/',
+  public: 'public/',
+  bundle: {
+    root: 'dist/app.js',
+    output: 'public/build.js',
+  },
 };
 
-gulp.task('default', ['run']);
-gulp.task('run', ['recompile', 'serve', 'watch']);
+const assets = {
+  es6: 'web/client/**/*.js',
+  jade: ['web/client/**/*.jade', '!web/client/index.jade'],
+  scss: 'web/client/**/*.scss',
+  index: 'web/client/index.jade',
+};
+
+// LINT AND TESTING //
 
 gulp.task('lint', () => {
-  return gulp.src(config.jsSource)
+  return gulp.src(assets.es6)
     .pipe(jshint())
     .pipe(jshint.reporter(require('jshint-stylish')));
 });
 
 gulp.task('karma', ['recompile'], (cb) => {
+  let KarmaServer = require('karma').Server;
   new KarmaServer({
-    configFile: path.join(__dirname, config.karmaConfig),
+    configFile: path.join(__dirname, 'web', 'karma.conf.js'),
     singleRun: true,
   }, cb).start()
 });
 
-gulp.task('compile', ['babel', 'systemConfig', 'json', 'index.dev', 'html', 'pegjs']);
-gulp.task('recompile', (cb) => { runSequence('clean', 'compile', cb) });
+// ASSET TRANSPILATION //
 
-gulp.task('bundle', ['index.prod'], (cb) => {
+const transpileTask = (src, transpiler, dst) => {
+  return (cb) => {
+    return gulp.src(src)
+      .pipe(transpiler()).on('error', cb)
+      .pipe(gulp.dest(dst));
+  }
+}
+
+gulp.task('assets', ['es6', 'jade', 'scss', 'static-assets', 'index.dev']);
+gulp.task('recompile', (cb) => { runSequence('clean', 'assets', cb) });
+taskMaker.defineTask('clean', {taskName: 'clean', src: config.dist});
+
+taskMaker.defineTask('babel', {
+  taskName: 'es6',
+  src: assets.es6,
+  dest: config.dist,
+  ngAnnotate: true,
+  compilerOptions: {modules: 'system'},
+});
+
+taskMaker.defineTask('copy', {
+  taskName: 'static-assets',
+  src: 'web/client/**/*.{json,html,pegjs}',
+  dest: config.dist,
+})
+
+gulp.task('jade', transpileTask(assets.jade, jade, config.dist));
+gulp.task('scss', transpileTask(assets.scss, sass, config.dist));
+
+gulp.task('index.prod', transpileTask(assets.index, jade.bind(jade, {locals: {env: 'production'}}), config.public));
+gulp.task('index.dev', transpileTask(assets.index, jade.bind(jade, {locals: {env: 'development'}}), config.dist));
+
+// PRODUCTION BUNDLING //
+
+gulp.task('bundle', ['assets', 'index.prod'], (cb) => {
   gutil.log('Creating production bundle...');
-  require('jspm').bundleSFX(config.appRoot, config.buildJs, {
+  require('jspm').bundleSFX(config.bundle.root, config.bundle.output, {
     sourceMaps: 'inline',
     minify: false,
   }).then(() => {
-    return gulp.src(config.buildJs)
+    return gulp.src(config.bundle.output)
       .pipe(sourcemaps.init({loadMaps: true}))
         .on('data', () => { gutil.log('Running ng-annotate...') })
         .pipe(ngAnnotate())
-        .on('data', () => { gutil.log('Minifying bundle.js...') })
+        .on('data', () => { gutil.log('Minifying build.js...') })
         .pipe(uglify())
       .on('data', () => { gutil.log('Finalising sourcemaps...') })
       .pipe(sourcemaps.write('.'))
@@ -68,33 +104,11 @@ gulp.task('bundle', ['index.prod'], (cb) => {
   }).catch(cb);
 });
 
-/* Compile index.jade with different environments */
-const indexTask = (locals, dest) => {
-  return () => { gulp.src(config.index).pipe(jade({locals})).pipe(gulp.dest(dest)); }
-}
+// DEVELOPMENT TASKS //
 
-gulp.task('index.prod', indexTask({env: 'production'}, config.public));
-gulp.task('index.dev', indexTask({env: 'development'}, config.output));
-
-taskMaker.defineTask('babel', {
-  taskName: 'babel',
-  src: config.jsSource,
-  dest: config.output,
-  ngAnnotate: true,
-  compilerOptions: {modules: 'system'},
-});
-
-taskMaker.defineTask('copy', {taskName: 'systemConfig', src: config.systemConfig, dest: config.output});
-taskMaker.defineTask('copy', {taskName: 'json', src: config.json, dest: config.output});
-taskMaker.defineTask('copy', {taskName: 'html', src: config.html, dest: config.output});
-taskMaker.defineTask('copy', {taskName: 'pegjs', src: config.pegjs, dest: config.output});
-
-taskMaker.defineTask('watch', {taskName: 'watch', src: config.watch, tasks: ['compile']});
-taskMaker.defineTask('clean', {taskName: 'clean', src: [
-  config.output,
-  path.join(config.public, 'index.html'),
-  path.join(config.public, 'build.*'),
-]});
+gulp.task('default', ['run']);
+gulp.task('run', ['recompile', 'serve', 'watch']);
+taskMaker.defineTask('watch', {taskName: 'watch', src: path.join(config.client, '**/*'), tasks: ['assets']});
 
 taskMaker.defineTask('browserSync', {
   taskName: 'serve',
@@ -102,11 +116,13 @@ taskMaker.defineTask('browserSync', {
   config: {
     open: false,
     port: process.env.PORT || 4567,
+    files: 'web/dist/**/*',
     server: {
-      baseDir: [config.output, config.public],
+      baseDir: [config.dist, config.public],
+      middleware: [proxy('http://diggit.dev:9292/api')],
       routes: {
-        '/system.config.js': config.systemConfig,
-        '/jspm_packages': config.jspm,
+        '/system.config.js': 'web/system.config.js',
+        '/jspm_packages': 'web/jspm_packages',
       },
     },
   },

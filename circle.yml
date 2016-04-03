@@ -1,4 +1,6 @@
 dependencies:
+  cache_directories:
+    - 'web/jspm_packages'
   override:
     - git config --global user.email "bot@circle.ci"
     - git config --global user.name "Circle"
@@ -10,6 +12,7 @@ dependencies:
 machine:
   environment:
     RACK_ENV: test
+    DIGGIT_GITHUB_CLIENT_SECRET: github-client-secret
   ruby:
     version: '2.2.3'
   node:
@@ -20,5 +23,6 @@ test:
     - bundle exec rubocop
     - ./node_modules/.bin/gulp lint
   override:
+    - npm run bundle
     - bundle exec rspec
     - ./node_modules/.bin/gulp karma

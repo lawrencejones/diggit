@@ -16,6 +16,12 @@ ActiveRecord::Schema.define(version: 20160331211012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "projects", force: :cascade do |t|
+    t.string "gh_path", limit: 126, null: false
+  end
+
+  add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
+
   create_table "que_jobs", id: false, force: :cascade do |t|
     t.integer  "priority",    limit: 2, default: 100,                   null: false
     t.datetime "run_at",                default: '2016-03-31 22:05:52', null: false
@@ -26,11 +32,5 @@ ActiveRecord::Schema.define(version: 20160331211012) do
     t.text     "last_error"
     t.text     "queue",                 default: "",                    null: false
   end
-
-  create_table "projects", force: :cascade do |t|
-    t.string "github_path", limit: 126, null: false
-  end
-
-  add_index "projects", ["github_path"], name: "index_projects_on_github_path", unique: true, using: :btree
 
 end

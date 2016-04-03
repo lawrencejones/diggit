@@ -6,7 +6,8 @@
   "scripts": {
     "start": "gulp",
     "prepublish": "jspm install",
-    "test": "gulp karma"
+    "test": "gulp karma",
+    "bundle": "gulp bundle"
   },
   "private": true,
   "author": "lawrencejones <lawrjone@gmail.com>",
@@ -39,8 +40,10 @@
     "gulp-jade": "^1.1.0",
     "gulp-jspm-build": "0.0.14",
     "gulp-ng-annotate": "^2.0.0",
+    "gulp-sass": "^2.2.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.3",
+    "http-proxy-middleware": "^0.13.0",
     "jade": "^1.11.0",
     "jspm": "^0.16.29",
     "karma": "^0.13.21",
@@ -57,10 +60,14 @@
     "configFile": "web/system.config.js",
     "dependencies": {
       "angular": "github:angular/bower-angular@^1.5.0",
+      "angular-mock": "npm:angular-mock@^1.0.0",
+      "angular-mocks": "github:angular/bower-angular-mocks@^1.5.3",
       "angular-ui-router": "github:angular-ui/ui-router@^0.2.18",
       "css": "github:systemjs/plugin-css@^0.1.20",
+      "lodash": "npm:lodash@^4.7.0",
       "lookfirst/oclazyload-systemjs-router": "github:lookfirst/oclazyload-systemjs-router@^1.2.2",
       "pegjs": "npm:pegjs@^0.9.0",
+      "scss": "github:mobilexag/plugin-sass@^0.4.0",
       "systemjs": "npm:systemjs@^0.19.22",
       "text": "github:systemjs/plugin-text@^0.0.7",
       "twbs/bootstrap": "github:twbs/bootstrap@3.3.6"

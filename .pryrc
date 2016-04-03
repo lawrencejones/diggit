@@ -1,2 +1,3 @@
 Pry.config.prompt = [proc { 'diggit> ' }]
-require './diggit.rb'
+require './lib/diggit/system'
+Diggit::System.init
