@@ -44,7 +44,7 @@ module Diggit
 
     def self.start
       app = Diggit::Application.new(@config)
-      Rack::Server.start(app: app.rack_app, Port: app.host.port)
+      Rack::Server.start(app: app.rack_app, Port: ENV['PORT'] || app.host.port)
     end
 
     def self.load_config!
@@ -61,7 +61,8 @@ module Diggit
         ActiveRecord::Base.logger = Logger.new(STDOUT)
       end
 
-      database_config = YAML.load_file(DATABASE_YAML).fetch(Prius.get(:diggit_env))
+      database_config = ENV['DATABASE_URL']
+      database_config ||= YAML.load_file(DATABASE_YAML).fetch(Prius.get(:diggit_env))
       ActiveRecord::Base.establish_connection(database_config)
     end
 
