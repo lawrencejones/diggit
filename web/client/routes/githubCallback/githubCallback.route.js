@@ -1,15 +1,12 @@
 import angular from 'angular';
 import 'angular-ui-router';
-import _ from 'lodash';
 
-import {REPOS_ROUTE_STATE} from 'routes/repos/repos.route.js';
-import {LOGIN_ROUTE_STATE} from 'routes/login/login.route.js';
-import {authModule} from 'services/auth.js';
+import {githubCallbackControllerModule} from './githubCallback.controller.js';
 
 export const GITHUB_CALLBACK_ROUTE_STATE = 'app.githubCallback';
 export const githubCallbackRouteModule = angular.module('githubCallbackRouteModule', [
   'ui.router',
-  authModule.name,
+  githubCallbackControllerModule.name,
 ])
 .config(($stateProvider) => {
   $stateProvider.state(GITHUB_CALLBACK_ROUTE_STATE, {
@@ -17,23 +14,4 @@ export const githubCallbackRouteModule = angular.module('githubCallbackRouteModu
     controllerAs: 'ctrl',
     controller: 'GithubCallbackController',
   });
-})
-.controller('GithubCallbackController', function(Auth, AccessTokenStore, $log, $window, $state) {
-  const fail = (error) => {
-    $window.alert(`There was an error [${error}] during OAuth, please try again`);
-    $state.go(LOGIN_ROUTE_STATE);
-  };
-
-  if ($state.params.error) {
-    fail($state.params.error);
-  }
-
-  Auth.createAccessToken({data: _.pick($state.params, 'code', 'state')})
-    .then(({access_token}) => {
-      if (!/\S+/.test(access_token.token)) { return fail('invalid_access_token') }
-
-      $log.info('Successful github auth!');
-      AccessTokenStore.set(access_token.token);
-      $state.go(REPOS_ROUTE_STATE);
-    }, fail);
 });

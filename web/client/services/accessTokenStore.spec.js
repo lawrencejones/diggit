@@ -47,4 +47,20 @@ describe('AccessTokenStore', () => {
       });
     });
   });
+
+  describe('#set', () => {
+    describe('with plain string token', () => {
+      it('throws an error', () => {
+        expect(() => AccessTokenStore.set('plain-token'))
+          .toThrowError(/token must be/i);
+      });
+    });
+
+    describe('with extra keys in token', () => {
+      it('throws an error', () => {
+        expect(() => AccessTokenStore.set({token: 'token', extraKey: 'extra'}))
+          .toThrowError(/token must be/i);
+      });
+    });
+  });
 });

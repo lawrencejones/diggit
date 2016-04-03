@@ -23,8 +23,8 @@ RSpec::Matchers.define :respond_with_json do |json_body|
     end
   end
 
-  failure_message do |actual|
-    "expected that json response body would match "\
+  failure_message do |_actual|
+    'expected that json response body would match '\
     "#{JSON.pretty_generate(json_body)}\n#{@diff}"
   end
 end

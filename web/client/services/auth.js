@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-import {httpFactoryModule} from 'services/httpFactory.js';
+import {httpFactoryModule} from './httpFactory.js';
 
 export const authModule = angular.module('authModule', [
   httpFactoryModule.name,

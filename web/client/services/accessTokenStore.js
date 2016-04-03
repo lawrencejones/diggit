@@ -1,4 +1,5 @@
 import angular from 'angular';
+import _ from 'lodash';
 
 export const ACCESS_TOKEN_KEY = 'diggit.access_token';
 
@@ -14,6 +15,9 @@ export const accessTokenStoreModule = angular.module('accessTokenStoreModule', [
     }
 
     set(token) {
+      if (!_.isObject(token) || _.keys(token).join(',') !== 'token') {
+        throw new Error(`Token must be {token}, but received ${JSON.stringify(token)}!`);
+      }
       return $window.localStorage.setItem(this.storeKey, JSON.stringify(token));
     }
 

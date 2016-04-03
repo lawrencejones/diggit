@@ -6,7 +6,8 @@
   "scripts": {
     "start": "gulp",
     "prepublish": "jspm install",
-    "test": "gulp karma"
+    "test": "gulp karma",
+    "bundle": "gulp bundle"
   },
   "private": true,
   "author": "lawrencejones <lawrjone@gmail.com>",

@@ -18,19 +18,20 @@ RSpec.describe(Diggit::Routes::Repos::Index) do
   end
 
   it { is_expected.to respond_with_status(200) }
-  it { is_expected.to respond_with_json({
-    'repos' => [
-      { 'gh_path' => 'lawrencejones/librespot',
-        'private' => false,
-        'project_id' => nil },
-      { 'gh_path' => 'lawrencejones/BearwavesWebsite',
-        'private' => false,
-        'project_id' => nil },
-      { 'gh_path' => 'lawrencejones/LiveHack',
-        'private' => false,
-        'project_id' => nil },
-    ]
-  }) }
+  it do
+    is_expected.
+      to respond_with_json('repos' => [
+                             { 'gh_path' => 'lawrencejones/librespot',
+                               'private' => false,
+                               'project_id' => nil },
+                             { 'gh_path' => 'lawrencejones/BearwavesWebsite',
+                               'private' => false,
+                               'project_id' => nil },
+                             { 'gh_path' => 'lawrencejones/LiveHack',
+                               'private' => false,
+                               'project_id' => nil },
+                           ])
+  end
 
   context 'when a library is being watched' do
     let!(:librespot) { Project.create(gh_path: 'lawrencejones/librespot') }

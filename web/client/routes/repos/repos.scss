@@ -1,2 +1,19 @@
 .repos {
+  button.watch-button {
+    background: none;
+    border-radius: 16px;
+    margin-top: -4px;
+    height: 29px;
+
+    &.stop {
+      opacity: 0.7;
+      color: #d9534f;
+      border-color: #d9534f;
+    }
+
+    &.start {
+      color: #4cae4c;
+      border-color: #4cae4c;
+    }
+  }
 }
