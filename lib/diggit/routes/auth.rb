@@ -36,22 +36,23 @@ module Diggit
         def call
           return error('invalid_state') unless valid_state?
 
-          gh_token, oauth_error = get_access_token_from_github
-          return error(oauth_error) unless oauth_error.nil?
+          gh_token, oauth_error = access_token_from_github
+          return error('bad_oauth_exchange') if gh_token.nil? || oauth_error.present?
 
           access_token = Services::Jwt.
-            encode({gh_token: gh_token}, Time.now.advance(minutes: TOKEN_EXPIRATION).to_i)
+            encode({ gh_token: gh_token },
+                   Time.now.advance(minutes: TOKEN_EXPIRATION).to_i)
 
-          [200, {}, [{access_token: {token: access_token}}.to_json]]
+          [200, {}, [{ access_token: { token: access_token } }.to_json]]
         end
 
         private
 
         def error(message)
-          [401, {}, [{error: message}.to_json]]
+          [401, {}, [{ error: message }.to_json]]
         end
 
-        def get_access_token_from_github
+        def access_token_from_github
           query_string = URI.encode_www_form(
             client_id: config.fetch(:client_id),
             client_secret: config.fetch(:client_secret),
@@ -60,9 +61,9 @@ module Diggit
 
           response = Unirest.
             post("#{GITHUB_GET_ACCESS_TOKEN}?#{query_string}",
-                 headers: {'Accept' => 'application/json'})
+                 headers: { 'Accept' => 'application/json' })
 
-          return response.body['access_token'], response.body['error']
+          [response.body['access_token'], response.body['error']]
         end
 
         def valid_state?

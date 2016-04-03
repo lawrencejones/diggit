@@ -10,6 +10,7 @@ dependencies:
 machine:
   environment:
     RACK_ENV: test
+    DIGGIT_GITHUB_CLIENT_SECRET: github-client-secret
   ruby:
     version: '2.2.3'
   node:

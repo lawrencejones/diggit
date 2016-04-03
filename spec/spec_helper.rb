@@ -22,5 +22,6 @@ def load_fixture(file)
 end
 
 def mock_request_for(url, headers = {})
+  headers['router.params'] = headers.delete(:params) unless headers[:params].nil?
   ActionDispatch::Request.new(Rack::MockRequest.env_for(url, headers))
 end

@@ -57,12 +57,10 @@ module Diggit
       Hanami::Router.new.tap do |router|
         router.get '/redirect', to: Coach::Handler.
           new(Routes::Auth::Redirect,
-              secret: config.fetch(:secret),
               client_id: config.fetch(:github_client_id),
               scope: 'write:repo_hook,repo')
         router.post '/access_token', to: Coach::Handler.
           new(Routes::Auth::CreateAccessToken,
-              secret: config.fetch(:secret),
               client_id: config.fetch(:github_client_id),
               client_secret: config.fetch(:github_client_secret))
       end
