@@ -5,7 +5,7 @@
   "main": "gulpfile.js",
   "scripts": {
     "start": "gulp",
-    "postinstall": "jspm install && gulp bundle",
+    "postinstall": "jspm install",
     "test": "gulp karma",
     "bundle": "gulp bundle",
     "heroku-postbuild": "npm run bundle"

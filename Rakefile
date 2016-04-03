@@ -10,10 +10,9 @@ namespace :deploy do
     system "heroku maintenance:on --app #{app}"
     system "git push --force #{remote} #{branch}:master"
     system "heroku run rake db:migrate"
-    system "npm run bundle"
     system "heroku maintenance:off --app #{app}"
 
-    system 'curl https://diggit.herokuapp.com'
+    system 'echo "Pinging diggit... " && curl https://diggit.herokuapp.com/api/ping'
   end
 end
 
