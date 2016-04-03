@@ -11,7 +11,7 @@ RSpec.describe(Diggit::Routes::Auth) do
   end
 
   describe(described_class::CreateAccessToken) do
-    let(:url) { 'https://diggit.com/api/github/access_token' }
+    let(:url) { 'https://diggit.com/api/auth/access_token' }
     let(:method) { 'POST' }
     let(:params) do
       { 'state' => 'valid_state', 'code' => 'github_access_code' }
@@ -66,7 +66,7 @@ RSpec.describe(Diggit::Routes::Auth) do
   end
 
   describe(described_class::Redirect) do
-    let(:url) { 'https://diggit.com/api/github/redirect' }
+    let(:url) { 'https://diggit.com/api/auth/redirect' }
     let(:method) { 'GET' }
 
     let(:github_authorize) { Diggit::Routes::Auth::GITHUB_AUTHORIZE }

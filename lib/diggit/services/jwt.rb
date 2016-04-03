@@ -8,7 +8,7 @@ module Diggit
       end
 
       def self.encode(payload, exp)
-        JWT.encode({ data: payload, exp: exp }, @secret, JWT_ALGORITHM)
+        JWT.encode({ data: payload, exp: exp.to_i }, @secret, JWT_ALGORITHM)
       end
 
       def self.decode(token)
