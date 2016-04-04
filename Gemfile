@@ -12,7 +12,6 @@ gem 'commander'
 gem 'highline'
 gem 'colorize'
 gem 'pry-byebug'
-gem 'rspec'
 gem 'rubocop'
 gem 'parser'
 gem 'activesupport'
@@ -30,6 +29,8 @@ group :development do
 end
 
 group :test do
+  gem 'rspec'
+  gem 'rspec-its'
   gem 'database_cleaner'
   gem 'timecop'
 end

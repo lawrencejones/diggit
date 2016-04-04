@@ -4,6 +4,8 @@ require_relative '../services/jwt'
 module Diggit
   module Middleware
     class Authorize < Coach::Middleware
+      class NotAuthorized < StandardError; end
+
       provides :gh_token
 
       def call
@@ -19,6 +21,8 @@ module Diggit
         not_authorized('expired_authorization_header')
       rescue JWT::VerificationError, JWT::DecodeError
         not_authorized('bad_authorization_header')
+      rescue NotAuthorized => err
+        not_authorized(err.message)
       end
 
       private

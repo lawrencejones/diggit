@@ -5,7 +5,8 @@ RSpec.describe(Diggit::Application) do
 
   let(:config) do
     { host: host, github_token: github_token, secret: secret,
-      github_client_id: github_client_id, github_client_secret: github_client_secret }
+      github_client_id: github_client_id, github_client_secret: github_client_secret,
+      webhook_endpoint: webhook_endpoint }
   end
 
   let(:host) { "http://#{endpoint}" }
@@ -14,6 +15,7 @@ RSpec.describe(Diggit::Application) do
   let(:secret) { 'secret' }
   let(:github_client_id) { 'gh-client-id' }
   let(:github_client_secret) { 'gh-client-secret' }
+  let(:webhook_endpoint) { "#{host}/api/github_webhooks" }
 
   describe '#rack_app' do
     subject(:rack_app) { app.rack_app }

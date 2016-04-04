@@ -4,3 +4,4 @@ export DIGGIT_HOST="http://diggit.dev:9292"
 export DIGGIT_GITHUB_TOKEN="token"
 export DIGGIT_SECRET="like-batman"
 export DIGGIT_GITHUB_CLIENT_ID="4a802bd4b9e63d3b8341"
+export DIGGIT_WEBHOOK_ENDPOINT='http://diggit.dev:9292/api/github_webhooks'

@@ -37,7 +37,8 @@ module Diggit
           secret: Prius.get(:diggit_secret),
           github_client_id: Prius.get(:diggit_github_client_id),
           github_client_secret: Prius.get(:diggit_github_client_secret),
-          github_token: Prius.get(:diggit_github_token)
+          github_token: Prius.get(:diggit_github_token),
+          webhook_endpoint: Prius.get(:diggit_webhook_endpoint)
         )
       end
     end

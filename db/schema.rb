@@ -11,13 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160331211012) do
+ActiveRecord::Schema.define(version: 20160404184242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "projects", force: :cascade do |t|
-    t.string "gh_path", limit: 126, null: false
+    t.string  "gh_path", limit: 126,                null: false
+    t.boolean "watch",               default: true
   end
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
