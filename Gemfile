@@ -23,6 +23,7 @@ gem 'hamster'
 gem 'jwt'
 gem 'unirest'
 gem 'octokit'
+gem 'json-schema'
 
 group :development do
   gem 'rerun'
