@@ -28,7 +28,9 @@ module Diggit
         def call
           ActiveRecord::Base.transaction do
             project = update_project!
-            gh_repo.setup_webhooks!(webhook_endpoint)
+
+            gh_repo.setup_webhook!(webhook_endpoint) if project.watch
+            gh_repo.remove_webhook!(webhook_endpoint) unless project.watch
 
             return [201, {}, [{ projects: project.as_json }.to_json]]
           end

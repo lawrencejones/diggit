@@ -10,10 +10,10 @@ module Diggit
         @repo[:full_name]
       end
 
-      def setup_webhooks!(endpoint)
-        return if webhook_already_setup?(endpoint)
+      def setup_webhook!(endpoint)
+        return unless existing_webhook(endpoint).nil?
 
-        puts("Setting up webhooks on #{path}...")
+        puts("Setting up webhook on #{path}...")
         @client.create_hook(
           path, 'web',
           { url: endpoint, content_type: :json },
@@ -21,10 +21,18 @@ module Diggit
           active: true)
       end
 
-      def webhook_already_setup?(endpoint)
-        @client.hooks(path).select do |hook|
+      def remove_webhook!(endpoint)
+        webhook = existing_webhook(endpoint)
+        return true if webhook.nil?
+
+        puts("Removing webhook on #{path}...")
+        @client.remove_hook(path, webhook[:id])
+      end
+
+      def existing_webhook(endpoint)
+        @client.hooks(path).find do |hook|
           hook[:config].to_h.fetch(:url, '').match(endpoint)
-        end.any?
+        end
       end
     end
   end

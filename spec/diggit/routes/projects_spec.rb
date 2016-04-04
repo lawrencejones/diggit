@@ -19,7 +19,10 @@ RSpec.describe(Diggit::Routes::Projects) do
     let(:method) { 'POST' }
     let(:params) { { projects: { watch: false } }.deep_stringify_keys }
 
-    before { allow(gh_repo).to receive(:setup_webhooks!).and_return(nil) }
+    before do
+      allow(gh_repo).to receive(:setup_webhook!).and_return(nil)
+      allow(gh_repo).to receive(:remove_webhook!).and_return(true)
+    end
 
     it_behaves_like 'passes JSON schema', 'api/projects/update.fixture.json'
 
@@ -28,6 +31,13 @@ RSpec.describe(Diggit::Routes::Projects) do
 
       it 'updates project watch field' do
         expect { instance.call }.to change { project.reload.watch }
+      end
+
+      it 'removes webhook' do
+        expect(gh_repo).
+          to receive(:remove_webhook!).
+          with(config.fetch(:webhook_endpoint))
+        instance.call
       end
 
       it { is_expected.to respond_with_status(201) }
@@ -43,10 +53,10 @@ RSpec.describe(Diggit::Routes::Projects) do
       it { is_expected.to respond_with_body_that_matches(/"watch":false/i) }
     end
 
-    context 'when setup_webhooks! fails' do
+    context 'when github fails' do
       before do
         allow(gh_repo).
-          to receive(:setup_webhooks!).
+          to receive(:remove_webhook!).
           and_raise(Octokit::Unauthorized)
       end
 

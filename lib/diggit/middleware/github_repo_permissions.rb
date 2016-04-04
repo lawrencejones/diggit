@@ -27,8 +27,7 @@ module Diggit
 
       def repo_permissions?
         gh_repo = gh_client.repo(repo_path)
-        missing = required_permissions.
-          select { |key| !gh_repo[:permissions][key] }
+        missing = required_permissions.select { |key| !gh_repo[:permissions][key] }
         missing.empty?
 
       rescue Octokit::NotFound

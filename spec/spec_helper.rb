@@ -80,6 +80,10 @@ def load_json_fixture(file)
   JSON.parse(load_fixture(file))
 end
 
+def load_yaml_fixture(file)
+  YAML.parse(load_fixture(file))
+end
+
 def mock_request_for(url, headers = {})
   headers['router.params'] = headers.delete(:params) unless headers[:params].nil?
   ActionDispatch::Request.new(Rack::MockRequest.env_for(url, headers))
