@@ -4,7 +4,6 @@ require 'uri'
 require 'rack'
 
 require_relative 'diggit/routes/auth'
-require_relative 'diggit/routes/repos'
 require_relative 'diggit/routes/projects'
 require_relative 'diggit/middleware/front_end'
 
@@ -44,7 +43,6 @@ module Diggit
       Hanami::Router.new(parsers: [:json]).tap do |router|
         router.mount build_auth, at: '/auth'
         router.mount build_projects, at: '/projects'
-        router.mount build_repos, at: '/repos'
 
         router.get '/ping', to: ->(_env) { [200, {}, ["pong!\n"]] }
       end
@@ -72,15 +70,10 @@ module Diggit
 
     def build_projects
       Hanami::Router.new.tap do |router|
+        router.get '/', to: Coach::Handler.new(Routes::Projects::Index)
         router.put '/:owner/:repo', to: Coach::Handler.
           new(Routes::Projects::Update,
               webhook_endpoint: config.fetch(:webhook_endpoint))
-      end
-    end
-
-    def build_repos
-      Hanami::Router.new.tap do |router|
-        router.get '/', to: Coach::Handler.new(Routes::Repos::Index)
       end
     end
   end
