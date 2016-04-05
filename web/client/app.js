@@ -1,4 +1,3 @@
-import 'babel/external-helpers';
 import angular from 'angular';
 import 'angular-ui-router';
 import 'twbs/bootstrap/css/bootstrap.css!';

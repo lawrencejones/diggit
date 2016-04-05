@@ -1,5 +1,6 @@
 'use strict';
 
+const fs          = require('fs');
 const path        = require('path');
 
 const gulp        = require('gulp');
@@ -84,7 +85,7 @@ gulp.task('index.dev', transpileTask(assets.index, jade.bind(jade, {locals: {env
 
 // PRODUCTION BUNDLING //
 
-gulp.task('bundle', ['assets', 'index.prod'], (cb) => {
+gulp.task('bundle', ['assets', 'external-helpers.js', 'index.prod'], (cb) => {
   gutil.log('Creating production bundle...');
   require('jspm').bundleSFX(config.bundle.root, config.bundle.output, {
     sourceMaps: 'inline',
@@ -102,6 +103,11 @@ gulp.task('bundle', ['assets', 'index.prod'], (cb) => {
       .on('end', () => { gutil.log('Done!') })
       .on('error', cb);
   }).catch(cb);
+});
+
+gulp.task('external-helpers.js', (cb) => {
+  let target = path.join(config.public, 'external-helpers.js');
+  fs.writeFile(target, require('babel').buildExternalHelpers(), cb);
 });
 
 // DEVELOPMENT TASKS //

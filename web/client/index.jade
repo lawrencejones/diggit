@@ -18,6 +18,7 @@ html(lang='en', data-framework='angularjs')
     .container
       div
         if env == 'production'
+          script(type='text/javascript', src='external-helpers.js')
           script(type='text/javascript', src='build.js')
         else
           script(type='text/javascript', src='jspm_packages/system.js')
