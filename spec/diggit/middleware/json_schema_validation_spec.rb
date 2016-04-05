@@ -14,6 +14,7 @@ RSpec.describe(Diggit::Middleware::JsonSchemaValidation) do
   let(:schema) do
     { type: :object,
       required: ['required_key'],
+      additionalProperties: false,
       properties: {
         required_key: { type: 'integer' },
         optional_string: { type: 'string' },
@@ -29,6 +30,7 @@ RSpec.describe(Diggit::Middleware::JsonSchemaValidation) do
   context 'with missing required key' do
     let(:params) { valid_params.except('required_key') }
 
+    it { is_expected.not_to call_next_middleware }
     it { is_expected.to respond_with_status(400) }
     it { is_expected.to respond_with_body_that_matches(/did not contain.*required_key/) }
   end

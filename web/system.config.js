@@ -22,7 +22,7 @@ System.config({
     "clean-css": "npm:clean-css@3.4.10",
     "core-js": "npm:core-js@1.2.6",
     "css": "github:systemjs/plugin-css@0.1.20",
-    "lodash": "npm:lodash@4.7.0",
+    "lodash": "npm:lodash@4.8.2",
     "lookfirst/oclazyload-systemjs-router": "github:lookfirst/oclazyload-systemjs-router@1.2.2",
     "pegjs": "npm:pegjs@0.9.0",
     "scss": "github:mobilexag/plugin-sass@0.4.0",
@@ -327,6 +327,10 @@ System.config({
       "buffer": "github:jspm/nodelibs-buffer@0.1.0"
     },
     "npm:lodash@4.7.0": {
+      "buffer": "github:jspm/nodelibs-buffer@0.1.0",
+      "process": "github:jspm/nodelibs-process@0.1.2"
+    },
+    "npm:lodash@4.8.2": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },

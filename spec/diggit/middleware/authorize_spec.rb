@@ -1,12 +1,13 @@
 require 'diggit/middleware/authorize'
 
 RSpec.describe(Diggit::Middleware::Authorize) do
-  subject(:instance) { described_class.new(context, null_middleware, {}) }
+  subject(:instance) { described_class.new(context, next_middleware, {}) }
 
   let(:context) { { request: request } }
   let(:request) { mock_request_for(url, 'HTTP_AUTHORIZATION' => auth_header) }
   let(:url) { 'https://diggit.com/api/a/protected/path' }
   let(:auth_header) { "Bearer #{auth_token}" }
+  let(:next_middleware) { null_middleware }
 
   let(:token_expiry) { Time.now.advance(minutes: 10) }
 
@@ -37,5 +38,16 @@ RSpec.describe(Diggit::Middleware::Authorize) do
 
     it { is_expected.to respond_with_status(401) }
     it { is_expected.to respond_with_body_that_matches(/expired_authorization_header/) }
+  end
+
+  context 'when next_middleware raises NotAuthorized' do
+    before do
+      allow(next_middleware).
+        to receive(:call).
+        and_raise(described_class::NotAuthorized, 'error_message')
+    end
+
+    it { is_expected.to respond_with_status(401) }
+    it { is_expected.to respond_with_body_that_matches(/error_message/) }
   end
 end
