@@ -31,16 +31,16 @@ RSpec.describe(Diggit::Routes::Projects) do
     it do
       is_expected.
         to respond_with_json('projects' => [
-                              { 'gh_path' => 'lawrencejones/librespot',
-                                'private' => false,
-                                'watch' => false },
-                              { 'gh_path' => 'lawrencejones/BearwavesWebsite',
-                                'private' => false,
-                                'watch' => false },
-                              { 'gh_path' => 'lawrencejones/LiveHack',
-                                'private' => false,
-                                'watch' => false },
-                            ])
+                               { 'gh_path' => 'lawrencejones/librespot',
+                                 'private' => false,
+                                 'watch' => false },
+                               { 'gh_path' => 'lawrencejones/BearwavesWebsite',
+                                 'private' => false,
+                                 'watch' => false },
+                               { 'gh_path' => 'lawrencejones/LiveHack',
+                                 'private' => false,
+                                 'watch' => false },
+                             ])
     end
 
     context 'when a project is being watched' do

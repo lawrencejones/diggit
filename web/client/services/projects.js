@@ -3,17 +3,16 @@ import angular from 'angular';
 import {httpFactoryModule} from './httpFactory.js';
 import {authInterceptorModule} from './authInterceptor';
 
-export const reposModule = angular.module('reposModule', [
+export const projectsModule = angular.module('projectsModule', [
   httpFactoryModule.name,
   authInterceptorModule.name,
 ])
-.factory('Repos', (HttpFactory, AuthInterceptor) => {
+.factory('Projects', (HttpFactory, AuthInterceptor) => {
   return HttpFactory.create({
-    url: '/api/repos/:id',
+    url: '/api/projects/:id',
     interceptor: AuthInterceptor,
   }, {
-    findAll: {
-      method: 'GET',
-    },
+    findAll: { method: 'GET' },
+    update: { method: 'PUT' },
   });
 });

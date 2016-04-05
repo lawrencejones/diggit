@@ -1,7 +1,7 @@
 import angular from 'angular';
 import 'angular-ui-router';
 
-import {githubCallbackControllerModule} from './githubCallback.controller.js';
+import {githubCallbackControllerModule} from './github-callback.controller.js';
 
 export const GITHUB_CALLBACK_ROUTE_STATE = 'app.githubCallback';
 export const githubCallbackRouteModule = angular.module('githubCallbackRouteModule', [

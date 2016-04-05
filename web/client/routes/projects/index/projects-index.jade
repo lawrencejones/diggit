@@ -1,0 +1,19 @@
+.projects-index
+  .row
+    .col-md-offset-2.col-md-8.col-sm-offset-2.col-sm-8.col-xs-12
+      .panel.panel-default
+        .panel-body
+          h3.panel-title
+            input.form-control(
+              type='text' ng-model='ctrl.projectSearch' placeholder='Filter projects...')
+        .list-group
+          .list-group-item(ng-repeat="project in ctrl.projects | filter:{gh_path: ctrl.projectSearch}")
+            span(ng-if="project.watch")
+              a(href='#')
+                | {{ project.gh_path }}
+              button.stop.watch-button.btn.btn-default.btn-sm.pull-right
+                | Stop watching project
+            span(ng-if="!project.watch")
+              | {{ project.gh_path }}
+              button.start.watch-button.btn.btn-default.btn-sm.pull-right
+                | Start watching project
