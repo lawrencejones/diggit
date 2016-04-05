@@ -11,9 +11,9 @@
             span(ng-if="project.watch")
               a(href='#')
                 | {{ project.gh_path }}
-              button.stop.watch-button.btn.btn-default.btn-sm.pull-right
+              button.stop.watch-button.btn.btn-default.btn-sm.pull-right(ng-click="ctrl.updateProject(project, {watch: false})")
                 | Stop watching project
             span(ng-if="!project.watch")
               | {{ project.gh_path }}
-              button.start.watch-button.btn.btn-default.btn-sm.pull-right
+              button.start.watch-button.btn.btn-default.btn-sm.pull-right(ng-click="ctrl.updateProject(project, {watch: true})")
                 | Start watching project
