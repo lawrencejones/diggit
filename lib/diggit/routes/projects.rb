@@ -1,4 +1,5 @@
 require 'coach'
+require_relative '../jobs/configure_project_github'
 require_relative '../middleware/authorize'
 require_relative '../middleware/github_repo_permissions'
 require_relative '../middleware/json_schema_validation'
@@ -54,25 +55,21 @@ module Diggit
           },
         }
 
-        requires :gh_repo
+        requires :gh_token, :gh_repo_path
 
         def call
           ActiveRecord::Base.transaction do
             project = update_project!
-
-            gh_repo.setup_webhook!(webhook_endpoint) if project.watch
-            gh_repo.remove_webhook!(webhook_endpoint) unless project.watch
+            Jobs::ConfigureProjectGithub.enqueue(project.id, gh_token)
 
             return [201, {}, [{ projects: project.as_json }.to_json]]
           end
-        rescue Octokit::Error
-          return [500, {}, [{ error: 'github_client_failure' }.to_json]]
         end
 
         private
 
         def update_project!
-          project = Project.find_or_initialize_by(gh_path: gh_repo.path)
+          project = Project.find_or_initialize_by(gh_path: gh_repo_path)
           project.update!(params.fetch('projects'))
           project
         end

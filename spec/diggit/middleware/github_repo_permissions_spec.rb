@@ -18,6 +18,7 @@ RSpec.describe(Diggit::Middleware::GithubRepoPermissions) do
   context 'when user has required permissions for repo' do
     it { is_expected.to call_next_middleware }
     it { is_expected.to provide(:gh_repo, instance_of(Diggit::Github::Repo)) }
+    it { is_expected.to provide(:gh_repo_path, instance_of('owner/repo')) }
   end
 
   context 'when user lacks a required permission' do
