@@ -1,6 +1,7 @@
 # For all options see https://github.com/bbatsov/rubocop/tree/master/config
 
 AllCops:
+  TargetRubyVersion: 2.2
   Exclude:
     - 'node_modules/**/*'
     - 'db/schema.rb'

@@ -8,9 +8,6 @@ require 'yaml'
 require 'rack'
 require 'coach'
 
-require_relative '../diggit'
-require_relative 'services/jwt'
-
 module Diggit
   class System
     DUMMY_ENV = File.expand_path('../../../dummy-env', __FILE__)
@@ -25,6 +22,9 @@ module Diggit
         Coach::Middleware.class_eval do
           define_method(:params) { request.env['router.params'] }
         end
+
+        require_relative '../diggit'
+        require_relative 'services/jwt'
 
         Diggit::Services::Jwt.secret = Prius.get(:diggit_secret)
 
@@ -69,6 +69,7 @@ module Diggit
 
     def self.configure_que!
       Que.connection = ActiveRecord
+      Que.mode = Prius.get(:diggit_env) == 'test' ? :sync : :async
     end
   end
 end

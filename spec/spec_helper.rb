@@ -5,6 +5,7 @@ Bundler.setup(:default, :test)
 
 require 'rspec'
 require 'rspec/its'
+require 'que'
 require 'timecop'
 require 'pry'
 require 'coach'
@@ -59,6 +60,8 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
 
+  config.after(:each) { ::Que.clear! }
+
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
@@ -66,8 +69,13 @@ RSpec.configure do |config|
   end
 end
 
+# In production or dev this should be set to real keys
+ENV['DIGGIT_SSH_PUBLIC_KEY'] =
+  File.read(File.expand_path('../fixtures/keys/id_rsa.pub', __FILE__))
+ENV['DIGGIT_SSH_PRIVATE_KEY'] =
+  File.read(File.expand_path('../fixtures/keys/id_rsa', __FILE__))
+
 $LOAD_PATH << '../lib'
-require 'diggit'
 require 'diggit/system'
 
 Diggit::System.init

@@ -8,14 +8,14 @@ module Diggit
       uses GithubClient
 
       requires :gh_client
-      provides :gh_repo
+      provides :gh_repo, :gh_repo_path
 
       def call
         unless repo_permissions?
           fail Middleware::Authorize::NotAuthorized, 'github_permissions'
         end
 
-        provide(gh_repo: Github::Repo.new(repo, gh_client))
+        provide(gh_repo: Github::Repo.new(repo, gh_client), gh_repo_path: repo_path)
         next_middleware.call
       end
 

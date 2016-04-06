@@ -5,10 +5,14 @@ RSpec.describe(Diggit::Routes::Projects) do
   subject(:instance) { described_class.new(context, null_middleware, config) }
   let(:config) { { webhook_endpoint: 'https://diggit.com/api/projects/webhooks' } }
 
-  let(:context) { { request: request, gh_client: gh_client, gh_repo: gh_repo } }
+  let(:context) do
+    { request: request, gh_client: gh_client, gh_token: gh_token,
+      gh_repo_path: 'lawrencejones/diggit' }
+  end
   let(:request) { mock_request_for(url, params: params, method: method) }
   let(:params) { nil }
 
+  let(:gh_token) { 'gh-token' }
   let(:gh_client) { instance_double(Octokit::Client) }
   let(:gh_repo) do
     instance_double(Diggit::Github::Repo, path: 'lawrencejones/diggit')
@@ -60,11 +64,6 @@ RSpec.describe(Diggit::Routes::Projects) do
     let(:method) { 'PUT' }
     let(:params) { { projects: { watch: false } }.deep_stringify_keys }
 
-    before do
-      allow(gh_repo).to receive(:setup_webhook!).and_return(nil)
-      allow(gh_repo).to receive(:remove_webhook!).and_return(true)
-    end
-
     it_behaves_like 'passes JSON schema', 'api/projects/update.fixture.json'
 
     context 'when project already exists' do
@@ -74,10 +73,10 @@ RSpec.describe(Diggit::Routes::Projects) do
         expect { instance.call }.to change { project.reload.watch }
       end
 
-      it 'removes webhook' do
-        expect(gh_repo).
-          to receive(:remove_webhook!).
-          with(config.fetch(:webhook_endpoint))
+      it 'enqueues ConfigureProjectGithub job' do
+        expect(Diggit::Jobs::ConfigureProjectGithub).
+          to receive(:enqueue).
+          with(project.id, gh_token)
         instance.call
       end
 
@@ -90,23 +89,15 @@ RSpec.describe(Diggit::Routes::Projects) do
         expect { instance.call }.to change(Project, :count).by(1)
       end
 
+      it 'enqueues ConfigureProjectGithub job' do
+        expect(Diggit::Jobs::ConfigureProjectGithub).
+          to receive(:enqueue).
+          with(anything, gh_token)
+        instance.call
+      end
+
       it { is_expected.to respond_with_status(201) }
       it { is_expected.to respond_with_body_that_matches(/"watch":false/i) }
-    end
-
-    context 'when github fails' do
-      before do
-        allow(gh_repo).
-          to receive(:remove_webhook!).
-          and_raise(Octokit::Unauthorized)
-      end
-
-      it 'does not create new project' do
-        expect { instance.call }.not_to change(Project, :count)
-      end
-
-      it { is_expected.to respond_with_status(500) }
-      it { is_expected.to respond_with_body_that_matches(/github_client_failure/) }
     end
   end
 end
