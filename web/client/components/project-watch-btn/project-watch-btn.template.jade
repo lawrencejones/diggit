@@ -1,0 +1,6 @@
+button.btn.btn-sm.project-watch-btn(
+  ng-click='ctrl.updateProject({projects: {watch: !ctrl.project.watch}})'
+  ng-class='{ stop: ctrl.project.watch, start: !ctrl.project.watch }'
+  )
+  | {{ ctrl.project.watch ? 'Stop watching' : 'Start watching' }}
+
