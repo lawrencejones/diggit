@@ -8,12 +8,9 @@
               type='text' ng-model='ctrl.projectSearch' placeholder='Filter projects...')
         .list-group
           .list-group-item(ng-repeat="project in ctrl.projects | filter:{gh_path: ctrl.projectSearch}")
-            span(ng-if="project.watch")
-              a(href='#')
+            span
+              a(ui-sref='app.projects.show(path: project.gh_path)' ng-if='project.watch')
                 | {{ project.gh_path }}
-              button.stop.watch-button.btn.btn-default.btn-sm.pull-right
-                | Stop watching project
-            span(ng-if="!project.watch")
-              | {{ project.gh_path }}
-              button.start.watch-button.btn.btn-default.btn-sm.pull-right
-                | Start watching project
+              span(ng-if='!project.watch')
+                | {{ project.gh_path }}
+              project-watch-btn.pull-right(project='project')

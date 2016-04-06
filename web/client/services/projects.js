@@ -9,7 +9,7 @@ export const projectsModule = angular.module('projectsModule', [
 ])
 .factory('Projects', (HttpFactory, AuthInterceptor) => {
   return HttpFactory.create({
-    url: '/api/projects/:id',
+    url: '/api/projects/:owner/:repo',
     interceptor: AuthInterceptor,
   }, {
     findAll: { method: 'GET' },
