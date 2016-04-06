@@ -1,10 +1,10 @@
 import angular from 'angular';
 import 'angular-mocks';
 
-import {REPOS_ROUTE_STATE} from '../repos/repos.route.js';
+import {PROJECTS_INDEX_ROUTE_STATE} from '../projects/index/projects-index.route.js';
 import {LOGIN_ROUTE_STATE} from '../login/login.route.js';
 
-import {githubCallbackControllerModule} from './githubCallback.controller.js';
+import {githubCallbackControllerModule} from './github-callback.controller.js';
 
 describe('GithubCallbackController', () => {
   beforeEach(angular.mock.module(githubCallbackControllerModule.name));
@@ -91,8 +91,8 @@ describe('GithubCallbackController', () => {
         expect(AccessTokenStore.get().token).toEqual('github-oauth-token');
       });
 
-      it('gos to repos state', () => {
-        expect(stateGoSpy).toHaveBeenCalledWith(REPOS_ROUTE_STATE);
+      it('gos to projects state', () => {
+        expect(stateGoSpy).toHaveBeenCalledWith(PROJECTS_INDEX_ROUTE_STATE);
       });
     });
 

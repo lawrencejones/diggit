@@ -5,13 +5,13 @@ import 'twbs/bootstrap/css/bootstrap.css!';
 
 import './app.css!';
 
-import {reposRouteModule} from './routes/repos/repos.route.js';
+import {projectsRouteModule} from './routes/projects/projects.route.js';
 import {loginRouteModule} from './routes/login/login.route.js';
-import {githubCallbackRouteModule} from './routes/githubCallback/githubCallback.route.js';
+import {githubCallbackRouteModule} from './routes/github-callback/github-callback.route.js';
 
 export const appModule = angular.module('app', [
   'ui.router',
-  reposRouteModule.name,
+  projectsRouteModule.name,
   loginRouteModule.name,
   githubCallbackRouteModule.name,
 ])
