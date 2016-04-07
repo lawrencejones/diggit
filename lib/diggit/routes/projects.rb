@@ -1,4 +1,5 @@
 require 'coach'
+require_relative '../serializers/project_serializer'
 require_relative '../jobs/configure_project_github'
 require_relative '../middleware/authorize'
 require_relative '../middleware/github_repo_permissions'
@@ -62,11 +63,15 @@ module Diggit
             project = update_project!
             Jobs::ConfigureProjectGithub.enqueue(project.id, gh_token)
 
-            return [201, {}, [{ projects: project.as_json }.to_json]]
+            return [201, {}, [{ projects: serialize(project) }.to_json]]
           end
         end
 
         private
+
+        def serialize(project)
+          Serializers::ProjectSerializer.new(project).as_json
+        end
 
         def update_project!
           project = Project.find_or_initialize_by(gh_path: gh_repo_path)
