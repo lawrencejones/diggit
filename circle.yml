@@ -11,8 +11,6 @@ machine:
   environment:
     RACK_ENV: test
     DIGGIT_GITHUB_CLIENT_SECRET: github-client-secret
-    DIGGIT_SSH_PUBLIC_KEY: public-key
-    DIGGIT_SSH_PRIVATE_KEY: private-key
   ruby:
     version: '2.2.3'
   node:

@@ -6,7 +6,7 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
 
   before do
     allow(Prius).to receive(:get) do |env_key|
-      { diggit_env: 'prod', diggit_ssh_public_key: 'ssh-public-key',
+      { diggit_env: 'prod',
         diggit_webhook_endpoint: 'https://diggit.com/api/github_webhooks' }.fetch(env_key)
     end
   end
@@ -49,7 +49,7 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
           with('https://diggit.com/api/github_webhooks')
         expect(repo).
           to receive(:setup_deploy_key!).
-          with(title: 'Diggit - prod', key: 'ssh-public-key')
+          with(title: 'Diggit - prod', key: anything)
         run!
       end
     end

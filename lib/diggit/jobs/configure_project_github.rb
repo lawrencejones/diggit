@@ -16,7 +16,8 @@ module Diggit
                                       Octokit::Client.new(access_token: gh_token))
 
         Que.log(message: "Configuring deploy key on #{project.gh_path}...")
-        repo.setup_deploy_key!(title: "Diggit - #{env}", key: ssh_public_key)
+        project.generate_keypair! unless project.keys?
+        repo.setup_deploy_key!(title: "Diggit - #{env}", key: project.ssh_public_key)
 
         Que.log(message: "Configuring webhooks on #{project.gh_path}...")
         repo.setup_webhook!(webhook_endpoint)
@@ -33,10 +34,6 @@ module Diggit
 
       def webhook_endpoint
         Prius.get(:diggit_webhook_endpoint)
-      end
-
-      def ssh_public_key
-        Prius.get(:diggit_ssh_public_key)
       end
     end
   end

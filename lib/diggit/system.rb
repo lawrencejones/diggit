@@ -12,6 +12,7 @@ module Diggit
   class System
     DUMMY_ENV = File.expand_path('../../../dummy-env', __FILE__)
     DATABASE_YAML = File.expand_path('../../../config/database.yml', __FILE__)
+    LOGGER = Logger.new(STDOUT)
 
     def self.init
       @config ||= begin
@@ -25,8 +26,10 @@ module Diggit
 
         require_relative '../diggit'
         require_relative 'services/jwt'
+        require_relative 'services/secure'
 
         Diggit::Services::Jwt.secret = Prius.get(:diggit_secret)
+        Diggit::Services::Secure.secret = Prius.get(:diggit_secret)
 
         # Load all database models
         require_relative 'models/project'
@@ -59,7 +62,7 @@ module Diggit
 
     def self.configure_active_record!
       unless defined?(Rake) || %w(test production).include?(Prius.get(:diggit_env))
-        ActiveRecord::Base.logger = Logger.new(STDOUT)
+        ActiveRecord::Base.logger = LOGGER
       end
 
       database_config = ENV['DATABASE_URL']
@@ -70,6 +73,7 @@ module Diggit
     def self.configure_que!
       Que.connection = ActiveRecord
       Que.mode = Prius.get(:diggit_env) == 'test' ? :sync : :async
+      Que.logger = LOGGER if ENV.key?('LOG_QUE')
     end
   end
 end
