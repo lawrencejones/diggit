@@ -26,8 +26,10 @@ module Diggit
 
         require_relative '../diggit'
         require_relative 'services/jwt'
+        require_relative 'services/secure'
 
         Diggit::Services::Jwt.secret = Prius.get(:diggit_secret)
+        Diggit::Services::Secure.secret = Prius.get(:diggit_secret)
 
         # Load all database models
         require_relative 'models/project'

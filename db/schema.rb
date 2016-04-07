@@ -11,27 +11,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160404184242) do
+ActiveRecord::Schema.define(version: 20160407085025) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "projects", force: :cascade do |t|
-    t.string  "gh_path", limit: 126,                null: false
-    t.boolean "watch",               default: true
+    t.string  "gh_path",                   limit: 126,                null: false
+    t.boolean "watch",                                 default: true
+    t.text    "ssh_public_key"
+    t.binary  "encrypted_ssh_private_key"
+    t.binary  "ssh_initialization_vector"
   end
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
 
   create_table "que_jobs", id: false, force: :cascade do |t|
-    t.integer  "priority",    limit: 2, default: 100,                                        null: false
-    t.datetime "run_at",                default: "now()",                                    null: false
-    t.integer  "job_id",      limit: 8, default: "nextval('que_jobs_job_id_seq'::regclass)", null: false
-    t.text     "job_class",                                                                  null: false
-    t.json     "args",                  default: [],                                         null: false
-    t.integer  "error_count",           default: 0,                                          null: false
+    t.integer  "priority",    limit: 2, default: 100,                   null: false
+    t.datetime "run_at",                default: '2016-04-07 10:06:35', null: false
+    t.integer  "job_id",      limit: 8, default: 0,                     null: false
+    t.text     "job_class",                                             null: false
+    t.json     "args",                  default: [],                    null: false
+    t.integer  "error_count",           default: 0,                     null: false
     t.text     "last_error"
-    t.text     "queue",                 default: "",                                         null: false
+    t.text     "queue",                 default: "",                    null: false
   end
 
 end

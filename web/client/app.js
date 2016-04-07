@@ -19,7 +19,7 @@ export const appModule = angular.module('app', [
   $locationProvider.html5Mode({enabled: true, requireBase: false});
   $httpProvider.useApplyAsync(true);
 
-  $urlRouterProvider.otherwise('/login');
+  $urlRouterProvider.otherwise('/projects');
   $stateProvider.state('app', {
     abstract: true,
     template: `

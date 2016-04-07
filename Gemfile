@@ -23,6 +23,7 @@ gem 'jwt'
 gem 'unirest'
 gem 'octokit'
 gem 'json-schema'
+gem 'sshkey'
 
 group :development do
   gem 'rerun'

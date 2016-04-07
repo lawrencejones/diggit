@@ -69,12 +69,6 @@ RSpec.configure do |config|
   end
 end
 
-# In production or dev this should be set to real keys
-ENV['DIGGIT_SSH_PUBLIC_KEY'] =
-  File.read(File.expand_path('../fixtures/keys/id_rsa.pub', __FILE__))
-ENV['DIGGIT_SSH_PRIVATE_KEY'] =
-  File.read(File.expand_path('../fixtures/keys/id_rsa', __FILE__))
-
 $LOAD_PATH << '../lib'
 require 'diggit/system'
 

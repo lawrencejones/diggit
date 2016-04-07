@@ -37,9 +37,9 @@ module Diggit
         end
       end
 
-      def setup_deploy_key!(title:, key:)
+      def setup_deploy_key!(title:, key:, read_only: true)
         return unless existing_deploy_key(key).nil?
-        @client.add_deploy_key(path, title, key)
+        @client.add_deploy_key(path, title, key, read_only: read_only)
       end
 
       def existing_deploy_key(key)
