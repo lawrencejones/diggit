@@ -48,7 +48,9 @@ RSpec.describe(Diggit::Routes::Projects) do
     end
 
     context 'when a project is being watched' do
-      let!(:librespot) { Project.create(gh_path: 'lawrencejones/librespot') }
+      let!(:librespot) do
+        FactoryGirl.create(:project, :watched, gh_path: 'lawrencejones/librespot')
+      end
       let(:json_response) { JSON.parse(instance.call[2].join) }
 
       it 'marks watch:true' do
@@ -67,7 +69,7 @@ RSpec.describe(Diggit::Routes::Projects) do
     it_behaves_like 'passes JSON schema', 'api/projects/update.fixture.json'
 
     context 'when project already exists' do
-      let!(:project) { Project.create(gh_path: 'lawrencejones/diggit', watch: true) }
+      let!(:project) { FactoryGirl.create(:project, :diggit) }
 
       it 'updates project watch field' do
         expect { instance.call }.to change { project.reload.watch }

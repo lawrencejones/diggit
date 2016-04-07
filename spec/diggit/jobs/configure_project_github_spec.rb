@@ -29,7 +29,7 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
   end
 
   context 'when project exists' do
-    let(:project) { Project.create(gh_path: 'lawrencejones/diggit', watch: watch) }
+    let(:project) { FactoryGirl.create(:project, :diggit) }
     let(:project_id) { project.id }
     let(:repo) { instance_double(Diggit::Github::Repo) }
 

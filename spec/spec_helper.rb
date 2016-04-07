@@ -11,6 +11,7 @@ require 'pry'
 require 'coach'
 require 'active_support/core_ext'
 require 'database_cleaner'
+require 'factory_girl'
 
 Coach.require_matchers!
 
@@ -54,6 +55,8 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.order = :random
   Kernel.srand(config.seed)
+
+  config.before(:all) { FactoryGirl.reload }
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

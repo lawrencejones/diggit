@@ -11,6 +11,14 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def owner
+    gh_path.split('/').first
+  end
+
+  def repo
+    gh_path.split('/').last
+  end
+
   def keys?
     ssh_public_key.present? && encrypted_ssh_private_key.present?
   end

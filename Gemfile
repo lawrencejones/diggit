@@ -4,6 +4,7 @@ ruby '2.2.3'
 gem 'hanami-router'
 gem 'coach'
 gem 'activerecord'
+gem 'active_model_serializers'
 gem 'pg'
 gem 'rake'
 gem 'prius'
@@ -34,4 +35,5 @@ group :test do
   gem 'rspec-its'
   gem 'database_cleaner'
   gem 'timecop'
+  gem 'factory_girl'
 end
