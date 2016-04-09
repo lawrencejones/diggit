@@ -12,7 +12,7 @@ RSpec.describe(Diggit::Middleware::Authorize) do
   let(:token_expiry) { Time.now.advance(minutes: 10) }
 
   let(:auth_token) { Diggit::Services::Jwt.encode(auth_token_data, token_expiry) }
-  let(:auth_token_data) { load_json_fixture('models/auth_token_data.fixture.json') }
+  let(:auth_token_data) { load_json_fixture('api/auth/access_token.create.fixture.json') }
 
   context 'with valid auth token' do
     it { is_expected.to call_next_middleware }

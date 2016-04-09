@@ -2,12 +2,12 @@ require 'logger'
 require 'hamster/hash'
 
 module Diggit
-  module Analyse
+  module Analysis
     logger = Logger.new(STDOUT)
     logger.level = Logger::INFO
 
     class Pipeline
-      TOOLS = []
+      TOOLS = [].freeze
 
       def initialize(repo, head:, base:)
         @repo = repo

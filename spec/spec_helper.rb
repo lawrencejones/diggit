@@ -51,6 +51,8 @@ RSpec::Matchers.define :respond_with_json do |json_body|
   end
 end
 
+require_relative 'diggit/analysis/temporary_analysis_repo'
+
 RSpec.configure do |config|
   config.disable_monkey_patching!
   config.order = :random
@@ -63,7 +65,10 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
 
-  config.after(:each) { ::Que.clear! }
+  config.after(:each) do
+    ::Que.clear!
+    TemporaryAnalysisRepo.clean!
+  end
 
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do

@@ -5,10 +5,11 @@ require 'parser/ruby23'
 module Diggit
   module Analysis
     module RefactorDiligence
-      # Extracts methods and their length from ruby code
+      # Extracts methods and their size/location from ruby code
       class RubyMethodParser
-        def initialize(contents)
+        def initialize(contents, file: '')
           @ast = Parser::Ruby23.parse(contents)
+          @file = file
         rescue Parser::SyntaxError
           # If we end up here, we should be safe to call process_methods and return an
           # empty hash. Silently failing is an ideal situation.
@@ -33,7 +34,7 @@ module Diggit
         end
 
         def on_def(node)
-          Hash[node.children.first.to_s, node_lines(node)]
+          Hash[node.children.first.to_s, node_info(node)]
         end
 
         def on_class(node)
@@ -54,8 +55,9 @@ module Diggit
           node.children.map { |child| process_methods(child) }.inject(:merge)
         end
 
-        def node_lines(node)
-          1 + node.location.last_line - node.location.first_line
+        def node_info(node)
+          { loc: "#{@file}:#{node.location.first_line}",
+            lines: 1 + node.location.last_line - node.location.first_line }
         end
       end
     end
