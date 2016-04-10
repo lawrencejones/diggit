@@ -22,12 +22,6 @@ module Diggit
 
     private
 
-    def uri_to(path)
-      uri = host.clone
-      uri.path = path
-      uri.to_s
-    end
-
     def build_rack_app
       opt = { host: @host.host,
               scheme: @host.scheme,

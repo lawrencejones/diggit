@@ -3,6 +3,14 @@ ENV['RACK_ENV'] = 'test'
 require 'bundler/setup'
 Bundler.setup(:default, :test)
 
+if ENV['CIRCLE_ARTIFACTS']
+  require 'simplecov'
+
+  output = File.join(ENV['CIRCLE_ARTIFACTS'], 'coverage')
+  SimpleCov.coverage_dir(output)
+  SimpleCov.start
+end
+
 require 'rspec'
 require 'rspec/its'
 require 'que'
