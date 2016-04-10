@@ -36,4 +36,5 @@ group :test do
   gem 'database_cleaner'
   gem 'timecop'
   gem 'factory_girl'
+  gem 'simplecov', require: false
 end

@@ -47,6 +47,7 @@ GEM
     database_cleaner (1.5.1)
     descriptive-statistics (2.1.2)
     diff-lcs (1.2.5)
+    docile (1.1.5)
     dotenv (2.1.0)
     erubis (2.7.0)
     factory_girl (4.7.0)
@@ -142,6 +143,11 @@ GEM
     sawyer (0.7.0)
       addressable (>= 2.3.5, < 2.5)
       faraday (~> 0.8, < 0.10)
+    simplecov (0.11.2)
+      docile (~> 1.1.0)
+      json (~> 1.8)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.0)
     slop (3.6.0)
     sshkey (1.8.0)
     thread_safe (0.3.5)
@@ -186,6 +192,7 @@ DEPENDENCIES
   rspec
   rspec-its
   rubocop
+  simplecov
   sshkey
   timecop
   unirest
