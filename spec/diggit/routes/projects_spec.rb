@@ -14,9 +14,6 @@ RSpec.describe(Diggit::Routes::Projects) do
 
   let(:gh_token) { 'gh-token' }
   let(:gh_client) { instance_double(Octokit::Client) }
-  let(:gh_repo) do
-    instance_double(Diggit::Github::Repo, path: 'lawrencejones/diggit')
-  end
 
   let(:json_body) { JSON.parse(instance.call[2].join) }
 

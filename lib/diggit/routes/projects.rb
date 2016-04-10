@@ -78,10 +78,6 @@ module Diggit
           project.update!(params.fetch('projects'))
           project
         end
-
-        def webhook_endpoint
-          config.fetch(:webhook_endpoint)
-        end
       end
     end
   end

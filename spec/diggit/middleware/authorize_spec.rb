@@ -40,6 +40,13 @@ RSpec.describe(Diggit::Middleware::Authorize) do
     it { is_expected.to respond_with_body_that_matches(/expired_authorization_header/) }
   end
 
+  context 'with bad jwt' do
+    let(:auth_header) { 'Bearer bad-jwt-payload' }
+
+    it { is_expected.to respond_with_status(401) }
+    it { is_expected.to respond_with_body_that_matches(/bad_authorization_header/) }
+  end
+
   context 'when next_middleware raises NotAuthorized' do
     before do
       allow(next_middleware).

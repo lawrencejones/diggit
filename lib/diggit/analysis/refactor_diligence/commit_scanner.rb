@@ -34,10 +34,6 @@ module Diggit
         def read_if_exists(file)
           Dir.chdir(repo.dir.path) { File.read(file) if File.exist?(file) }
         end
-
-        def all_ruby_files
-          Dir.chdir(repo.dir.path) { Dir['**/*.rb'] }
-        end
       end
     end
   end

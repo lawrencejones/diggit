@@ -21,6 +21,17 @@ RSpec.describe(Diggit::Middleware::GithubRepoPermissions) do
     it { is_expected.to provide(:gh_repo_path, instance_of('owner/repo')) }
   end
 
+  context 'when a user cannot view the repo' do
+    before do
+      allow(gh_client).to receive(:repo).with('owner/repo').and_raise(Octokit::NotFound)
+    end
+
+    it 'raises NotAuthorized' do
+      expect { instance.call }.
+        to raise_exception(Diggit::Middleware::Authorize::NotAuthorized)
+    end
+  end
+
   context 'when user lacks a required permission' do
     before { gh_repo[:permissions][config[:requires].first] = false }
 

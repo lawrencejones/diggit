@@ -6,6 +6,12 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::RubyMethodParser) do
   describe('.methods') do
     subject(:methods) { ruby_file.methods }
 
+    context 'with invalid ruby syntax' do
+      let(:contents) { %(this ain't ruby y'all) }
+
+      it { is_expected.to eql({}) }
+    end
+
     context 'with unscoped method' do
       let(:contents) do
         %(def two_line_method(param)

@@ -20,17 +20,6 @@ module Diggit
       def fallback_env
         request.env.merge('PATH_INFO' => config.fetch(:fallback_path))
       end
-
-      def cascade
-        [404, {
-          'Content-Type' => 'text/plain',
-          'X-Cascade' => 'pass',
-        }, ["No route at #{request.path}"]]
-      end
-
-      def request_host
-        request.headers['HTTP_HOST'] || request.headers['SERVER_NAME']
-      end
     end
   end
 end
