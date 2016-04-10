@@ -1,20 +1,20 @@
-require 'utils/refactor_diligence/ruby_method_parser'
+require 'diggit/analysis/refactor_diligence/ruby_method_parser'
 
-RSpec.describe(RefactorDiligence::RubyMethodParser) do
-  subject(:ruby_file) { described_class.new(contents) }
+RSpec.describe(Diggit::Analysis::RefactorDiligence::RubyMethodParser) do
+  subject(:ruby_file) { described_class.new(contents, file: 'file.rb') }
 
   describe('.methods') do
     subject(:methods) { ruby_file.methods }
 
     context 'with unscoped method' do
       let(:contents) do
-        %(def non_scoped_two_line_method(param)
+        %(def two_line_method(param)
             puts 'line 1'
             puts 'line 2'
           end)
       end
 
-      it { is_expected.to include('non_scoped_two_line_method' => 4) }
+      it { is_expected.to include('two_line_method' => { lines: 4, loc: 'file.rb:1' }) }
     end
 
     context 'with unscoped class' do
@@ -33,8 +33,8 @@ RSpec.describe(RefactorDiligence::RubyMethodParser) do
 
       it 'parses class methods' do
         is_expected.to include(
-          'NonModuleClass::initialize' => 3,
-          'NonModuleClass::two_line_method' => 4
+          'NonModuleClass::initialize' => { loc: 'file.rb:2', lines: 3 },
+          'NonModuleClass::two_line_method' => { loc: 'file.rb:6', lines: 4 }
         )
       end
     end
@@ -42,7 +42,7 @@ RSpec.describe(RefactorDiligence::RubyMethodParser) do
     context 'with module namespace' do
       let(:contents) do
         %(module Foo
-            def module_method
+            def method
             end
 
             class Bar
@@ -58,12 +58,12 @@ RSpec.describe(RefactorDiligence::RubyMethodParser) do
           end)
       end
 
-      it { is_expected.to include('Foo::module_method' => 2) }
+      it { is_expected.to include('Foo::method' => { loc: 'file.rb:2', lines: 2 }) }
 
       it 'parses classes within modules' do
         is_expected.to include(
-          'Foo::Bar::initialize' => 3,
-          'Foo::Bar::two_line_method' => 4
+          'Foo::Bar::initialize' => { loc: 'file.rb:6', lines: 3 },
+          'Foo::Bar::two_line_method' => { loc: 'file.rb:10', lines: 4 }
         )
       end
     end
