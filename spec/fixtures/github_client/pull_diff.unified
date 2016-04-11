@@ -1,0 +1,201 @@
+diff --git a/Gemfile b/Gemfile
+index 6e6856c..d1c7d42 100644
+--- a/Gemfile
++++ b/Gemfile
+@@ -36,4 +36,5 @@ group :test do
+   gem 'database_cleaner'
+   gem 'timecop'
+   gem 'factory_girl'
++  gem 'simplecov', require: false
+ end
+diff --git a/Gemfile.lock b/Gemfile.lock
+index 86cb9c3..1533cc1 100644
+--- a/Gemfile.lock
++++ b/Gemfile.lock
+@@ -47,6 +47,7 @@ GEM
+     database_cleaner (1.5.1)
+     descriptive-statistics (2.1.2)
+     diff-lcs (1.2.5)
++    docile (1.1.5)
+     dotenv (2.1.0)
+     erubis (2.7.0)
+     factory_girl (4.7.0)
+@@ -142,6 +143,11 @@ GEM
+     sawyer (0.7.0)
+       addressable (>= 2.3.5, < 2.5)
+       faraday (~> 0.8, < 0.10)
++    simplecov (0.11.2)
++      docile (~> 1.1.0)
++      json (~> 1.8)
++      simplecov-html (~> 0.10.0)
++    simplecov-html (0.10.0)
+     slop (3.6.0)
+     sshkey (1.8.0)
+     thread_safe (0.3.5)
+@@ -186,6 +192,7 @@ DEPENDENCIES
+   rspec
+   rspec-its
+   rubocop
++  simplecov
+   sshkey
+   timecop
+   unirest
+diff --git a/lib/diggit.rb b/lib/diggit.rb
+index 272005c..45aa042 100644
+--- a/lib/diggit.rb
++++ b/lib/diggit.rb
+@@ -22,12 +22,6 @@ def initialize(config)
+ 
+     private
+ 
+-    def uri_to(path)
+-      uri = host.clone
+-      uri.path = path
+-      uri.to_s
+-    end
+-
+     def build_rack_app
+       opt = { host: @host.host,
+               scheme: @host.scheme,
+diff --git a/lib/diggit/analysis/refactor_diligence/commit_scanner.rb b/lib/diggit/analysis/refactor_diligence/commit_scanner.rb
+index c98dc76..d2ab87e 100644
+--- a/lib/diggit/analysis/refactor_diligence/commit_scanner.rb
++++ b/lib/diggit/analysis/refactor_diligence/commit_scanner.rb
+@@ -34,10 +34,6 @@ def scan_methods(ruby_files)
+         def read_if_exists(file)
+           Dir.chdir(repo.dir.path) { File.read(file) if File.exist?(file) }
+         end
+-
+-        def all_ruby_files
+-          Dir.chdir(repo.dir.path) { Dir['**/*.rb'] }
+-        end
+       end
+     end
+   end
+diff --git a/lib/diggit/middleware/front_end.rb b/lib/diggit/middleware/front_end.rb
+index af28a4f..fa41078 100644
+--- a/lib/diggit/middleware/front_end.rb
++++ b/lib/diggit/middleware/front_end.rb
+@@ -20,17 +20,6 @@ def rack_static
+       def fallback_env
+         request.env.merge('PATH_INFO' => config.fetch(:fallback_path))
+       end
+-
+-      def cascade
+-        [404, {
+-          'Content-Type' => 'text/plain',
+-          'X-Cascade' => 'pass',
+-        }, ["No route at #{request.path}"]]
+-      end
+-
+-      def request_host
+-        request.headers['HTTP_HOST'] || request.headers['SERVER_NAME']
+-      end
+     end
+   end
+ end
+diff --git a/lib/diggit/routes/projects.rb b/lib/diggit/routes/projects.rb
+index f8ef78c..4c09169 100644
+--- a/lib/diggit/routes/projects.rb
++++ b/lib/diggit/routes/projects.rb
+@@ -78,10 +78,6 @@ def update_project!
+           project.update!(params.fetch('projects'))
+           project
+         end
+-
+-        def webhook_endpoint
+-          config.fetch(:webhook_endpoint)
+-        end
+       end
+     end
+   end
+diff --git a/spec/diggit/analysis/refactor_diligence/ruby_method_parser_spec.rb b/spec/diggit/analysis/refactor_diligence/ruby_method_parser_spec.rb
+index 92e9cb7..a0030d5 100644
+--- a/spec/diggit/analysis/refactor_diligence/ruby_method_parser_spec.rb
++++ b/spec/diggit/analysis/refactor_diligence/ruby_method_parser_spec.rb
+@@ -6,6 +6,12 @@
+   describe('.methods') do
+     subject(:methods) { ruby_file.methods }
+ 
++    context 'with invalid ruby syntax' do
++      let(:contents) { %(this ain't ruby y'all) }
++
++      it { is_expected.to eql({}) }
++    end
++
+     context 'with unscoped method' do
+       let(:contents) do
+         %(def two_line_method(param)
+diff --git a/spec/diggit/middleware/authorize_spec.rb b/spec/diggit/middleware/authorize_spec.rb
+index 59e7606..d5fa3c2 100644
+--- a/spec/diggit/middleware/authorize_spec.rb
++++ b/spec/diggit/middleware/authorize_spec.rb
+@@ -40,6 +40,13 @@
+     it { is_expected.to respond_with_body_that_matches(/expired_authorization_header/) }
+   end
+ 
++  context 'with bad jwt' do
++    let(:auth_header) { 'Bearer bad-jwt-payload' }
++
++    it { is_expected.to respond_with_status(401) }
++    it { is_expected.to respond_with_body_that_matches(/bad_authorization_header/) }
++  end
++
+   context 'when next_middleware raises NotAuthorized' do
+     before do
+       allow(next_middleware).
+diff --git a/spec/diggit/middleware/github_repo_permissions_spec.rb b/spec/diggit/middleware/github_repo_permissions_spec.rb
+index 999e61d..19d4834 100644
+--- a/spec/diggit/middleware/github_repo_permissions_spec.rb
++++ b/spec/diggit/middleware/github_repo_permissions_spec.rb
+@@ -21,6 +21,17 @@
+     it { is_expected.to provide(:gh_repo_path, instance_of('owner/repo')) }
+   end
+ 
++  context 'when a user cannot view the repo' do
++    before do
++      allow(gh_client).to receive(:repo).with('owner/repo').and_raise(Octokit::NotFound)
++    end
++
++    it 'raises NotAuthorized' do
++      expect { instance.call }.
++        to raise_exception(Diggit::Middleware::Authorize::NotAuthorized)
++    end
++  end
++
+   context 'when user lacks a required permission' do
+     before { gh_repo[:permissions][config[:requires].first] = false }
+ 
+diff --git a/spec/diggit/routes/projects_spec.rb b/spec/diggit/routes/projects_spec.rb
+index 6c0201c..596fb47 100644
+--- a/spec/diggit/routes/projects_spec.rb
++++ b/spec/diggit/routes/projects_spec.rb
+@@ -14,9 +14,6 @@
+ 
+   let(:gh_token) { 'gh-token' }
+   let(:gh_client) { instance_double(Octokit::Client) }
+-  let(:gh_repo) do
+-    instance_double(Diggit::Github::Repo, path: 'lawrencejones/diggit')
+-  end
+ 
+   let(:json_body) { JSON.parse(instance.call[2].join) }
+ 
+diff --git a/spec/spec_helper.rb b/spec/spec_helper.rb
+index 2033f99..3b963bd 100644
+--- a/spec/spec_helper.rb
++++ b/spec/spec_helper.rb
+@@ -3,6 +3,14 @@
+ require 'bundler/setup'
+ Bundler.setup(:default, :test)
+ 
++if ENV['CIRCLE_ARTIFACTS']
++  require 'simplecov'
++
++  output = File.join(ENV['CIRCLE_ARTIFACTS'], 'coverage')
++  SimpleCov.coverage_dir(output)
++  SimpleCov.start
++end
++
+ require 'rspec'
+ require 'rspec/its'
+ require 'que'
