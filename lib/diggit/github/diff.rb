@@ -5,14 +5,29 @@ module Diggit
     class Diff
       #                      @@ -47,6 +47,7 @@ GEM
       CHUNK_HEADER_REGEX = /^@@ -(\d+),(\d+) \+(\d+),(\d+) @@/
+      GITHUB_DIFF_FORMAT = 'application/vnd.github.v3.diff'.freeze
+
+      class FileNotFound < StandardError; end
+
+      def self.from_pull_request(repo, pull, client)
+        pr = client.pull_request(repo, pull)
+        base, head = pr[:base][:sha], pr[:head][:sha]
+
+        unified_diff = client.compare(repo, base, head, accept: GITHUB_DIFF_FORMAT)
+        new(unified_diff, base: base, head: head)
+      end
 
       # See https://en.wikipedia.org/wiki/Diff_utility#Unified_format for information on
       # the diff text format.
       #
       # Yielded from github when using the application/vnd.github.v3.diff media type.
-      def initialize(unified_diff)
+      def initialize(unified_diff, base:, head:)
         @unified_diff = unified_diff
+        @base = base
+        @head = head
       end
+
+      attr_reader :head, :base
 
       # Computes the diff index for the given line number in the given file, where the
       # index is the line number of the appearance of that line in the head of the unified
@@ -36,12 +51,17 @@ module Diggit
 
             return index + 1 + index_in_chunk
           end
+
+        nil # if this line number is not in diff
       end
 
       private
 
       def diff_for_file(file)
-        file_diffs.find { |file_diff| file_diff[:new] == file }
+        diff = file_diffs.find { |file_diff| file_diff[:new] == file }
+        fail FileNotFound, "File #{file} not present in diff" if diff.nil?
+
+        diff
       end
 
       def file_diffs
