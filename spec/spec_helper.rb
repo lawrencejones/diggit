@@ -89,6 +89,7 @@ $LOAD_PATH << '../lib'
 require 'diggit/system'
 
 Diggit::System.init
+Diggit.logger.level = Logger::WARN
 
 def load_fixture(file)
   File.read(File.join(File.dirname(__FILE__), 'fixtures', file))

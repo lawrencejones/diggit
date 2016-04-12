@@ -8,11 +8,12 @@ require 'yaml'
 require 'rack'
 require 'coach'
 
+require_relative './logger'
+
 module Diggit
   class System
     DUMMY_ENV = File.expand_path('../../../dummy-env', __FILE__)
     DATABASE_YAML = File.expand_path('../../../config/database.yml', __FILE__)
-    LOGGER = Logger.new(STDOUT)
 
     def self.init
       @config ||= begin
@@ -62,7 +63,7 @@ module Diggit
 
     def self.configure_active_record!
       unless defined?(Rake) || %w(test production).include?(Prius.get(:diggit_env))
-        ActiveRecord::Base.logger = LOGGER
+        ActiveRecord::Base.logger = Diggit.logger
       end
 
       database_config = ENV['DATABASE_URL']
@@ -73,7 +74,7 @@ module Diggit
     def self.configure_que!
       Que.connection = ActiveRecord
       Que.mode = Prius.get(:diggit_env) == 'test' ? :sync : :async
-      Que.logger = LOGGER if ENV.key?('LOG_QUE')
+      Que.logger = Diggit.logger if ENV.key?('LOG_QUE')
     end
   end
 end

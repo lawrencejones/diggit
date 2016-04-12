@@ -1,13 +1,13 @@
-require 'logger'
 require 'hamster/hash'
+
+require_relative './refactor_diligence/report'
+require_relative '../logger'
 
 module Diggit
   module Analysis
-    logger = Logger.new(STDOUT)
-    logger.level = Logger::INFO
-
     class Pipeline
-      TOOLS = [].freeze
+      REPORTERS = [RefactorDiligence::Report].freeze
+      include InstanceLogger
 
       def initialize(repo, head:, base:)
         @repo = repo
@@ -15,24 +15,30 @@ module Diggit
         @base = base
       end
 
-      def run
-        TOOLS.reduce(Hamster::Hash.new) do |report, tool|
-          logger.info('Analyse::Pipeline') { "Running #{tool} on #{repo_label}..." }
-          analysis = tool.new # TODO
-          report.merge(label(tool) => analysis)
-        end
+      def aggregate_comments
+        REPORTERS.map do |report|
+          logger.info('Analyse::Pipeline') { "Generating #{report} for #{repo_label}..." }
+          with_temp_repo { report.new(repo, files_changed: files_changed).comments }
+        end.flatten
       end
 
       private
 
-      attr_reader :repo
+      attr_reader :repo, :head, :base
 
       def repo_label
         File.basename(repo.dir.path)
       end
 
-      def label(cls)
-        cls.name.split('::').last.underscore.to_sym
+      def files_changed
+        @files_changed ||= repo.diff(base, head).stats[:files].keys
+      end
+
+      def with_temp_repo
+        repo.reset_hard(head)
+        repo.with_temp_index do
+          yield(repo).tap { repo.reset_hard(head) }
+        end
       end
     end
   end
