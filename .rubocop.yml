@@ -30,3 +30,6 @@ Style/MultilineMethodCallIndentation:
 
 Style/Documentation:
   Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false
