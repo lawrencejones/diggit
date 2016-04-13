@@ -3,51 +3,45 @@ require 'git'
 require 'tempfile'
 
 require_relative '../models/project'
+require_relative '../analysis/pipeline'
+require_relative '../github/client'
+require_relative '../github/comment_generator'
+require_relative '../github/cloner'
 
 module Diggit
   module Jobs
     class AnalyseProject < Que::Job
-      def run(project_id, head:, base:)
-        project = Project.find(project_id)
-        return unless project.watch
+      def run(project_id, pull, head:, base:)
+        @project = Project.find(project_id)
+        @comment_generator = Github::CommentGenerator.
+          new(project.gh_path, pull, Github.client)
+
+        return unless project && project.watch
 
         Que.log(message: "Cloning #{project.gh_path}...")
-        clone(project) do |repo|
-          Que.log(message: "Successfully cloned #{project.gh_path}##{repo.branch.name}")
-          Que.log(message: "Starting analysis of #{project.gh_path} for #{base}..#{head}")
-          # TODO: Kickoff analysis here
-        end
-      end
-
-      def clone(project)
-        Dir.mktmpdir('analysis') do |scratch|
-          with_temporary_keyfile(project.ssh_private_key) do |keyfile|
-            repo = clone_with_keyfile(project, keyfile,
-                                      to: File.join(scratch, project.repo))
-            yield(repo)
-          end
-        end
-      end
-
-      def with_temporary_keyfile(key)
-        keyfile = Tempfile.open('private-key')
-        File.write(keyfile, key)
-        yield(keyfile.path)
-      ensure
-        keyfile.close
-        keyfile.unlink
-      end
-
-      # Runs a git clone with a specified private key file. Git clone has to be run in
-      # subprocess as we are required to modify the environment.
-      def clone_with_keyfile(project, keyfile, to:)
-        pid = Process.fork do
-          ENV['GIT_SSH_COMMAND'] = "ssh -i #{keyfile}"
-          Git.clone("git@github.com:#{project.gh_path}", to)
+        clone do |repo|
+          pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
+          pipeline.aggregate_comments.each { |comment| create_comment(comment) }
         end
 
-        Process.wait(pid)
-        Git.open(to)
+        Que.log(message: 'Sending comments to github...')
+        comment_generator.send
+      end
+
+      private
+
+      attr_reader :project, :comment_generator
+      delegate :add_comment, :add_comment_on_file, to: :comment_generator
+
+      def clone(&block)
+        Github::Cloner.new(project.ssh_private_key).clone(project.gh_path, &block)
+      end
+
+      def create_comment(message:, location: nil)
+        return add_comment(message) if location.nil?
+
+        _, file, line = *location.match(/^(.+):(\d+)$/)
+        add_comment_on_file(message, file, line.to_i)
       end
     end
   end
