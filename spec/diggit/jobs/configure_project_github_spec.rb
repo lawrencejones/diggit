@@ -7,6 +7,7 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
   before do
     allow(Prius).to receive(:get) do |env_key|
       { diggit_env: 'prod',
+        diggit_github_token: 'github-token',
         diggit_webhook_endpoint: 'https://diggit.com/api/github_webhooks' }.fetch(env_key)
     end
   end
@@ -42,14 +43,18 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
 
     context 'with watch=true' do
       let(:watch) { true }
+      before { allow(Diggit::Github).to receive(:login).and_return('diggit-bot') }
 
-      it 'configures webhooks and deploy key', :aggregate_failure do
+      it 'configures collaborator, deploy keys, webhooks', :aggregate_failure do
         expect(repo).
-          to receive(:setup_webhook!).
-          with('https://diggit.com/api/github_webhooks')
+          to receive(:add_collaborator).
+          with('diggit-bot')
         expect(repo).
           to receive(:setup_deploy_key!).
           with(title: 'Diggit - prod', key: anything)
+        expect(repo).
+          to receive(:setup_webhook!).
+          with('https://diggit.com/api/github_webhooks')
         run!
       end
     end

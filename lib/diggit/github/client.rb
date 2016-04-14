@@ -7,5 +7,9 @@ module Diggit
     def self.client
       @client ||= Octokit::Client.new(access_token: Prius.get(:diggit_github_token))
     end
+
+    def self.login
+      @login ||= client.user[:login]
+    end
   end
 end

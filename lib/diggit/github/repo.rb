@@ -14,6 +14,10 @@ module Diggit
         @client = client
       end
 
+      def add_collaborator(login)
+        @client.add_collaborator(path, login)
+      end
+
       def setup_webhook!(endpoint)
         return unless existing_webhook(endpoint).nil?
 

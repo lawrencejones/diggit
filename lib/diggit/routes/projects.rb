@@ -70,7 +70,7 @@ module Diggit
         private
 
         def serialize(project)
-          Serializers::ProjectSerializer.new(project).as_json
+          Serializers::ProjectSerializer.new(project).as_json.fetch('project')
         end
 
         def update_project!
