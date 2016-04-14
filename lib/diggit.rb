@@ -5,6 +5,7 @@ require 'rack'
 
 require_relative 'diggit/routes/auth'
 require_relative 'diggit/routes/projects'
+require_relative 'diggit/routes/github_webhooks'
 require_relative 'diggit/middleware/front_end'
 
 module Diggit
@@ -37,6 +38,8 @@ module Diggit
       Hanami::Router.new(parsers: [:json]).tap do |router|
         router.mount build_auth, at: '/auth'
         router.mount build_projects, at: '/projects'
+        router.post '/github_webhooks', to: Coach::Handler.
+          new(Routes::GithubWebhooks::Create)
 
         router.get '/ping', to: ->(_env) { [200, {}, ["pong!\n"]] }
       end

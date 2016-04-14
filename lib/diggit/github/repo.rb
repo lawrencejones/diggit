@@ -1,3 +1,5 @@
+require_relative '../logger'
+
 module Diggit
   module Github
     class Repo
@@ -5,18 +7,17 @@ module Diggit
         new(client.repo(gh_path), client)
       end
 
+      include InstanceLogger
+
       def initialize(repo_payload, client)
         @repo = repo_payload
         @client = client
       end
 
-      def path
-        @repo[:full_name]
-      end
-
       def setup_webhook!(endpoint)
         return unless existing_webhook(endpoint).nil?
 
+        logger.info('Github::Repo') { "Configuring webhook #{endpoint} on #{path}..." }
         @client.create_hook(
           path, 'web',
           { url: endpoint, content_type: :json },
@@ -28,6 +29,7 @@ module Diggit
         webhook = existing_webhook(endpoint)
         return true if webhook.nil?
 
+        logger.info('Github::Repo') { "Removing webhook #{endpoint} on #{path}..." }
         @client.remove_hook(path, webhook[:id])
       end
 
@@ -48,6 +50,12 @@ module Diggit
         @client.deploy_keys(path).find do |deploy_key|
           deploy_key[:key] == key_without_machine
         end
+      end
+
+      private
+
+      def path
+        @repo[:full_name]
       end
     end
   end
