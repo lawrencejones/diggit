@@ -16,17 +16,17 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     subject(:comments) { report.comments }
 
     it 'include methods that are above threshold', :aggregate_failures do
-      socket_init = comments.find { |c| c[:meta][:method_name][/Socket::initialize/] }
-      meta = socket_init.fetch(:meta)
+      socket_comment = comments.find { |c| c[:meta][:method_name][/Socket::initialize/] }
 
-      expect(socket_init).not_to be_nil
-      expect(socket_init).to include(report: 'RefactorDiligence')
-      expect(socket_init).to include(message: /has increased in size the last 3 times/i)
-      expect(socket_init).to include(location: 'file.rb:8')
-
-      expect(meta).not_to be_nil
-      expect(meta).to include(times_increased: 3)
-      expect(meta).to include(method_name: 'Utils::Socket::initialize')
+      expect(socket_comment).to include(
+        report: 'RefactorDiligence',
+        message: /has increased in size the last 3 times/i,
+        location: 'file.rb:8',
+        meta: {
+          method_name: 'Utils::Socket::initialize',
+          times_increased: 3,
+        }
+      )
     end
 
     it 'does not include methods below threshold' do
