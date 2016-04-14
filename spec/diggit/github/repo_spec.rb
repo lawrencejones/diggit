@@ -77,15 +77,48 @@ RSpec.describe(Diggit::Github::Repo) do
   describe '#setup_deploy_key!' do
     let(:key) { 'ssh-private-key' }
 
-    context 'when key exists' do
-      before do
-        allow(repo).
-          to receive(:existing_deploy_key).
-          with(key).and_return(true)
+    context 'when key does not exist' do
+      before { allow(repo).to receive(:existing_deploy_key).with(key).and_return(nil) }
+
+      it 'adds deploy key' do
+        expect(gh_client).
+          to receive(:add_deploy_key).
+          with(repo_path, 'title', key, read_only: true)
+        repo.setup_deploy_key!(title: 'title', key: key)
       end
+    end
+
+    context 'when key exists' do
+      before { allow(repo).to receive(:existing_deploy_key).with(key).and_return(true) }
 
       it 'does not add_deploy_key' do
         expect(gh_client).not_to receive(:add_deploy_key)
+      end
+    end
+  end
+
+  describe '#existing_deploy_key' do
+    before do
+      allow(gh_client).
+        to receive(:deploy_keys).
+        with(repo_path).
+        and_return([
+                     { id: 1, key: 'ssh-rsa first-key-fingerprint' },
+                     { id: 2, key: 'ssh-rsa second-key-fingerprint' },
+                   ])
+    end
+
+    context 'with plain key' do
+      it 'finds existing key' do
+        expect(repo.existing_deploy_key('ssh-rsa first-key-fingerprint')).
+          to include(id: 1)
+      end
+    end
+
+    context 'with nicknamed key' do
+      it 'finds any existing key that matches fingerprint' do
+        expect(repo.existing_deploy_key('ssh-rsa second-key-fingerprint machine@host')).
+          to include(id: 2)
       end
     end
   end
