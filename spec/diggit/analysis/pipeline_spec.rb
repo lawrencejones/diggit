@@ -64,6 +64,14 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
       expect(pipeline.aggregate_comments).to match_array(%w(1a 1b 2a 2b))
     end
 
+    it 'logs running each reporter' do
+      allow(pipeline.logger).to receive(:info) do |prefix, &block|
+        expect(prefix).to eql('Analysis::Pipeline')
+        expect(block.call).to match(/Generating \S+ for \S+/)
+      end
+      pipeline.aggregate_comments
+    end
+
     context 'with bad mutating reporters' do
       let(:reporters) { [mutating_reporter] }
 
