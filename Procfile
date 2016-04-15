@@ -1,1 +1,1 @@
-web: RACK_ENV=${RACK_ENV:production} ./bin/diggit
+web: bundle exec passenger start -p $PORT

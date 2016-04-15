@@ -25,9 +25,14 @@ gem 'unirest'
 gem 'octokit'
 gem 'json-schema'
 gem 'sshkey'
+gem 'passenger'
 
 group :development do
   gem 'rerun'
+  gem 'capistrano'
+  gem 'capistrano-bundler'
+  gem 'capistrano-passenger'
+  gem 'capistrano-rbenv'
 end
 
 group :test do
