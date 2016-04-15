@@ -13,4 +13,5 @@ Que.logger = Logger.new(STDOUT)
 Que.logger.level = Logger::INFO.to_i
 
 gh_token = ENV['DIGGIT_GITHUB_TOKEN']
-gh_client = Octokit::Client.new(access_token: gh_token) if gh_token.present?
+require_relative 'lib/diggit/github/client'
+gh_client = Diggit::Github.client

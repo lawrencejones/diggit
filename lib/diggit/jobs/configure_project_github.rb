@@ -12,8 +12,11 @@ module Diggit
         project = Project.find(project_id)
         return unless project.watch
 
-        repo = Github::Repo.from_path(project.gh_path,
-                                      Octokit::Client.new(access_token: gh_token))
+        gh_client = Octokit::Client.new(access_token: gh_token)
+        repo = Github::Repo.from_path(project.gh_path, gh_client)
+
+        Que.log(message: "Set #{Github.login} as collaborator on repo...")
+        repo.add_collaborator(Github.login)
 
         Que.log(message: "Configuring deploy key on #{project.gh_path}...")
         project.generate_keypair! unless project.keys?
