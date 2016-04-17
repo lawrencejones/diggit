@@ -1,3 +1,4 @@
-#!/usr/bin/env zsh
-PORT=$PORT; : ${PORT:=9292}
-bundle exec passenger start -p $PORT --log-file tmp/app.$PORT.log --pid-file tmp/app.$PORT.pid
+#!/usr/bin/env ruby
+
+require_relative '../lib/diggit/system'
+Rack::Server.start(app: Diggit::System.rack_app, Port: ENV.fetch('PORT', 9292))

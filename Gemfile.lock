@@ -102,9 +102,6 @@ GEM
       sawyer (~> 0.7.0, >= 0.5.3)
     parser (2.3.0.1)
       ast (~> 2.2)
-    passenger (5.0.27)
-      rack
-      rake (>= 0.8.1)
     pg (0.18.4)
     powerpack (0.1.1)
     prius (1.0.0)
@@ -208,7 +205,6 @@ DEPENDENCIES
   jwt
   octokit
   parser
-  passenger
   pg
   prius
   pry-byebug
