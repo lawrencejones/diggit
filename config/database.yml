@@ -2,6 +2,8 @@ default: &default
   adapter: postgresql
   encoding: unicode
   username: diggit
+  host: localhost
+  port: 5432
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: 5
@@ -9,8 +11,6 @@ default: &default
 development:
   <<: *default
   database: diggit-development
-  host: localhost
-  port: 5432
 
 test:
   <<: *default
@@ -19,4 +19,3 @@ test:
 production:
   <<: *default
   database: diggit-production
-  password: <%= ENV['DIGGIT_DATABASE_PASSWORD'] %>

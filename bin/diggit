@@ -1,22 +1,4 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
-Bundler.setup(:default, ENV['RACK_ENV'])
-
 require_relative '../lib/diggit/system'
-
-trap(:INT) do
-  puts 'Received SIGINT, exiting.'
-  exit
-end
-
-trap(:TERM) do
-  puts 'Received SIGTERM, exiting.'
-  exit
-end
-
-begin
-  Diggit::System.init
-  Diggit::System.start
-  sleep
-end
+Rack::Server.start(app: Diggit::System.rack_app, Port: ENV.fetch('PORT', 9292))

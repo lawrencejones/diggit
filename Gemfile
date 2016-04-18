@@ -28,6 +28,10 @@ gem 'sshkey'
 
 group :development do
   gem 'rerun'
+  gem 'capistrano'
+  gem 'capistrano-bundler'
+  gem 'capistrano-passenger'
+  gem 'capistrano-rbenv'
 end
 
 group :test do
