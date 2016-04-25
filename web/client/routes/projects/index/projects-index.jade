@@ -9,7 +9,7 @@
         .list-group
           .list-group-item(ng-repeat="project in ctrl.projects | filter:{gh_path: ctrl.projectSearch}")
             span
-              a(ui-sref='app.projects.show(path: project.gh_path)' ng-if='project.watch')
+              a(ui-sref='app.projects.show({path: project.gh_path})' ng-if='project.watch')
                 | {{ project.gh_path }}
               span(ng-if='!project.watch')
                 | {{ project.gh_path }}

@@ -10,3 +10,4 @@ public/build.js.map
 public/index.html
 public/external-helpers.js
 tmp/*
+log/
