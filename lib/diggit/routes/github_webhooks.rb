@@ -32,7 +32,7 @@ module Diggit
         end
 
         def pr_action
-          params.fetch('action')
+          params.fetch('action', '')
         end
       end
     end

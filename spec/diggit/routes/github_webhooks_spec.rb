@@ -7,7 +7,12 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
   let(:context) { { request: request } }
   let(:request) { mock_request_for(url, params: webhook, method: 'POST') }
 
-  let(:webhook) { load_json_fixture('api/github_webhooks/pr_opened.fixture.json') }
+  let(:pr_opened) { load_json_fixture('api/github_webhooks/pr_opened.fixture.json') }
+  let(:hook_registered) do
+    load_json_fixture('api/github_webhooks/hook_registered.fixture.json')
+  end
+
+  let(:webhook) { pr_opened }
   let(:webhook_gh_path) { webhook.fetch('repository').fetch('full_name') }
   let(:url) { 'https://diggit.com/api/github_webhooks' }
 
@@ -39,6 +44,11 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
 
     context 'that is watched' do
       let!(:project) { FactoryGirl.create(:project, :watched, gh_path: webhook_gh_path) }
+
+      context 'with hook registered webhook' do
+        let(:webhook) { hook_registered }
+        include_examples 'ignores webhook', 200, message: 'project_not_open_action'
+      end
 
       context 'with non-opened webhook' do
         before { webhook['action'] = 'closed' }
