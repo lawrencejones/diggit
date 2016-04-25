@@ -22,6 +22,7 @@ module Diggit
 
     def self.init
       @config ||= begin
+        configure_rollbar!
         configure_active_record!
         configure_que!
 
@@ -48,6 +49,15 @@ module Diggit
           github_token: Prius.get(:diggit_github_token),
           webhook_endpoint: Prius.get(:diggit_webhook_endpoint)
         )
+      end
+    end
+
+    def self.configure_rollbar!
+      return unless ENV.key?('DIGGIT_ROLLBAR_TOKEN')
+
+      require 'rollbar'
+      Rollbar.configure do |config|
+        config.access_token = ENV['DIGGIT_ROLLBAR_TOKEN']
       end
     end
 
