@@ -14,7 +14,7 @@ module Diggit
     class AnalyseProject < Que::Job
       include InstanceLogger
 
-      def run(project_id, pull, head:, base:)
+      def run(project_id, pull, head, base)
         @project = Project.find(project_id)
         @comment_generator = Github::CommentGenerator.
           new(project.gh_path, pull, Github.client)
@@ -24,7 +24,9 @@ module Diggit
         info { "Cloning #{project.gh_path}..." }
         clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
-          pipeline.aggregate_comments.each { |comment| create_comment(comment) }
+          pipeline.aggregate_comments.each do |comment|
+            create_comment(comment[:message], comment[:location])
+          end
         end
 
         info { 'Sending comments to github...' }
@@ -40,7 +42,7 @@ module Diggit
         Github::Cloner.new(project.ssh_private_key).clone(project.gh_path, &block)
       end
 
-      def create_comment(message:, location: nil)
+      def create_comment(message, location = nil)
         return add_comment(message) if location.nil?
 
         _, file, line = *location.match(/^(.+):(\d+)$/)

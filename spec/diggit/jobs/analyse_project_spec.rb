@@ -3,7 +3,7 @@ require 'diggit/jobs/analyse_project'
 
 RSpec.describe(Diggit::Jobs::AnalyseProject) do
   subject(:job) { described_class.new({}) }
-  let(:run!) { job.run(project.id, pull, head: head, base: base) }
+  let(:run!) { job.run(project.id, pull, head, base) }
 
   let(:project) { FactoryGirl.create(:project, :diggit) }
   let(:pull) { 43 }

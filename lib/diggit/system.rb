@@ -73,7 +73,8 @@ module Diggit
 
     def self.configure_que!
       Que.connection = ActiveRecord
-      Que.mode = :sync if Prius.get(:diggit_env) == 'test'
+      Que.mode = :sync  if Prius.get(:diggit_env) == 'test'
+      Que.mode = :async if Prius.get(:diggit_env) == 'development'
       Que.logger = Diggit.logger
     end
   end

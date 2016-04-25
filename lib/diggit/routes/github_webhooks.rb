@@ -15,8 +15,8 @@ module Diggit
 
           Jobs::AnalyseProject.
             enqueue(project.id, params['number'],
-                    head: params['pull_request']['head']['sha'],
-                    base: params['pull_request']['base']['sha'])
+                    params['pull_request']['head']['sha'],
+                    params['pull_request']['base']['sha'])
 
           response(200, 'analysis_queued')
         end

@@ -8,6 +8,9 @@ require_relative 'lib/diggit/system'
 if defined?(PhusionPassenger)
   PhusionPassenger.on_event(:starting_worker_process) do |forked|
     Que.mode = :async if forked
+    Que.error_handler = proc do |error, job|
+      Rollbar.error(error, job, "Error in Que job #{job['job_class']}")
+    end
   end
 end
 
