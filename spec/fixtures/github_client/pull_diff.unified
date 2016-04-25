@@ -1,3 +1,23 @@
+diff --git a/file.rb b/file.rb
+new file mode 100644
+index 0000000..c9ff0db
+--- /dev/null
++++ b/file.rb
+@@ -0,0 +1,14 @@
++module Utils
++  class Socket
++    def self.from_uri(uri)
++      host, port = URI.parse(uri)
++      new(host, port)
++    end
++
++    def initialize(host, port)
++      @host = host
++      @port = port
++      puts("Created new socket on #{host}:#{port}")
++    end
++  end
++end
 diff --git a/Gemfile b/Gemfile
 index 6e6856c..d1c7d42 100644
 --- a/Gemfile

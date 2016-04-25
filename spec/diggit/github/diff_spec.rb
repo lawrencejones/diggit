@@ -40,8 +40,14 @@ RSpec.describe(Diggit::Github::Diff) do
   describe '#index_for' do
     context 'with valid line number' do
       context 'with negative diff' do
-        it 'gets index for new file diff' do
+        it 'gets index for latest file diff' do
           expect(diff.index_for('lib/diggit.rb', 25)).to eql(10)
+        end
+      end
+
+      context 'on newly created file' do
+        it 'gets index' do
+          expect(diff.index_for('file.rb', 3)).to eql(3)
         end
       end
 
