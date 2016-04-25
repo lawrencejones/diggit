@@ -12,25 +12,40 @@ Broadly speaking, the tool should be able to detect when...
 - Past modifications have included changes that are absent in the proposed
 - Modifications are made to known problem hotspots
 
+## Development
+
+Running `rackup` will boot the development API server. Running `gulp` will
+trigger the development BrowserSync environment.
+
+Production bundles should not be used in development- instead, boot BrowserSync
+which will start an HTTP proxy from port 4567 to 9292. This allows the API
+server to listen on 9292 while BrowserSync serves front-end assets.
+
 ## Deployment
 
-If deploying to heroku, it is required to configure the instance with all the
-required environment variables, or the script will fail on boot. These variables
-can be found in the `dummy-env` file or otherwise specified as `Prius` calls.
+At time of writing diggit is deployed on a Digital Ocean droplet, with plans to
+containerize the deployment process. The server is configured with Phusion
+Passenger, instrumented by capistrano.
 
-As each build requires a fresh javascript bundle, the heroku instance will also
-require a node buildpack in addition to ruby. This can be added to the instance
-by running...
+Environment variables should be configured on the server, with any missing
+variables set to fail the boot.
 
-```sh
-rake heroku::configure_buildpacks
-```
+As each build requires a fresh javascript bundle, the deployment will trigger
+the npm `bundle` task to produce production front-end assets.
 
-Running `heroku buildpacks` should now display something like the following,
-indicating that both ruby and node buildpacks will be invoked during deployment.
+## Infrastructure
 
-```
-=== diggit Buildpack URLs
-1. heroku/nodejs
-2. heroku/ruby
-```
+### [Bug Tracking](https://rollbar.com/lawrencejones/diggit-prod/)
+
+[Rollbar](https://rollbar.com) is configured to listen for backend exceptions.
+The listener is invoked via the `config.ru`.
+
+### [OAuth App](https://github.com/settings/applications/331048)
+
+This is the prod OAuth application for GitHub auths. Redirects are configured on
+the `diggit-repo.com` domain.
+
+### [diggit-bot](https://github.com/diggit-bot)
+
+To interact with PR's, diggit must have an GitHub account. `diggit-bot` serves
+this purpose.
