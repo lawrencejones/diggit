@@ -15,7 +15,7 @@ module Diggit
       end
 
       # Batch and send comments to github
-      def send
+      def push
         @client.add_comment(repo, pull, comments.join("\n")) unless comments.empty?
         comments_by_file.each do |file_diff_index, comments|
           _, file, diff_index = *file_diff_index.match(/^(.+):(\d+)$/)

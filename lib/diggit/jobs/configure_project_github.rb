@@ -27,6 +27,7 @@ module Diggit
 
         info { "Configuring webhooks on #{project.gh_path}..." }
         repo.setup_webhook!(webhook_endpoint)
+        destroy
 
       rescue ActiveRecord::RecordNotFound
         error { "Failed to find project with id=#{project_id}" }

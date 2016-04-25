@@ -36,7 +36,8 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
         expect(comment_generator).
           to receive(:add_comment_on_file).
           with('This line is terrible!', 'file.rb', 9)
-        expect(comment_generator).to receive(:send)
+        expect(comment_generator).to receive(:push)
+        expect(job).to receive(:destroy)
         run!
       end
     end
@@ -48,7 +49,8 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
         expect(comment_generator).
           to receive(:add_comment).
           with('Awful PR')
-        expect(comment_generator).to receive(:send)
+        expect(comment_generator).to receive(:push)
+        expect(job).to receive(:destroy)
         run!
       end
     end

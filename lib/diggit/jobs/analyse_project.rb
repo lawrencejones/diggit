@@ -29,8 +29,9 @@ module Diggit
           end
         end
 
-        info { 'Sending comments to github...' }
-        comment_generator.send
+        info { 'Pushing comments to github...' }
+        comment_generator.push
+        destroy
       end
 
       private

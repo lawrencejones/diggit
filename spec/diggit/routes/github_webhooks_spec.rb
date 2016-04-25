@@ -62,7 +62,7 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
         it 'enqueues AnalyseProject job' do
           expect(Diggit::Jobs::AnalyseProject).
             to receive(:enqueue).
-            with(project.id, webhook['number'], head: head, base: base)
+            with(project.id, webhook['number'], head, base)
           instance.call
         end
       end

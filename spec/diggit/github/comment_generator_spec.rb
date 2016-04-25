@@ -17,12 +17,12 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
   let(:diff) { instance_double(Diggit::Github::Diff, head: 'head-sha') }
 
   describe '#add_comment' do
-    it 'aggregates comments for sending' do
+    it 'aggregates comments for pushing' do
       generator.add_comment('hello')
       generator.add_comment('world')
 
       expect(client).to receive(:add_comment).with(repo, pull, "hello\nworld")
-      generator.send
+      generator.push
     end
   end
 
@@ -30,14 +30,14 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
     context 'when location is present in diff' do
       before { allow(diff).to receive(:index_for).with('Gemfile.rb', 5).and_return(7) }
 
-      it 'will aggregate comments for sending' do
+      it 'will aggregate comments for pushing' do
         generator.add_comment_on_file('hello', 'Gemfile.rb', 5)
         generator.add_comment_on_file('world', 'Gemfile.rb', 5)
 
         expect(client).
           to receive(:create_pull_comment).
           with(repo, pull, "hello\nworld", 'head-sha', 'Gemfile.rb', 7)
-        generator.send
+        generator.push
       end
     end
 
@@ -50,7 +50,7 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
         expect(client).
           to receive(:create_pull_comment).
           with(repo, pull, 'hello', 'head-sha', 'Gemfile.rb', 1)
-        generator.send
+        generator.push
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
         expect(client).
           to receive(:add_comment).
           with(repo, pull, 'At Gemfile.rb:5 - hello')
-        generator.send
+        generator.push
       end
     end
   end
