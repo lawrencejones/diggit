@@ -66,11 +66,12 @@ module Diggit
 
       def file_diffs
         @file_diffs ||= @unified_diff.split(/^(?=diff)/).map do |chunk|
-          original_header, new_header = chunk.lines.first(4).last(2)
+          preamble, diff_content = chunk.split(/^(?=@@)/, 2)
+          original_header, new_header = preamble.lines.last(2)
 
-          { original: original_header.match(%r{--- a/(.+)$})[1],
+          { original: original_header.match(%r{--- a?/(.+)$})[1],
             new: new_header.match(%r{\+\+\+ b/(.+)$})[1],
-            diff_chunks: parse_diff_chunks(chunk.lines.from(4).join) }
+            diff_chunks: parse_diff_chunks(diff_content) }
         end
       end
 

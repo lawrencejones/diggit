@@ -2,6 +2,7 @@ require 'que'
 require 'git'
 require 'tempfile'
 
+require_relative '../logger'
 require_relative '../models/project'
 require_relative '../analysis/pipeline'
 require_relative '../github/client'
@@ -11,21 +12,26 @@ require_relative '../github/cloner'
 module Diggit
   module Jobs
     class AnalyseProject < Que::Job
-      def run(project_id, pull, head:, base:)
+      include InstanceLogger
+
+      def run(project_id, pull, head, base)
         @project = Project.find(project_id)
         @comment_generator = Github::CommentGenerator.
           new(project.gh_path, pull, Github.client)
 
         return unless project && project.watch
 
-        Que.log(message: "Cloning #{project.gh_path}...")
+        info { "Cloning #{project.gh_path}..." }
         clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
-          pipeline.aggregate_comments.each { |comment| create_comment(comment) }
+          pipeline.aggregate_comments.each do |comment|
+            create_comment(comment[:message], comment[:location])
+          end
         end
 
-        Que.log(message: 'Sending comments to github...')
-        comment_generator.send
+        info { 'Pushing comments to github...' }
+        comment_generator.push
+        destroy
       end
 
       private
@@ -37,7 +43,7 @@ module Diggit
         Github::Cloner.new(project.ssh_private_key).clone(project.gh_path, &block)
       end
 
-      def create_comment(message:, location: nil)
+      def create_comment(message, location = nil)
         return add_comment(message) if location.nil?
 
         _, file, line = *location.match(/^(.+):(\d+)$/)

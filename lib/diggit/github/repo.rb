@@ -21,7 +21,7 @@ module Diggit
       def setup_webhook!(endpoint)
         return unless existing_webhook(endpoint).nil?
 
-        logger.info('Github::Repo') { "Configuring webhook #{endpoint} on #{path}..." }
+        info { "Configuring webhook #{endpoint} on #{path}..." }
         @client.create_hook(
           path, 'web',
           { url: endpoint, content_type: :json },
@@ -33,7 +33,7 @@ module Diggit
         webhook = existing_webhook(endpoint)
         return true if webhook.nil?
 
-        logger.info('Github::Repo') { "Removing webhook #{endpoint} on #{path}..." }
+        info { "Removing webhook #{endpoint} on #{path}..." }
         @client.remove_hook(path, webhook[:id])
       end
 

@@ -6,6 +6,7 @@ require 'active_record'
 require 'yaml'
 require 'rack'
 require 'coach'
+require 'git'
 
 require_relative './logger'
 require_relative '../../config/prius'
@@ -22,6 +23,7 @@ module Diggit
 
     def self.init
       @config ||= begin
+        verify_git!
         configure_rollbar!
         configure_active_record!
         configure_que!
@@ -52,6 +54,13 @@ module Diggit
       end
     end
 
+    def self.verify_git!
+      version = `#{Git.config.binary_path} --version`.match(/git version (\d+\.\d+)/)[1]
+      unless version && version.to_f > 2.0
+        fail 'Diggit required git version >2.0.0'
+      end
+    end
+
     def self.configure_rollbar!
       return unless ENV.key?('DIGGIT_ROLLBAR_TOKEN')
 
@@ -73,8 +82,9 @@ module Diggit
 
     def self.configure_que!
       Que.connection = ActiveRecord
-      Que.mode = Prius.get(:diggit_env) == 'test' ? :sync : :async
-      Que.logger = Diggit.logger if ENV.key?('LOG_QUE')
+      Que.mode = :sync  if Prius.get(:diggit_env) == 'test'
+      Que.mode = :async if Prius.get(:diggit_env) == 'development'
+      Que.logger = Diggit.logger
     end
   end
 end

@@ -17,7 +17,7 @@ module Diggit
 
       def aggregate_comments
         REPORTERS.map do |report|
-          logger.info('Analysis::Pipeline') { "Generating #{report} for #{repo_label}" }
+          info { "Generating #{report} for #{repo_label}" }
           with_temp_repo { report.new(repo, files_changed: files_changed).comments }
         end.flatten
       end

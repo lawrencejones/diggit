@@ -1,5 +1,6 @@
 require 'que'
 
+require_relative '../logger'
 require_relative '../models/project'
 require_relative '../github/repo'
 
@@ -8,6 +9,8 @@ module Diggit
     # Configures the projects github repo to subscribe to webhooks and loads the
     # application deploy key, to enable pulling.
     class ConfigureProjectGithub < Que::Job
+      include InstanceLogger
+
       def run(project_id, gh_token)
         project = Project.find(project_id)
         return unless project.watch
@@ -15,18 +18,19 @@ module Diggit
         gh_client = Octokit::Client.new(access_token: gh_token)
         repo = Github::Repo.from_path(project.gh_path, gh_client)
 
-        Que.log(message: "Set #{Github.login} as collaborator on repo...")
+        info { "Set #{Github.login} as collaborator..." }
         repo.add_collaborator(Github.login)
 
-        Que.log(message: "Configuring deploy key on #{project.gh_path}...")
+        info { "Configuring deploy key on #{project.gh_path}..." }
         project.generate_keypair! unless project.keys?
         repo.setup_deploy_key!(title: "Diggit - #{env}", key: project.ssh_public_key)
 
-        Que.log(message: "Configuring webhooks on #{project.gh_path}...")
+        info { "Configuring webhooks on #{project.gh_path}..." }
         repo.setup_webhook!(webhook_endpoint)
+        destroy
 
       rescue ActiveRecord::RecordNotFound
-        Que.log(level: :error, message: "Failed to find project with id=#{project_id}")
+        error { "Failed to find project with id=#{project_id}" }
       end
 
       private

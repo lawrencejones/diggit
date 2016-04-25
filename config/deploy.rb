@@ -9,7 +9,7 @@ set :deploy_user, 'deploy'
 set :format, :pretty
 set :log_level, :debug
 
-set :linked_dirs, %w(log node_modules)
+set :linked_dirs, %w(log node_modules web/jspm_packages)
 set :linked_files, %w(env)
 set :keep_releases, 5
 
