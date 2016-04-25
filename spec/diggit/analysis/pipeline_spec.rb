@@ -66,7 +66,7 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
 
     it 'logs running each reporter' do
       allow(pipeline.logger).to receive(:info) do |prefix, &block|
-        expect(prefix).to eql('Analysis::Pipeline')
+        expect(prefix).to eql('Diggit::Analysis::Pipeline')
         expect(block.call).to match(/Generating \S+ for \S+/)
       end
       pipeline.aggregate_comments

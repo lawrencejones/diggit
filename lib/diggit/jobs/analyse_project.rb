@@ -2,6 +2,7 @@ require 'que'
 require 'git'
 require 'tempfile'
 
+require_relative '../logger'
 require_relative '../models/project'
 require_relative '../analysis/pipeline'
 require_relative '../github/client'
@@ -11,6 +12,8 @@ require_relative '../github/cloner'
 module Diggit
   module Jobs
     class AnalyseProject < Que::Job
+      include InstanceLogger
+
       def run(project_id, pull, head:, base:)
         @project = Project.find(project_id)
         @comment_generator = Github::CommentGenerator.
@@ -18,13 +21,13 @@ module Diggit
 
         return unless project && project.watch
 
-        Que.log(message: "Cloning #{project.gh_path}...")
+        info { "Cloning #{project.gh_path}..." }
         clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
           pipeline.aggregate_comments.each { |comment| create_comment(comment) }
         end
 
-        Que.log(message: 'Sending comments to github...')
+        info { 'Sending comments to github...' }
         comment_generator.send
       end
 

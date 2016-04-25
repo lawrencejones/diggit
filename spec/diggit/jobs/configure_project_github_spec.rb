@@ -21,10 +21,9 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
     end
 
     it 'logs error' do
-      expect(Que).
-        to receive(:log).
-        with(hash_including(level: :error,
-                            message: 'Failed to find project with id=999'))
+      expect(Diggit.logger).to receive(:error) do |_, &block|
+        expect(block.call).to eql('Failed to find project with id=999')
+      end
       run!
     end
   end
