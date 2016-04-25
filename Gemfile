@@ -25,6 +25,7 @@ gem 'unirest'
 gem 'octokit'
 gem 'json-schema'
 gem 'sshkey'
+gem 'rollbar'
 
 group :development do
   gem 'rerun'
