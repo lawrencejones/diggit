@@ -28,7 +28,7 @@ module Diggit
         end
 
         def find_project
-          Project.find_by(gh_path: params['repository']['full_name'])
+          Project.find_by(gh_path: params.fetch('repository', {})['full_name'])
         end
 
         def pr_action

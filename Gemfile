@@ -43,5 +43,6 @@ group :test do
   gem 'database_cleaner'
   gem 'timecop'
   gem 'factory_girl'
+  gem 'shoulda-matchers'
   gem 'simplecov', require: false
 end

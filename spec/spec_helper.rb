@@ -20,6 +20,7 @@ require 'coach'
 require 'active_support/core_ext'
 require 'database_cleaner'
 require 'factory_girl'
+require 'shoulda-matchers'
 
 Coach.require_matchers!
 
@@ -66,6 +67,9 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand(config.seed)
 
+  config.include(Shoulda::Matchers::ActiveModel)
+  config.include(Shoulda::Matchers::ActiveRecord)
+
   config.before(:all) { FactoryGirl.reload }
 
   config.before(:suite) do
@@ -79,9 +83,7 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
+    DatabaseCleaner.cleaning { example.run }
   end
 end
 

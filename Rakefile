@@ -1,4 +1,5 @@
 require_relative 'lib/tasks/db'
+require_relative 'lib/tasks/integ'
 
 namespace :deploy do
   desc 'Deploy diggit'
