@@ -29,13 +29,41 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
   end
 
   describe '.run' do
+    context 'when PullAnalysis exists for this pull' do
+      let!(:pull_analysis) do
+        FactoryGirl.create(:pull_analysis, project: project, pull: pull)
+      end
+
+      it 'does not run pipeline' do
+        expect(job).not_to receive(:clone)
+        expect(Diggit::Analysis::Pipeline).not_to receive(:new)
+        expect(comment_generator).not_to receive(:push)
+        run!
+      end
+    end
+
+    shared_examples 'audited analysis' do
+      before { comment_generator.as_null_object }
+
+      it 'creates new PullAnalysis' do
+        expect { run! }.to change(PullAnalysis, :count).by(1)
+        pull_analysis = PullAnalysis.last
+
+        expect(pull_analysis.pull).to eql(pull)
+        expect(pull_analysis.project_id).to eql(project.id)
+        expect(pull_analysis.comments).to match(comments.as_json)
+      end
+    end
+
     context 'with line-based comments' do
       let(:comments) { [{ message: 'This line is terrible!', location: 'file.rb:9' }] }
 
+      it_behaves_like 'audited analysis'
+
       it 'applies them with CommentGenerator' do
         expect(comment_generator).
-          to receive(:add_comment_on_file).
-          with('This line is terrible!', 'file.rb', 9)
+          to receive(:add_comment).
+          with('This line is terrible!', 'file.rb:9')
         expect(comment_generator).to receive(:push)
         expect(job).to receive(:destroy)
         run!
@@ -45,10 +73,12 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
     context 'with non-line-based comments' do
       let(:comments) { [{ message: 'Awful PR' }] }
 
+      it_behaves_like 'audited analysis'
+
       it 'applies them with CommentGenerator' do
         expect(comment_generator).
           to receive(:add_comment).
-          with('Awful PR')
+          with('Awful PR', nil)
         expect(comment_generator).to receive(:push)
         expect(job).to receive(:destroy)
         run!

@@ -24,6 +24,15 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
       expect(client).to receive(:add_comment).with(repo, pull, "hello\nworld")
       generator.push
     end
+
+    # Whilst pushing this option into the diff makes the api less consistent, it
+    # dramatically improves the call sites for the generator.
+    context 'with location' do
+      it 'delegates to add_comment_on_file' do
+        expect(generator).to receive(:add_comment_on_file).with('hello', 'Gemfile.rb', 5)
+        generator.add_comment('hello', 'Gemfile.rb:5')
+      end
+    end
   end
 
   describe '#add_comment_on_file' do
@@ -70,6 +79,23 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
           with(repo, pull, 'At Gemfile.rb:5 - hello')
         generator.push
       end
+    end
+  end
+
+  describe '.pending' do
+    before do
+      allow(diff).to receive(:index_for).with('Gemfile.rb', 5).and_return(7)
+      allow(diff).to receive(:index_for).with('Gemfile.rb', 6).and_return(8)
+    end
+
+    it 'number of comments waiting to be pushed' do
+      generator.add_comment('main thread')
+      generator.add_comment('again main thread')
+      generator.add_comment('on Gemfile at line 5', 'Gemfile.rb:5')
+      generator.add_comment_on_file('again on Gemfile at line 5', 'Gemfile.rb', 5)
+      generator.add_comment_on_file('another at Gemfile line 6', 'Gemfile.rb', 6)
+
+      expect(generator.pending).to eql(3)
     end
   end
 end

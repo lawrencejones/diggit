@@ -18,15 +18,19 @@ module Diggit
       def push
         @client.add_comment(repo, pull, comments.join("\n")) unless comments.empty?
         comments_by_file.each do |file_diff_index, comments|
-          _, file, diff_index = *file_diff_index.match(/^(.+):(\d+)$/)
+          file, diff_index = parse_location(file_diff_index)
           body = comments.join("\n")
 
-          @client.create_pull_comment(repo, pull, body, diff.head, file, diff_index.to_i)
+          @client.create_pull_comment(repo, pull, body, diff.head, file, diff_index)
         end
       end
 
-      def add_comment(body)
-        comments << body
+      # Optional location field that will delegate to add_comment_on_file, to allow
+      # add_comment('message', 'file.rb:4') for example.
+      def add_comment(body, location = nil)
+        return comments << body if location.nil?
+
+        add_comment_on_file(body, *parse_location(location))
       end
 
       def add_comment_on_file(body, file, line = 1)
@@ -40,9 +44,21 @@ module Diggit
         add_comment("At #{file}:#{line} - #{body}")
       end
 
+      def pending
+        thread_comments = comments.empty? ? 0 : 1
+        thread_comments + comments_by_file.keys.count
+      end
+
       private
 
       attr_reader :repo, :pull, :diff, :comments, :comments_by_file
+
+      def parse_location(location)
+        return if location.nil?
+
+        file, line = location.split(/:(?=\d+$)/)
+        [file, line.to_i]
+      end
     end
   end
 end
