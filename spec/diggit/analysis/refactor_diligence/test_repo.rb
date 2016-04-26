@@ -3,6 +3,33 @@ require_relative '../temporary_analysis_repo'
 # rubocop:disable Metrics/MethodLength, Style/AlignParameters
 def refactor_diligence_test_repo
   TemporaryAnalysisRepo.new.tap do |repo|
+    repo.write('master.rb',
+    %(class Master
+        def initialize
+        end
+      end))
+    repo.commit('initial Master::initialize')
+
+    repo.write('master.rb',
+    %(class Master
+        def initialize
+          puts('first line')
+        end
+      end))
+    repo.commit('Master::initialize +1')
+
+    repo.write('master.rb',
+    %(class Master
+        def initialize
+          puts('first line')
+          puts('second line')
+        end
+      end))
+    repo.commit('Master::initialize +2')
+
+    # Start feature branch here
+    repo.g.branch('feature').checkout
+
     repo.write('file.rb',
     %(module Utils
         class Socket
@@ -37,6 +64,16 @@ def refactor_diligence_test_repo
             @port = port
             puts("Created new socket on \#{host}:\#{port}")
           end
+        end
+      end))
+    repo.write('master.rb',
+    %(class Master
+        def initialize
+          puts('first line')
+          puts('second line')
+        end
+
+        def add_a_method
         end
       end))
     repo.commit('.from_uri and log')
