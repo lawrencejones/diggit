@@ -10,15 +10,9 @@ RSpec.describe(Project) do
   its(:owner) { is_expected.to eql('lawrencejones') }
   its(:repo) { is_expected.to eql('diggit') }
 
-  context 'with missing gh_path' do
-    before { params[:gh_path] = nil }
-    it { is_expected.not_to be_valid }
-  end
-
-  context 'with invalid gh_path' do
-    before { params[:gh_path] = 'lawrencejones' }
-    it { is_expected.not_to be_valid }
-  end
+  it { is_expected.to be_valid }
+  it { is_expected.to validate_presence_of(:gh_path) }
+  it { is_expected.not_to allow_value('lawrencejones').for(:gh_path) }
 
   context 'with unspecified watch' do
     before { params.delete(:watch) }

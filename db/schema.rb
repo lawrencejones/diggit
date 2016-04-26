@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407085025) do
+ActiveRecord::Schema.define(version: 20160426092108) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,6 +26,16 @@ ActiveRecord::Schema.define(version: 20160407085025) do
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
 
+  create_table "pull_analyses", force: :cascade do |t|
+    t.integer  "project_id"
+    t.integer  "pull",                    null: false
+    t.json     "comments",   default: [], null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "pull_analyses", ["project_id"], name: "index_pull_analyses_on_project_id", using: :btree
+
   create_table "que_jobs", id: false, force: :cascade do |t|
     t.integer  "priority",    limit: 2, default: 100,                   null: false
     t.datetime "run_at",                default: '2016-04-07 10:06:35', null: false
@@ -37,4 +47,5 @@ ActiveRecord::Schema.define(version: 20160407085025) do
     t.text     "queue",                 default: "",                    null: false
   end
 
+  add_foreign_key "pull_analyses", "projects"
 end
