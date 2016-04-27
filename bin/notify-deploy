@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-echo -n "Sending deploy notification... "
-curl -X POST \
-     -H 'Content-Type: application/json' \
-     -d "{\"from\": \"Deploy\", \"content\": \"Deployed diggit $(git rev-parse HEAD | cut -c1-8)\"}" \
-     http://diggit-repo.com:45456/broadcast
-echo
