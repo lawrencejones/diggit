@@ -14,7 +14,7 @@ machine:
   ruby:
     version: '2.2.3'
   node:
-    version: '5.1.1'
+    version: '6.0.0'
 
 test:
   pre:
@@ -24,3 +24,10 @@ test:
     - npm run bundle
     - bundle exec rspec
     - ./node_modules/.bin/gulp karma
+
+deployment:
+  production:
+    branch: [master]
+    commands:
+      - cap production deploy
+      - ./node_modules/.bin/feedz-client message http://diggit-repo.com:45456 Deploy "Deployed diggit $(git rev-parse HEAD)"
