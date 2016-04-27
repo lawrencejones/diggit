@@ -1,6 +1,6 @@
 namespace :integ do
   desc 'Fire webhook fixture at localhost:9292'
-  task :trigger_webhook, [:fixture] do |_, args|
+  task :trigger_webhook, [:fixture, :host] do |_, args|
     fixture_file = "#{args[:fixture]}.fixture.json"
     fixture_path = File.join(Rake.application.original_dir,
                              'spec/fixtures/api/github_webhooks', fixture_file)
@@ -15,6 +15,6 @@ namespace :integ do
          -H 'Content-Type: application/json' \
          -H 'Accept: application/json' \
          -d @'#{fixture_path}' \
-         http://localhost:9292/api/github_webhooks)
+         #{args.fetch(:host, 'http://localhost:9292')}/api/github_webhooks)
   end
 end
