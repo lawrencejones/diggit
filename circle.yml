@@ -14,7 +14,7 @@ machine:
   ruby:
     version: '2.2.3'
   node:
-    version: '6.0.0'
+    version: '5.1.1'
 
 test:
   pre:
@@ -29,5 +29,4 @@ deployment:
   production:
     branch: [master]
     commands:
-      - cap production deploy
-      - ./node_modules/.bin/feedz-client message http://diggit-repo.com:45456 Deploy "Deployed diggit $(git rev-parse HEAD)"
+      - bundle exec cap production deploy && ./bin/notify-deploy
