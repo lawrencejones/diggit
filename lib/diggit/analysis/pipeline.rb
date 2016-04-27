@@ -7,12 +7,15 @@ module Diggit
   module Analysis
     class Pipeline
       REPORTERS = [RefactorDiligence::Report].freeze
+      class BadGitHistory < StandardError; end
       include InstanceLogger
 
       def initialize(repo, head:, base:)
         @repo = repo
         @head = head
         @base = base
+
+        verify_head!
       end
 
       def aggregate_comments
@@ -31,6 +34,12 @@ module Diggit
       private
 
       attr_reader :repo, :head, :base
+
+      def verify_head!
+        repo.show(head)
+      rescue Git::GitExecuteError
+        raise BadGitHistory, "Missing head commit #{head}"
+      end
 
       def repo_label
         File.basename(repo.dir.path)

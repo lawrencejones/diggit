@@ -32,6 +32,18 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
     it { is_expected.to respond_with_json(body.stringify_keys) }
   end
 
+  shared_examples 'takes action on webhook' do
+    it { is_expected.to respond_with_status(200) }
+    it { is_expected.to respond_with_json('message' => 'project_analysis_queued') }
+
+    it 'enqueues AnalyseProject job' do
+      expect(Diggit::Jobs::AnalyseProject).
+        to receive(:enqueue).
+        with(project.id, webhook['number'], head, base)
+      instance.call
+    end
+  end
+
   context 'when project does not exist' do
     include_examples 'ignores webhook', 404, message: 'project_not_found'
   end
@@ -47,24 +59,22 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
 
       context 'with hook registered webhook' do
         let(:webhook) { hook_registered }
-        include_examples 'ignores webhook', 200, message: 'project_not_open_action'
+        include_examples 'ignores webhook', 200, message: 'project_not_watched_action'
       end
 
-      context 'with non-opened webhook' do
+      context 'with non-opened/synchronize webhook' do
         before { webhook['action'] = 'closed' }
-        include_examples 'ignores webhook', 200, message: 'project_not_open_action'
+        include_examples 'ignores webhook', 200, message: 'project_not_watched_action'
       end
 
       context 'with opened webhook' do
-        it { is_expected.to respond_with_status(200) }
-        it { is_expected.to respond_with_json('message' => 'project_analysis_queued') }
+        before { webhook['action'] = 'opened' }
+        include_examples 'takes action on webhook'
+      end
 
-        it 'enqueues AnalyseProject job' do
-          expect(Diggit::Jobs::AnalyseProject).
-            to receive(:enqueue).
-            with(project.id, webhook['number'], head, base)
-          instance.call
-        end
+      context 'with synchronize webhook' do
+        before { webhook['action'] = 'synchronize' }
+        include_examples 'takes action on webhook'
       end
     end
   end

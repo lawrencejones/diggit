@@ -59,6 +59,13 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
   before { stub_const('Diggit::Analysis::Pipeline::REPORTERS', reporters) }
   let(:reporters) { [mock_reporter(%w(1a 1b)), mock_reporter(%w(2a 2b))] }
 
+  context 'when the given HEAD sha is not in repo' do
+    let(:head) { 'bad-head-reference' }
+    it 'raises Pipeline::BadGitHistory' do
+      expect { pipeline }.to raise_exception(described_class::BadGitHistory)
+    end
+  end
+
   describe '#aggregate_comments' do
     it 'collects comments from all reporters' do
       expect(pipeline.aggregate_comments).to match_array(%w(1a 1b 2a 2b))

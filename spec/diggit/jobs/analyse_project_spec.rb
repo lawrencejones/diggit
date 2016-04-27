@@ -42,6 +42,18 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
       end
     end
 
+    context 'when referenced commits are no longer in repo' do
+      before do
+        allow(Diggit::Analysis::Pipeline).
+          to receive(:new).
+          and_raise(Diggit::Analysis::Pipeline::BadGitHistory)
+      end
+
+      it 'does not create analysis' do
+        expect { run! }.not_to change(PullAnalysis, :count)
+      end
+    end
+
     shared_examples 'audited analysis' do
       before { comment_generator.as_null_object }
 

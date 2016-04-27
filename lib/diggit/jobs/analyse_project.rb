@@ -15,37 +15,47 @@ module Diggit
     class AnalyseProject < Que::Job
       include InstanceLogger
 
-      # rubocop:disable Metrics/AbcSize
       def run(project_id, pull, head, base)
+        @pull = pull
         @project = Project.find(project_id)
         @cloner = Github::Cloner.new(project.ssh_private_key)
         @comment_generator = Github::CommentGenerator.
           new(project.gh_path, pull, Github.client)
 
+        return destroy unless validate
+
+        ActiveRecord::Base.transaction do
+          run_analysis(head, base)
+          destroy
+        end
+      end
+
+      private
+
+      attr_reader :project, :cloner, :comment_generator, :pull
+      delegate :add_comment, to: :comment_generator
+
+      def validate
         unless project && project.watch
           info { "#{project.gh_path} is not watched, doing nothing" }
-          return destroy
+          return false
         end
 
         if PullAnalysis.exists?(project: project, pull: pull)
           info { "Pull #{pull} for #{project.gh_path} already analysed, doing nothing" }
-          return destroy
+          return false
         end
 
-        ActiveRecord::Base.transaction do
-          comments = generate_comments(head, base)
-          create_pull_analysis(pull, comments)
-          comment_to_github(comments)
-
-          destroy
-        end
+        true
       end
-      # rubocop:enable Metrics/AbcSize
 
-      private
-
-      attr_reader :project, :cloner, :comment_generator
-      delegate :add_comment, to: :comment_generator
+      def run_analysis(head, base)
+        comments = generate_comments(head, base)
+        create_pull_analysis(pull, comments)
+        comment_to_github(comments)
+      rescue Analysis::Pipeline::BadGitHistory
+        info { "Pull #{pull} references commits that no longer exist, skipping analysis" }
+      end
 
       def generate_comments(head, base)
         info { "Cloning #{project.gh_path}..." }

@@ -11,7 +11,7 @@ module Diggit
 
           return response(404, 'not_found') if project.nil?
           return response(200, 'not_watched') unless project.watch
-          return response(200, 'not_open_action') unless pr_action == 'opened'
+          return response(200, 'not_watched_action') unless watched_action?
 
           Jobs::AnalyseProject.
             enqueue(project.id, params['number'],
@@ -31,8 +31,8 @@ module Diggit
           Project.find_by(gh_path: params.fetch('repository', {})['full_name'])
         end
 
-        def pr_action
-          params.fetch('action', '')
+        def watched_action?
+          %w(opened synchronize).include?(params.fetch('action', ''))
         end
       end
     end
