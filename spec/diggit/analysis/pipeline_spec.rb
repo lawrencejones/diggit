@@ -42,7 +42,7 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
   # rubocop:disable Lint/UnusedBlockArgument
   def mock_reporter(mock_comments, &block)
     Class.new do
-      define_method(:initialize) { |repo, files_changed:| yield repo if block }
+      define_method(:initialize) { |repo, conf| yield repo if block }
       define_method(:comments) { mock_comments }
     end
   end

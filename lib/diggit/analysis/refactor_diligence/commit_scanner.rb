@@ -20,7 +20,7 @@ module Diggit
         attr_reader :repo, :logger
 
         def checkout(ref)
-          repo.reset_hard(ref)
+          repo.checkout(ref, force: true)
           repo.object(ref)
         end
 

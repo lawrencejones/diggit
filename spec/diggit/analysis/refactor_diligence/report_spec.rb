@@ -2,7 +2,11 @@ require 'diggit/analysis/refactor_diligence/report'
 require_relative './test_repo'
 
 RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
-  subject(:report) { described_class.new(repo, files_changed: files_changed) }
+  subject(:report) do
+    described_class.new(repo,
+                        files_changed: files_changed,
+                        base: base, head: head)
+  end
   let(:repo) { refactor_diligence_test_repo }
 
   let(:head) { 'feature' }
@@ -16,14 +20,17 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
   describe '#comments' do
     subject(:comments) { report.comments }
 
+    def comment_for(method)
+      comments.find { |c| c[:meta][:method_name][method] }
+    end
+    let(:socket_comment) { comment_for(/Socket::initialize/) }
+    let(:master_comment) { comment_for(/Master::initialize/) }
+
     it 'does not include methods that have not increased in size in this diff' do
-      master_comment = comments.find { |c| c[:meta][:method_name][/Master::initialize/] }
       expect(master_comment).to be_nil
     end
 
     it 'include methods that are above threshold', :aggregate_failures do
-      socket_comment = comments.find { |c| c[:meta][:method_name][/Socket::initialize/] }
-
       expect(socket_comment).to include(
         report: 'RefactorDiligence',
         message: /has increased in size the last 3 times/i,
@@ -33,6 +40,13 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
           times_increased: 3,
         }
       )
+    end
+
+    it 'tags commit shas in comment' do
+      commit_shas = repo.log.map(&:sha)
+      shas_in_comment = socket_comment[:message].scan(/\S{40}/)
+
+      expect(commit_shas).to include(*shas_in_comment)
     end
 
     it 'does not include methods below threshold' do

@@ -18,7 +18,13 @@ module Diggit
       def aggregate_comments
         REPORTERS.map do |report|
           info { "Generating #{report} for #{repo_label}" }
-          with_temp_repo { report.new(repo, files_changed: files_changed).comments }
+          with_temp_repo do
+            report.
+              new(repo,
+                  files_changed: files_changed,
+                  base: base,
+                  head: head).comments
+          end
         end.flatten
       end
 
