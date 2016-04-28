@@ -18,7 +18,7 @@ module Diggit
       def run(project_id, pull, head, base)
         @pull = pull
         @project = Project.find(project_id)
-        @cloner = Github::Cloner.new(project.ssh_private_key)
+        @cloner = Github::Cloner.new(project.gh_path)
         @comment_generator = Github::CommentGenerator.
           new(project.gh_path, pull, Github.client)
 
@@ -57,9 +57,14 @@ module Diggit
         info { "Pull #{pull} references commits that no longer exist, skipping analysis" }
       end
 
-      def generate_comments(head, base)
+      def clone(&block)
         info { "Cloning #{project.gh_path}..." }
-        cloner.clone(project.gh_path) do |repo|
+        return cloner.clone(&block) unless project.ssh_private_key
+        cloner.clone_with_key(project.ssh_private_key, &block)
+      end
+
+      def generate_comments(head, base)
+        clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
           info { "Running pipeline on #{project.gh_path}..." }
           pipeline.aggregate_comments

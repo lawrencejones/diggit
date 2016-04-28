@@ -5,6 +5,9 @@ FactoryGirl.define do
 
     trait :watched do
       watch true
+    end
+
+    trait :deploy_keys do
       ssh_public_key 'ssh-public-key'
       ssh_private_key 'ssh-private-key'
     end

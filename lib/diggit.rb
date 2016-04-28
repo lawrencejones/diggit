@@ -57,7 +57,7 @@ module Diggit
         router.get '/redirect', to: Coach::Handler.
           new(Routes::Auth::Redirect,
               client_id: config.fetch(:github_client_id),
-              scope: 'write:repo_hook,repo')
+              scope: 'write:repo_hook')
         router.post '/access_token', to: Coach::Handler.
           new(Routes::Auth::CreateAccessToken,
               client_id: config.fetch(:github_client_id),

@@ -18,12 +18,14 @@ module Diggit
         gh_client = Octokit::Client.new(access_token: gh_token)
         repo = Github::Repo.from_path(project.gh_path, gh_client)
 
-        info { "Set #{Github.login} as collaborator..." }
-        repo.add_collaborator(Github.login)
+        if repo.private
+          info { "Set #{Github.login} as collaborator..." }
+          repo.add_collaborator(Github.login)
 
-        info { "Configuring deploy key on #{project.gh_path}..." }
-        project.generate_keypair! unless project.keys?
-        repo.setup_deploy_key!(title: "Diggit - #{env}", key: project.ssh_public_key)
+          info { "Configuring deploy key on #{project.gh_path}..." }
+          project.generate_keypair! unless project.keys?
+          repo.setup_deploy_key!(title: "Diggit - #{env}", key: project.ssh_public_key)
+        end
 
         info { "Configuring webhooks on #{project.gh_path}..." }
         repo.setup_webhook!(webhook_endpoint)

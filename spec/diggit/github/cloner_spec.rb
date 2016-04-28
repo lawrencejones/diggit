@@ -1,7 +1,7 @@
 require 'diggit/github/cloner'
 
 RSpec.describe(Diggit::Github::Cloner) do
-  subject(:cloner) { described_class.new(ssh_private_key) }
+  subject(:cloner) { described_class.new(gh_path) }
 
   let(:ssh_private_key) { 'ssh-private-key' }
   let(:gh_path) { 'lawrencejones/diggit' }
@@ -18,9 +18,18 @@ RSpec.describe(Diggit::Github::Cloner) do
 
   describe '.clone' do
     it 'yields with repo' do
-      cloner.clone(gh_path) do |repo|
+      cloner.clone do |repo|
         expect(repo).to be_instance_of(Git::Base)
-        expect(repo.ls_files.keys).to eql(['remote'])
+        expect(repo.show('HEAD', 'remote')).to start_with('https://github.com/')
+      end
+    end
+  end
+
+  describe '.clone_with_key' do
+    it 'yields with repo' do
+      cloner.clone_with_key(ssh_private_key) do |repo|
+        expect(repo).to be_instance_of(Git::Base)
+        expect(repo.show('HEAD', 'remote')).to start_with('git@github.com:')
       end
     end
   end

@@ -56,6 +56,10 @@ module Diggit
         end
       end
 
+      def private
+        @repo[:private]
+      end
+
       private
 
       def path
