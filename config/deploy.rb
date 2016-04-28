@@ -18,6 +18,6 @@ set :rbenv_ruby, File.read('.ruby-version').strip
 
 set :npm_flags, '--silent --no-progress'
 
-set :rollbar_token, 'ec9c852990434032a468c375890576ce'
+set :rollbar_token, ENV['DIGGIT_ROLLBAR_TOKEN']
 set :rollbar_env, proc { fetch :stage }
 set :rollbar_role, proc { :app }

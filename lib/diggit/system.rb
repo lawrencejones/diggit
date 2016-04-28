@@ -67,6 +67,7 @@ module Diggit
       require 'rollbar'
       Rollbar.configure do |config|
         config.access_token = ENV['DIGGIT_ROLLBAR_TOKEN']
+        config.environment = Prius.get(:diggit_env)
       end
     end
 
