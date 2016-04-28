@@ -31,7 +31,7 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
   context 'when project exists' do
     let(:project) { FactoryGirl.create(:project, :diggit) }
     let(:project_id) { project.id }
-    let(:repo) { instance_double(Diggit::Github::Repo) }
+    let(:repo) { instance_double(Diggit::Github::Repo).as_null_object }
 
     before do
       allow(Diggit::Github::Repo).
@@ -43,18 +43,52 @@ RSpec.describe(Diggit::Jobs::ConfigureProjectGithub) do
     context 'with watch=true' do
       let(:watch) { true }
       before { allow(Diggit::Github).to receive(:login).and_return('diggit-bot') }
+      before { allow(repo).to receive(:private).and_return(repo_private) }
 
-      it 'configures collaborator, deploy keys, webhooks', :aggregate_failure do
-        expect(repo).
-          to receive(:add_collaborator).
-          with('diggit-bot')
-        expect(repo).
-          to receive(:setup_deploy_key!).
-          with(title: 'Diggit - prod', key: anything)
-        expect(repo).
-          to receive(:setup_webhook!).
-          with('https://diggit.com/api/github_webhooks')
-        run!
+      context 'when repository is public' do
+        let(:repo_private) { false }
+
+        it 'does not configure diggit-bot as collaborator' do
+          expect(repo).not_to receive(:add_collaborator)
+          run!
+        end
+
+        it 'does not configure deploy keys' do
+          expect(repo).not_to receive(:setup_deploy_key!)
+          run!
+        end
+
+        it 'configures webhooks' do
+          expect(repo).
+            to receive(:setup_webhook!).
+            with('https://diggit.com/api/github_webhooks')
+          run!
+        end
+      end
+
+      context 'when repository is private' do
+        let(:repo_private) { true }
+
+        it 'configures diggit user as collaborator' do
+          expect(repo).
+            to receive(:add_collaborator).
+            with('diggit-bot')
+          run!
+        end
+
+        it 'sets up deploy keys' do
+          expect(repo).
+            to receive(:setup_deploy_key!).
+            with(title: 'Diggit - prod', key: anything)
+          run!
+        end
+
+        it 'configures webhooks' do
+          expect(repo).
+            to receive(:setup_webhook!).
+            with('https://diggit.com/api/github_webhooks')
+          run!
+        end
       end
     end
   end

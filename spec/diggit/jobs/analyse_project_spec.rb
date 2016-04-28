@@ -25,10 +25,28 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
     allow(Diggit::Github::Cloner).to receive(:new).and_return(cloner)
 
     allow(cloner).to receive(:clone).and_yield(repo_handle)
+    allow(cloner).to receive(:clone_with_key).and_yield(repo_handle)
+    allow(comment_generator).to receive(:push)
     allow(pipeline).to receive(:aggregate_comments).and_return(comments)
   end
 
   describe '.run' do
+    context 'when project lacks deploy keys' do
+      it 'calls simple clone' do
+        expect(cloner).to receive(:clone)
+        run!
+      end
+    end
+
+    context 'when a project has deploy keys' do
+      let(:project) { FactoryGirl.create(:project, :diggit, :deploy_keys) }
+
+      it 'clones with key' do
+        expect(cloner).to receive(:clone_with_key).with(project.ssh_private_key)
+        run!
+      end
+    end
+
     context 'when PullAnalysis exists for this pull' do
       let!(:pull_analysis) do
         FactoryGirl.create(:pull_analysis, project: project, pull: pull)
