@@ -22,11 +22,7 @@ module Diggit
         REPORTERS.map do |report|
           info { "Generating #{report} for #{repo_label}" }
           with_temp_repo do
-            report.
-              new(repo,
-                  files_changed: files_changed,
-                  base: base,
-                  head: head).comments
+            report.new(repo, base: base, head: head).comments
           end
         end.flatten
       end
@@ -43,10 +39,6 @@ module Diggit
 
       def repo_label
         File.basename(repo.dir.path)
-      end
-
-      def files_changed
-        @files_changed ||= repo.diff(base, head).stats[:files].keys
       end
 
       def with_temp_repo

@@ -91,24 +91,4 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
       end
     end
   end
-
-  # private
-
-  describe '#files_changed' do
-    subject { pipeline.send(:files_changed) }
-
-    context 'for entire history' do
-      let(:head) { repo.log.first.sha }
-      let(:base) { repo.log.last.sha }
-
-      it { is_expected.to match_array(%w(.gitignore file.c README.md)) }
-    end
-
-    context 'for partial history' do
-      let(:head) { repo.log[0].sha }
-      let(:base) { repo.log[1].sha }
-
-      it { is_expected.to match_array(%w(README.md file.c)) }
-    end
-  end
 end
