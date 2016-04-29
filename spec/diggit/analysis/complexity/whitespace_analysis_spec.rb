@@ -1,6 +1,6 @@
-require 'utils/git_walker/metrics/complexity'
+require 'diggit/analysis/complexity/whitespace_analysis'
 
-RSpec.describe(GitWalker::Metrics::WhitespaceAnalysis) do
+RSpec.describe(Diggit::Analysis::Complexity::WhitespaceAnalysis) do
   subject(:metric) { described_class.new(contents) }
 
   describe '.std' do
