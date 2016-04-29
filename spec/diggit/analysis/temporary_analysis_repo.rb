@@ -1,5 +1,6 @@
 require 'git'
 require 'fileutils'
+require 'diggit/services/environment'
 
 class TemporaryAnalysisRepo
   @repos = []
@@ -24,8 +25,17 @@ class TemporaryAnalysisRepo
     File.write(File.join(base, file), contents)
   end
 
-  def commit(message)
-    g.add(all: true)
-    g.commit_all(message)
+  def commit(message, time: Time.now)
+    Diggit::Services::Environment.with_temporary_env(git_time_env(time)) do
+      g.add(all: true)
+      g.commit_all(message)
+    end
+  end
+
+  private
+
+  def git_time_env(time)
+    { 'GIT_AUTHOR_DATE' => time.to_s,
+      'GIT_COMMITTER_DATE' => time.to_s }
   end
 end
