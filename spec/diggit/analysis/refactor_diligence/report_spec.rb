@@ -26,6 +26,12 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     let(:socket_comment) { comment_for(/Socket::initialize/) }
     let(:master_comment) { comment_for(/Master::initialize/) }
 
+    context 'when pull does not change ruby files' do
+      let(:files_changed) { [] }
+
+      it { is_expected.to eql([]) }
+    end
+
     it 'does not include methods that have not increased in size in this diff' do
       expect(master_comment).to be_nil
     end
