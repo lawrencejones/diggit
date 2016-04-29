@@ -13,13 +13,10 @@ module Diggit
           @files_changed = conf.fetch(:files_changed, [])
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
-          @method_locations = CommitScanner.new(repo).
-            scan(commits_of_interest.first, files: ruby_files_changed).
-            transform_values { |stats| stats.fetch(:loc) }
         end
 
         def comments
-          @comments ||= generate_comments
+          @comments ||= commits_of_interest.empty? ? [] : generate_comments
         end
 
         private
@@ -56,6 +53,13 @@ module Diggit
             flatten.
             uniq(&:sha).
             sort_by { |commit| -commit.date.to_i }
+        end
+
+        # Identifies the location of each method in the latest commit
+        def method_locations
+          @method_locations ||= CommitScanner.new(repo).
+            scan(commits_of_interest.first, files: ruby_files_changed).
+            transform_values { |stats| stats.fetch(:loc) }
         end
 
         # Commit shas that make up the diff
