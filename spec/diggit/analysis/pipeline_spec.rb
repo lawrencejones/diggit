@@ -3,7 +3,7 @@ require 'diggit/analysis/pipeline'
 
 # rubocop:disable Style/AlignParameters
 def pipeline_test_repo
-  TemporaryAnalysisRepo.new.tap do |repo|
+  TemporaryAnalysisRepo.create do |repo|
     repo.write('file.c',
     %(int main(int argc, char **argv) {
         return 0;
@@ -28,7 +28,7 @@ def pipeline_test_repo
         return 0;
       }))
     repo.commit('third commit')
-  end.g
+  end
 end
 # rubocop:enable Style/AlignParameters
 
@@ -74,7 +74,7 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
     it 'logs running each reporter' do
       allow(pipeline.logger).to receive(:info) do |prefix, &block|
         expect(prefix).to eql('Diggit::Analysis::Pipeline')
-        expect(block.call).to match(/Generating \S+ for \S+/)
+        expect(block.call).to match(/\[\S+\] \S+\.\.\./)
       end
       pipeline.aggregate_comments
     end

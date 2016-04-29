@@ -5,6 +5,10 @@ require 'diggit/services/environment'
 class TemporaryAnalysisRepo
   @repos = []
 
+  def self.create(&block)
+    new.tap { |repo| block.call(repo) }.g
+  end
+
   def self.clean!
     @repos.map { |repo| FileUtils.rm_rf(repo.base) }
   end

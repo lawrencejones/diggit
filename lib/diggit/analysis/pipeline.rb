@@ -1,12 +1,13 @@
 require 'hamster/hash'
 
-require_relative './refactor_diligence/report'
+require_relative 'refactor_diligence/report'
+require_relative 'complexity/report'
 require_relative '../logger'
 
 module Diggit
   module Analysis
     class Pipeline
-      REPORTERS = [RefactorDiligence::Report].freeze
+      REPORTERS = [RefactorDiligence::Report, Complexity::Report].freeze
       class BadGitHistory < StandardError; end
       include InstanceLogger
 
@@ -20,7 +21,7 @@ module Diggit
 
       def aggregate_comments
         REPORTERS.map do |report|
-          info { "Generating #{report} for #{repo_label}" }
+          info { "[#{repo_label}] #{report}..." }
           with_temp_repo do
             report.new(repo, base: base, head: head).comments
           end

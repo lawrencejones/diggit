@@ -15,6 +15,7 @@ module Diggit
   class System
     DUMMY_ENV = File.expand_path('../../../dummy-env', __FILE__)
     DATABASE_YAML = File.expand_path('../../../config/database.yml', __FILE__)
+    LOCALES_PATH = File.expand_path('../../../config/locales/*.yml', __FILE__)
 
     def self.rack_app
       config = init
@@ -24,6 +25,7 @@ module Diggit
     def self.init
       @config ||= begin
         verify_git!
+        configure_i18n!
         configure_rollbar!
         configure_active_record!
         configure_que!
@@ -59,6 +61,11 @@ module Diggit
       unless version && version.to_f > 2.0
         fail 'Diggit required git version >2.0.0'
       end
+    end
+
+    def self.configure_i18n!
+      I18n.load_path += Dir[LOCALES_PATH]
+      I18n.default_locale = :en
     end
 
     def self.configure_rollbar!
