@@ -9,6 +9,8 @@ module Diggit
       def call
         provide(gh_client: gh_client)
         next_middleware.call
+      rescue Octokit::Unauthorized
+        [401, {}, [{ error: 'bad_github_auth' }.to_json]]
       end
 
       def gh_client
