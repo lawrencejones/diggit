@@ -2,17 +2,11 @@ require 'diggit/analysis/refactor_diligence/report'
 require_relative './test_repo'
 
 RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
-  subject(:report) do
-    described_class.new(repo,
-                        files_changed: files_changed,
-                        base: base, head: head)
-  end
+  subject(:report) { described_class.new(repo, base: base, head: head) }
   let(:repo) { refactor_diligence_test_repo }
 
   let(:head) { 'feature' }
   let(:base) { 'master' }
-
-  let(:files_changed) { repo.diff(base, head).stats.fetch(:files).keys }
 
   before { stub_const("#{described_class}::TIMES_INCREASED_THRESHOLD", threshold) }
   let(:threshold) { 2 }
@@ -27,7 +21,8 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     let(:master_comment) { comment_for(/Master::initialize/) }
 
     context 'when pull does not change ruby files' do
-      let(:files_changed) { [] }
+      let(:head) { 'non-ruby' }
+      let(:base) { 'feature' }
 
       it { is_expected.to eql([]) }
     end

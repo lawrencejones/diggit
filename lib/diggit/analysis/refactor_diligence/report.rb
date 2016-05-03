@@ -10,7 +10,6 @@ module Diggit
 
         def initialize(repo, conf)
           @repo = repo
-          @files_changed = conf.fetch(:files_changed, [])
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
         end
@@ -21,7 +20,7 @@ module Diggit
 
         private
 
-        attr_reader :repo, :files_changed, :method_locations
+        attr_reader :repo, :base, :head, :method_locations
 
         def generate_comments
           methods_over_threshold.to_h.map do |method, history|
@@ -64,11 +63,12 @@ module Diggit
 
         # Commit shas that make up the diff
         def commits_in_diff
-          @commits_in_diff ||= repo.log.between(@base, @head).map(&:sha)
+          @commits_in_diff ||= repo.log.between(base, head).map(&:sha)
         end
 
         def ruby_files_changed
-          @ruby_files_changed ||= files_changed.
+          @ruby_files_changed ||= repo.
+            diff(base, head).stats[:files].keys.
             select { |file| File.extname(file) == '.rb' }
         end
       end

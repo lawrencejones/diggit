@@ -1,10 +1,23 @@
-require 'utils/git_walker/metrics/complexity'
+require 'diggit/analysis/complexity/whitespace_analysis'
 
-RSpec.describe(GitWalker::Metrics::WhitespaceAnalysis) do
+RSpec.describe(Diggit::Analysis::Complexity::WhitespaceAnalysis) do
   subject(:metric) { described_class.new(contents) }
+  before { stub_const("#{described_class}::MIN_LINES", 3) }
 
   describe '.std' do
     subject { metric.std }
+
+    context 'for context with fewer than MIN_LINES' do
+      let(:contents) { %(ones\n  two\n) } # .gitignore
+
+      it { is_expected.to equal(0.0) }
+    end
+
+    context 'for contents with bad encoding' do
+      let(:contents) { instance_double(String, valid_encoding?: false) }
+
+      it { is_expected.to equal(0.0) }
+    end
 
     context 'for one line file' do
       let(:contents) { %(5.1.1\n) } # .node-version

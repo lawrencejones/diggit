@@ -77,5 +77,10 @@ def refactor_diligence_test_repo
         end
       end))
     repo.commit('.from_uri and log')
+
+    # Start non-ruby branch here
+    repo.g.branch('non-ruby').checkout
+    repo.write('main.c', %(int main(int argc, char **argv) { return 0; }))
+    repo.commit('non-ruby file')
   end.g
 end
