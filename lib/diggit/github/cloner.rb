@@ -1,3 +1,5 @@
+require_relative '../services/environment'
+
 module Diggit
   module Github
     # Facilitates cloning of github repos into temporary workspaces
@@ -38,19 +40,13 @@ module Diggit
         keyfile.unlink
       end
 
-      # Runs a git clone with a specified private key file. Git clone has to be run in
-      # subprocess as we are required to modify the environment.
+      # Runs a git clone with a specified private key file.
       def clone_with_keyfile(keyfile, to:)
-        pid = Process.fork do
-          begin
-            ENV['GIT_SSH_COMMAND'] = "ssh -i #{keyfile}"
+        Services::Environment.
+          with_temporary_env('GIT_SSH_COMMAND' => "ssh -i #{keyfile}") do
             Git.clone("git@github.com:#{@gh_path}", to)
-          ensure
-            Kernel.exit! # required to not screw up socket connections
           end
-        end
 
-        Process.wait(pid)
         Git.open(to)
       end
     end
