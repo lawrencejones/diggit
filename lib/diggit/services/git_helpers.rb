@@ -36,6 +36,14 @@ module Diggit
         nil
       end
 
+      # Finds those files that have changed between base and head, excluding those that
+      # have been deleted.
+      def files_modified(base:, head:)
+        repo.diff(repo.merge_base(base, head), head).deltas.
+          reject { |delta| delta.status == :deleted }.
+          map    { |delta| delta.new_file[:path] }
+      end
+
       # Finds the commits between the common ancestor of base and head, and head.
       def commits_between(base, head)
         common_ancestor = repo.merge_base(base, head)

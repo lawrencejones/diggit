@@ -27,6 +27,13 @@ RSpec.describe(Diggit::Services::GitHelpers) do
     end
   end
 
+  let(:commits) do
+    Rugged::Walker.new(repo).tap do |walker|
+      walker.push(repo.head.target.oid)
+      walker.sorting(Rugged::SORT_DATE)
+    end.to_a
+  end
+
   describe '.rev_list' do
     subject(:log) { helpers.rev_list(commit: commit, path: path) }
     let(:commit) { repo.last_commit.oid }
@@ -57,7 +64,7 @@ RSpec.describe(Diggit::Services::GitHelpers) do
   end
 
   describe '.cat_file' do
-    let(:commit) { repo.last_commit.parents.first.oid }
+    let(:commit) { commits.find { |c| c.message == '1' } }
 
     context 'for file that exists' do
       it 'returns string contents' do
@@ -74,10 +81,25 @@ RSpec.describe(Diggit::Services::GitHelpers) do
 
   describe '.commits_between' do
     let(:head) { repo.branches.find { |b| b.name == 'master' }.target.oid }
-    let(:base) { repo.lookup(head).parents.first.parents.first.oid } # 1
+    let(:base) { commits.find { |c| c.message == '1' } }
 
     it 'finds all commits between base and head' do
       expect(helpers.commits_between(base, head).map(&:message)).to eql(%w(3 2))
+    end
+  end
+
+  describe '.files_modified' do
+    subject(:files) { helpers.files_modified(base: base, head: head) }
+
+    let(:head) { commits.find { |c| c.message == '2' } }
+    let(:base) { commits.find { |c| c.message == '1' } }
+
+    it 'doesnt include removed files' do
+      expect(files).not_to include('transient')
+    end
+
+    it 'includes files that have been changed' do
+      expect(files).to include('another_file')
     end
   end
 end
