@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :project do
     sequence(:gh_path) { |n| "lawrencejones/#{n}" }
     watch false
+    silent false
 
     trait :watched do
       watch true
