@@ -69,10 +69,11 @@ module Diggit
             base, base_complexity = complexity_history.min_by(&:last)
 
             change = (head_complexity - base_complexity) / base_complexity
+            change = 0.0 if change.infinite?
             pct_change = (100 * change).round(2)
 
             [file, [pct_change, head, base]]
-          end.reject { |k, _v| k.nil? }
+          end
         end
 
         # Filter file histories for those that have increased in complexity in this last
