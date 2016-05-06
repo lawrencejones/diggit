@@ -14,11 +14,11 @@ module Diggit
     class AnalysePull < Que::Job
       include InstanceLogger
 
-      def run(project_id, pull, head, base)
+      def run(gh_path, pull, head, base)
         @pull = pull
         @head = head
         @base = base
-        @project = Project.find(project_id)
+        @project = Project.find_by!(gh_path: gh_path)
         @cloner = Github::Cloner.new(project.gh_path)
 
         return destroy unless validate

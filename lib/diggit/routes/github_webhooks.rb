@@ -14,7 +14,7 @@ module Diggit
           return response(200, 'not_watched_action') unless watched_action?
 
           Jobs::AnalysePull.
-            enqueue(project.id, params['number'],
+            enqueue(project.gh_path, params['number'],
                     params['pull_request']['head']['sha'],
                     params['pull_request']['base']['sha'])
 

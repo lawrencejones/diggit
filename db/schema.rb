@@ -11,17 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160506125119) do
+ActiveRecord::Schema.define(version: 20160506145149) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "projects", force: :cascade do |t|
-    t.string  "gh_path",                   limit: 126,                null: false
+    t.string  "gh_path",                   limit: 126,                 null: false
     t.boolean "watch",                                 default: true
     t.text    "ssh_public_key"
     t.binary  "encrypted_ssh_private_key"
     t.binary  "ssh_initialization_vector"
+    t.boolean "polled",                                default: false, null: false
   end
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree

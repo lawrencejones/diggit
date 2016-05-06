@@ -16,3 +16,6 @@ end
 
 use(Rollbar::Middleware::Sinatra)
 run(Diggit::System.rack_app)
+
+require_relative 'lib/diggit/services/github_poller'
+Diggit::Services::GithubPoller.start
