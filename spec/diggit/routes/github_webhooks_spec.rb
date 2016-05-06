@@ -39,7 +39,7 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
     it 'enqueues AnalysePull job' do
       expect(Diggit::Jobs::AnalysePull).
         to receive(:enqueue).
-        with(project.id, webhook['number'], head, base)
+        with(project.gh_path, webhook['number'], head, base)
       instance.call
     end
   end
