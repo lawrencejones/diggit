@@ -36,6 +36,7 @@ module Diggit
         def generate_comments
           files_above_threshold.to_h.map do |file, (complexity_increase, head, base)|
             { report: 'Complexity',
+              index: file,
               location: "#{file}:1",
               message: "`#{file}` has increased in complexity by "\
                        "#{complexity_increase.to_i}% over the last "\

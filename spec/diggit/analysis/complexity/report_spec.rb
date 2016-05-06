@@ -72,6 +72,7 @@ RSpec.describe(Diggit::Analysis::Complexity::Report) do
             report: 'Complexity',
             message: /increased in complexity by 58% over the last 12 days/,
             location: 'master.rb:1',
+            index: 'master.rb',
             meta: {
               file: 'master.rb',
               complexity_increase: 58.33,

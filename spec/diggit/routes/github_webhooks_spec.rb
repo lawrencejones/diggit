@@ -22,8 +22,8 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
   before { Que.mode = :off }
 
   shared_examples 'ignores webhook' do |status, body|
-    it 'does not queue AnalyseProject job' do
-      expect(Diggit::Jobs::AnalyseProject).
+    it 'does not queue AnalysePull job' do
+      expect(Diggit::Jobs::AnalysePull).
         not_to receive(:enqueue)
       instance.call
     end
@@ -36,8 +36,8 @@ RSpec.describe(Diggit::Routes::GithubWebhooks::Create) do
     it { is_expected.to respond_with_status(200) }
     it { is_expected.to respond_with_json('message' => 'project_analysis_queued') }
 
-    it 'enqueues AnalyseProject job' do
-      expect(Diggit::Jobs::AnalyseProject).
+    it 'enqueues AnalysePull job' do
+      expect(Diggit::Jobs::AnalysePull).
         to receive(:enqueue).
         with(project.id, webhook['number'], head, base)
       instance.call

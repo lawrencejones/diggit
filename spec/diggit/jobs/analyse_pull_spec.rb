@@ -1,7 +1,7 @@
 require 'git'
-require 'diggit/jobs/analyse_project'
+require 'diggit/jobs/analyse_pull'
 
-RSpec.describe(Diggit::Jobs::AnalyseProject) do
+RSpec.describe(Diggit::Jobs::AnalysePull) do
   subject(:job) { described_class.new({}) }
   let(:run!) { job.run(project.id, pull, head, base) }
 
@@ -13,20 +13,16 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
   let(:repo_handle) { instance_double(Git::Base) }
   let(:comments) { [] }
 
-  let(:gh_client) { instance_double(Octokit::Client) }
-  let(:comment_generator) { instance_double(Diggit::Github::CommentGenerator) }
   let(:pipeline) { instance_double(Diggit::Analysis::Pipeline) }
   let(:cloner) { instance_double(Diggit::Github::Cloner) }
 
   before do
-    allow(Diggit::Github).to receive(:client).and_return(gh_client)
-    allow(Diggit::Github::CommentGenerator).to receive(:new).and_return(comment_generator)
     allow(Diggit::Analysis::Pipeline).to receive(:new).and_return(pipeline)
     allow(Diggit::Github::Cloner).to receive(:new).and_return(cloner)
+    allow(Diggit::Jobs::PushAnalysisComments).to receive(:enqueue)
 
     allow(cloner).to receive(:clone).and_yield(repo_handle)
     allow(cloner).to receive(:clone_with_key).and_yield(repo_handle)
-    allow(comment_generator).to receive(:push)
     allow(pipeline).to receive(:aggregate_comments).and_return(comments)
   end
 
@@ -47,15 +43,16 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
       end
     end
 
-    context 'when PullAnalysis exists for this pull' do
+    context 'when PullAnalysis exists for this pull/head/base' do
       let!(:pull_analysis) do
-        FactoryGirl.create(:pull_analysis, project: project, pull: pull)
+        FactoryGirl.create(:pull_analysis,
+                           project: project, pull: pull, head: head, base: base)
       end
 
       it 'does not run pipeline' do
         expect(job).not_to receive(:clone)
         expect(Diggit::Analysis::Pipeline).not_to receive(:new)
-        expect(comment_generator).not_to receive(:push)
+        expect(Diggit::Jobs::PushAnalysisComments).not_to receive(:enqueue)
         run!
       end
     end
@@ -72,9 +69,7 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
       end
     end
 
-    shared_examples 'audited analysis' do
-      before { comment_generator.as_null_object }
-
+    context 'with valid pull' do
       it 'creates new PullAnalysis' do
         expect { run! }.to change(PullAnalysis, :count).by(1)
         pull_analysis = PullAnalysis.last
@@ -82,36 +77,6 @@ RSpec.describe(Diggit::Jobs::AnalyseProject) do
         expect(pull_analysis.pull).to eql(pull)
         expect(pull_analysis.project_id).to eql(project.id)
         expect(pull_analysis.comments).to match(comments.as_json)
-      end
-    end
-
-    context 'with line-based comments' do
-      let(:comments) { [{ message: 'This line is terrible!', location: 'file.rb:9' }] }
-
-      it_behaves_like 'audited analysis'
-
-      it 'applies them with CommentGenerator' do
-        expect(comment_generator).
-          to receive(:add_comment).
-          with('This line is terrible!', 'file.rb:9')
-        expect(comment_generator).to receive(:push)
-        expect(job).to receive(:destroy)
-        run!
-      end
-    end
-
-    context 'with non-line-based comments' do
-      let(:comments) { [{ message: 'Awful PR' }] }
-
-      it_behaves_like 'audited analysis'
-
-      it 'applies them with CommentGenerator' do
-        expect(comment_generator).
-          to receive(:add_comment).
-          with('Awful PR', nil)
-        expect(comment_generator).to receive(:push)
-        expect(job).to receive(:destroy)
-        run!
       end
     end
   end
