@@ -7,7 +7,7 @@ namespace :db do
         info '[deploy:migrate] Skip `deploy:migrate` (nothing changed in db/migrate)'
       else
         info '[deploy:migrate] Run `rake db:migrate`'
-        invoke :'deploy:migrating'
+        invoke :'db:migrating'
       end
     end
   end
