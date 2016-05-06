@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160506145149) do
+ActiveRecord::Schema.define(version: 20160506173240) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 20160506145149) do
     t.binary  "encrypted_ssh_private_key"
     t.binary  "ssh_initialization_vector"
     t.boolean "polled",                                default: false, null: false
+    t.boolean "silent",                                default: false, null: false
   end
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree

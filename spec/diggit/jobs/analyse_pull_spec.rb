@@ -78,6 +78,23 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
         expect(pull_analysis.project_id).to eql(project.id)
         expect(pull_analysis.comments).to match(comments.as_json)
       end
+
+      it 'enqueues PushAnalysisComments job' do
+        expect(Diggit::Jobs::PushAnalysisComments).
+          to receive(:enqueue) do |pull_analysis_id|
+            expect(PullAnalysis.last.id).to equal(pull_analysis_id)
+          end
+        run!
+      end
+
+      context 'on a silent repo' do
+        let(:project) { FactoryGirl.create(:project, :diggit, silent: true) }
+
+        it 'does not enqueue PushAnalysisComments' do
+          expect(Diggit::Jobs::PushAnalysisComments).not_to receive(:enqueue)
+          run!
+        end
+      end
     end
   end
 end

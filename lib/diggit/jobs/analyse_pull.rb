@@ -50,7 +50,7 @@ module Diggit
       def create_analysis
         comments = generate_comments(head, base)
         pull_analysis = create_pull_analysis(pull, comments)
-        PushAnalysisComments.enqueue(pull_analysis.id)
+        PushAnalysisComments.enqueue(pull_analysis.id) unless project.silent
       rescue Analysis::Pipeline::BadGitHistory
         info { "Pull #{pull} references commits that no longer exist, skipping analysis" }
       end
