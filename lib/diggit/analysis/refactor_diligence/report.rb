@@ -25,6 +25,7 @@ module Diggit
         def generate_comments
           methods_over_threshold.to_h.map do |method, history|
             { report: 'RefactorDiligence',
+              index: method,
               location: method_locations.fetch(method),
               message: "#{method} has increased in size the last "\
                        "#{history.size} times it has been modified - "\

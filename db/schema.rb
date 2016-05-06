@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160506110833) do
+ActiveRecord::Schema.define(version: 20160506125119) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,14 +28,16 @@ ActiveRecord::Schema.define(version: 20160506110833) do
 
   create_table "pull_analyses", force: :cascade do |t|
     t.integer  "project_id"
-    t.integer  "pull",                    null: false
-    t.json     "comments",   default: [], null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.text     "base"
-    t.text     "head"
+    t.integer  "pull",                             null: false
+    t.json     "comments",         default: [],    null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.text     "base",                             null: false
+    t.text     "head",                             null: false
+    t.boolean  "pushed_to_github", default: false, null: false
   end
 
+  add_index "pull_analyses", ["project_id", "pull", "base", "head"], name: "index_pull_analyses_on_project_id_and_pull_and_base_and_head", unique: true, using: :btree
   add_index "pull_analyses", ["project_id"], name: "index_pull_analyses_on_project_id", using: :btree
 
   create_table "que_jobs", id: false, force: :cascade do |t|

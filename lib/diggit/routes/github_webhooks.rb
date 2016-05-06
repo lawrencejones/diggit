@@ -1,5 +1,5 @@
 require 'coach'
-require_relative '../jobs/analyse_project'
+require_relative '../jobs/analyse_pull'
 require_relative '../models/project'
 
 module Diggit
@@ -13,7 +13,7 @@ module Diggit
           return response(200, 'not_watched') unless project.watch
           return response(200, 'not_watched_action') unless watched_action?
 
-          Jobs::AnalyseProject.
+          Jobs::AnalysePull.
             enqueue(project.id, params['number'],
                     params['pull_request']['head']['sha'],
                     params['pull_request']['base']['sha'])
