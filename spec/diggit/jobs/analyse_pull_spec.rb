@@ -26,7 +26,10 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
   end
 
   describe '.run' do
-    it 'calls cloner.clone' do
+    it 'clones repo with ProjectCloner' do
+      expect(Diggit::Services::ProjectCloner).
+        to receive(:new).
+        with(project)
       expect(cloner).to receive(:clone)
       run!
     end
