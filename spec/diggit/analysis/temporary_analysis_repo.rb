@@ -29,6 +29,10 @@ class TemporaryAnalysisRepo
     File.write(File.join(base, file), contents)
   end
 
+  def rm(file)
+    File.unlink(File.join(base, file))
+  end
+
   def commit(message, time: Time.now)
     Diggit::Services::Environment.with_temporary_env(git_time_env(time)) do
       g.add(all: true)

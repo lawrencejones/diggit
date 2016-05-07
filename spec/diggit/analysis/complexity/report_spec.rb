@@ -11,11 +11,14 @@ def complexity_test_repo
 
     # One week ago
     repo.write('master.rb', 'three')
+    repo.write('to_be_removed.rb', 'three')
     repo.commit('one week ago', time: Time.now.advance(days: -6))
 
     # Branch yesterday
     repo.g.branch('feature').checkout
     repo.write('master.rb', 'four')
+    # This verifies fix for https://rollbar.com/lawrencejones/diggit/items/55/
+    repo.rm('to_be_removed.rb')
     repo.commit('yesterday', time: Time.now.advance(days: -1))
   end
 end
