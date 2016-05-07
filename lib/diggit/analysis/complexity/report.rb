@@ -23,6 +23,9 @@ module Diggit
           @repo = repo
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
+
+          @repo.checkout(head)
+          @files_in_head = repo.ls_files
         end
 
         def comments
@@ -31,7 +34,7 @@ module Diggit
 
         private
 
-        attr_reader :base, :head, :repo
+        attr_reader :base, :head, :repo, :files_in_head
 
         def generate_comments
           files_above_threshold.to_h.map do |file, (complexity_increase, head, base)|
@@ -118,6 +121,7 @@ module Diggit
         def tracked_files
           @tracked_files ||= repo.
             diff(base, head).stats[:files].keys.
+            select { |file| files_in_head.include?(file) }.
             reject { |file| IGNORED_EXTENSIONS.include?(File.extname(file)) }
         end
       end
