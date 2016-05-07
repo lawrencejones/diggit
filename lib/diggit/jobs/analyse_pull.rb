@@ -7,7 +7,7 @@ require_relative '../logger'
 require_relative '../models/project'
 require_relative '../models/pull_analysis'
 require_relative '../analysis/pipeline'
-require_relative '../github/cloner'
+require_relative '../services/project_cloner'
 
 module Diggit
   module Jobs
@@ -19,7 +19,7 @@ module Diggit
         @head = head
         @base = base
         @project = Project.find_by!(gh_path: gh_path)
-        @cloner = Github::Cloner.new(project.gh_path)
+        @cloner = Services::ProjectCloner.new(project)
 
         return destroy unless validate
 
@@ -55,14 +55,9 @@ module Diggit
         info { "Pull #{pull} references commits that no longer exist, skipping analysis" }
       end
 
-      def clone(&block)
-        info { "Cloning #{project.gh_path}..." }
-        return cloner.clone(&block) unless project.ssh_private_key
-        cloner.clone_with_key(project.ssh_private_key, &block)
-      end
-
       def generate_comments(head, base)
-        clone do |repo|
+        info { "Cloning #{project.gh_path}..." }
+        cloner.clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
           info { "Running pipeline on #{project.gh_path}..." }
           pipeline.aggregate_comments
