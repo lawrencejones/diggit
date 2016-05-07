@@ -80,14 +80,17 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
     end
 
     context 'with bad mutating reporters' do
-      let(:reporters) { [mutating_reporter] }
+      let(:reporters) { [mutating_reporter, verifying_reporter] }
+      let(:verifying_reporter) do
+        mock_reporter(['ran_verifying_reporter']) do |repo|
+          expect(repo.gblob('HEAD').sha).to eql(head)
+          expect(File.exist?(File.join(repo.dir.path, 'new_file'))).to be(false)
+        end
+      end
 
       it 'does not persist index or checkout' do
         comments = pipeline.aggregate_comments
-        expect(comments).to eql(['ran mutating_reporter'])
-
-        expect(repo.gblob('HEAD').sha).to eql(head)
-        expect(File.exist?(File.join(repo.dir.path, 'new_file'))).to be(false)
+        expect(comments).to eql(['ran mutating_reporter', 'ran_verifying_reporter'])
       end
     end
   end

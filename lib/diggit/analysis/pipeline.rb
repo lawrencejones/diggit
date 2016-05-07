@@ -17,14 +17,14 @@ module Diggit
         @base = base
 
         verify_head!
+        repo.reset_hard(head)
       end
 
       def aggregate_comments
         REPORTERS.map do |report|
           info { "[#{repo_label}] #{report}..." }
-          with_temp_repo do
-            report.new(repo, base: base, head: head).comments
-          end
+          repo.reset_hard(head)
+          report.new(repo, base: base, head: head).comments
         end.flatten
       end
 
@@ -40,13 +40,6 @@ module Diggit
 
       def repo_label
         File.basename(repo.dir.path)
-      end
-
-      def with_temp_repo
-        repo.reset_hard(head)
-        repo.with_temp_index do
-          yield(repo).tap { repo.reset_hard(head) }
-        end
       end
     end
   end

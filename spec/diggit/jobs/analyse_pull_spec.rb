@@ -14,33 +14,21 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
   let(:comments) { [] }
 
   let(:pipeline) { instance_double(Diggit::Analysis::Pipeline) }
-  let(:cloner) { instance_double(Diggit::Github::Cloner) }
+  let(:cloner) { instance_double(Diggit::Services::ProjectCloner) }
 
   before do
     allow(Diggit::Analysis::Pipeline).to receive(:new).and_return(pipeline)
-    allow(Diggit::Github::Cloner).to receive(:new).and_return(cloner)
+    allow(Diggit::Services::ProjectCloner).to receive(:new).and_return(cloner)
     allow(Diggit::Jobs::PushAnalysisComments).to receive(:enqueue)
 
     allow(cloner).to receive(:clone).and_yield(repo_handle)
-    allow(cloner).to receive(:clone_with_key).and_yield(repo_handle)
     allow(pipeline).to receive(:aggregate_comments).and_return(comments)
   end
 
   describe '.run' do
-    context 'when project lacks deploy keys' do
-      it 'calls simple clone' do
-        expect(cloner).to receive(:clone)
-        run!
-      end
-    end
-
-    context 'when a project has deploy keys' do
-      let(:project) { FactoryGirl.create(:project, :diggit, :deploy_keys) }
-
-      it 'clones with key' do
-        expect(cloner).to receive(:clone_with_key).with(project.ssh_private_key)
-        run!
-      end
+    it 'calls cloner.clone' do
+      expect(cloner).to receive(:clone)
+      run!
     end
 
     context 'when PullAnalysis exists for this pull/head/base' do
@@ -50,7 +38,7 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
       end
 
       it 'does not run pipeline' do
-        expect(job).not_to receive(:clone)
+        expect(cloner).not_to receive(:clone)
         expect(Diggit::Analysis::Pipeline).not_to receive(:new)
         expect(Diggit::Jobs::PushAnalysisComments).not_to receive(:enqueue)
         run!

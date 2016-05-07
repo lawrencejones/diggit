@@ -13,9 +13,10 @@ require_relative '../../config/prius'
 
 module Diggit
   class System
-    DUMMY_ENV = File.expand_path('../../../dummy-env', __FILE__)
-    DATABASE_YAML = File.expand_path('../../../config/database.yml', __FILE__)
-    LOCALES_PATH = File.expand_path('../../../config/locales/*.yml', __FILE__)
+    APP_ROOT      = File.expand_path('../../../', __FILE__).freeze
+    DUMMY_ENV     = File.join(APP_ROOT, 'dummy-env').freeze
+    DATABASE_YAML = File.join(APP_ROOT, 'config', 'database.yml').freeze
+    LOCALES_PATH  = File.join(APP_ROOT, 'config', 'locales', '*.yml').freeze
 
     def self.rack_app
       config = init
