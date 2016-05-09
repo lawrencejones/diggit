@@ -97,9 +97,18 @@ module Diggit
         def file_complexity_history
           @file_complexity_history ||= file_changes.map do |file, changes|
             [file, changes.first(CHANGE_WINDOW).map do |commit|
-              [commit, self.class.compute_complexity(repo.show(commit, file))]
+              [commit, self.class.compute_complexity(read(file, commit))]
             end]
           end
+        end
+
+        # Reads file contents at commit, returning an empty string for files that don't
+        # exist in the given commit.
+        def read(file, commit)
+          repo.show(commit, file)
+        rescue Git::GitExecuteError => err
+          raise(err) unless err.message[/does not exist in/]
+          return ''
         end
 
         # Generate a map of file to commit objects where that file has been changed,
@@ -120,7 +129,7 @@ module Diggit
         # All files that should be scanned for complexity growth.
         def tracked_files
           @tracked_files ||= repo.
-            diff(base, head).stats[:files].keys.
+            diff("#{base}...#{head}").stats[:files].keys.
             select { |file| files_in_head.include?(file) }.
             reject { |file| IGNORED_EXTENSIONS.include?(File.extname(file)) }
         end

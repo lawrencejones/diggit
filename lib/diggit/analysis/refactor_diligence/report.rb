@@ -69,7 +69,7 @@ module Diggit
 
         def ruby_files_changed
           @ruby_files_changed ||= repo.
-            diff(base, head).stats[:files].keys.
+            diff("#{base}...#{head}").stats[:files].keys.
             select { |file| File.extname(file) == '.rb' }
         end
       end
