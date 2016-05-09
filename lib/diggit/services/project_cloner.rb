@@ -1,7 +1,9 @@
 require 'git'
+require 'rugged'
 require 'fileutils'
 
 require_relative 'environment'
+require_relative 'project_credentials'
 require_relative '../system'
 require_relative '../logger'
 
@@ -9,82 +11,50 @@ module Diggit
   module Services
     class ProjectCloner
       CACHE_DIR = File.join(System::APP_ROOT, 'tmp', 'project_cache').freeze
+      GITHUB_PULLS_REFSPEC = '+refs/pull/*/head:refs/remotes/origin/pull/*'.freeze
+
       include InstanceLogger
 
       def initialize(project)
         @project = project
         @repo_path = File.join(CACHE_DIR, project.gh_path)
+        @credentials = ProjectCredentials.new(project)
+
+        @repo ||= create_repo unless File.directory?(repo_path)
+        @repo ||= Rugged::Repository.new(repo_path)
       end
 
       # Yields with a Git::Base handle to the project, referencing a temporary working
       # directory that exists only within the block.
       def clone
-        load_cache_repo
+        fetch
         with_temporary_dir do |scratch_repo_path|
-          Git.clone(repo_path, scratch_repo_path)
-          g = Git.open(scratch_repo_path)
-          yield(g)
+          Rugged::Repository.clone_at(repo_path, scratch_repo_path)
+          yield(Git.open(scratch_repo_path))
         end
       end
 
       private
 
-      attr_reader :repo_path, :project
-
-      # Cached bare git repository, within CACHE_DIR
-      # If the cache doesn't exist, then this will create it, cloning the repo with the
-      # projects ssh keys.
-      def load_cache_repo
-        FileUtils.mkdir_p(repo_path)
-        with_git_keys do
-          project_git_dir = File.join(repo_path, '.git')
-          create_cache_repo unless File.directory?(project_git_dir)
-          Git.bare(project_git_dir).tap { |g| logged_fetch(g) }
-        end
-      end
-
-      # Fetch from origin of the given git handle
-      def logged_fetch(g)
-        info { "[#{project.gh_path}] Fetching origin..." }
-        git_output = g.fetch('origin')
-        info { git_output } if git_output.present?
-      end
+      attr_reader :repo, :repo_path, :project, :credentials
 
       # Initializes a bare repo with an origin remote configured to fetch both normal and
       # pull refs.
-      def create_cache_repo
-        Git.init(repo_path, bare: true).tap do
-          config_file = File.join(repo_path, '.git', 'config')
-          open(config_file, 'a') do |f|
-            f << %(
-            [remote "origin"]
-            \turl = git@github.com:#{project.gh_path}
-            \tfetch = +refs/heads/*:refs/remotes/origin/*
-            \tfetch = +refs/pull/*/head:refs/remotes/origin/pull/*)
-          end
+      def create_repo
+        Rugged::Repository.init_at(repo_path, :bare).tap do |repo|
+          repo.remotes.create('origin', "git@github.com:#{project.gh_path}")
+          repo.remotes.add_fetch_refspec('origin', GITHUB_PULLS_REFSPEC)
         end
       end
 
-      # Clobber git environment to enable ssh commands to take place with the projects
-      # deploy keys.
-      def with_git_keys
-        return yield unless project.keys?
-
-        with_temporary_keyfile do |keyfile|
-          Environment.with_temporary_env('GIT_SSH_COMMAND' => "ssh -i #{keyfile}") do
-            yield # run block with env
-          end
+      # Fetches from origin using ssh keys
+      def fetch
+        credentials.with_keyfiles do |keyfiles|
+          ssh_creds = Rugged::Credentials::SshKey.
+            new(keyfiles.merge(username: 'git'))
+          info { "[#{project.gh_path}] Fetching origin..." }
+          repo.fetch('origin', credentials: ssh_creds)
         end
-      end
-
-      # Securely write an ephemeral keyfile, removing the file once done.
-      def with_temporary_keyfile
-        keyfile = Tempfile.open('private-key')
-        File.write(keyfile, project.ssh_private_key || '')
-        yield(keyfile.path)
-      ensure
-        keyfile.close
-        keyfile.unlink
       end
 
       # Temporary directories for this class
