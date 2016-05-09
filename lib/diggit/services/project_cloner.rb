@@ -45,7 +45,7 @@ module Diggit
 
       # Fetch from origin of the given git handle
       def logged_fetch(g)
-        info { "[#{project.gh_path}] Fetching from #{remote}..." }
+        info { "[#{project.gh_path}] Fetching origin..." }
         git_output = g.fetch('origin')
         info { git_output } if git_output.present?
       end
