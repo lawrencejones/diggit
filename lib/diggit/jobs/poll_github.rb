@@ -10,8 +10,18 @@ module Diggit
   module Jobs
     # Looks through all Projects that are set for polling, and enqueues AnalysePull jobs
     # for any that have un-analysed pulls.
+    #
+    # Will continually queue the next job, with the POLLING_INTERVAL delay.
     class PollGithub < Que::Job
+      POLLING_INTERVAL = 45 # seconds
+
       include InstanceLogger
+      @run_at = proc { Time.now.advance(seconds: POLLING_INTERVAL) }
+
+      def _run
+        super
+        self.class.enqueue
+      end
 
       def run
         if polled_projects.empty?

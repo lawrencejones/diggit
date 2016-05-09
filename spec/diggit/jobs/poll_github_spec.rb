@@ -2,7 +2,7 @@ require 'diggit/jobs/poll_github'
 
 RSpec.describe(Diggit::Jobs::PollGithub) do
   subject(:job) { described_class.new({}) }
-  let(:run!) { job.run }
+  let(:run!) { job._run }
 
   let!(:diggit) { FactoryGirl.create(:project, :diggit, watch: true, polled: false) }
   let!(:payments_service) do
@@ -35,6 +35,11 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
 
     it 'does not poll github for non-polled projects' do
       expect(gh_client).not_to receive(:pulls).with(diggit.gh_path)
+      run!
+    end
+
+    it 'enqueues the next poll job' do
+      expect(described_class).to receive(:enqueue)
       run!
     end
 
