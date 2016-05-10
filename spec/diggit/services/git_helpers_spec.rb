@@ -60,4 +60,13 @@ RSpec.describe(Diggit::Services::GitHelpers) do
       end
     end
   end
+
+  describe '.commits_between' do
+    let(:head) { repo.branches.find { |b| b.name == 'master' }.target.oid }
+    let(:base) { repo.lookup(head).parents.first.parents.first.oid } # 1
+
+    it 'finds all commits between base and head' do
+      expect(helpers.commits_between(base, head).map(&:message)).to eql(['3', '2'])
+    end
+  end
 end

@@ -5,8 +5,8 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
   subject(:report) { described_class.new(repo, base: base, head: head) }
   let(:repo) { refactor_diligence_test_repo }
 
-  let(:head) { 'feature' }
-  let(:base) { 'master' }
+  let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
+  let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
 
   before { stub_const("#{described_class}::TIMES_INCREASED_THRESHOLD", threshold) }
   let(:threshold) { 2 }
@@ -44,10 +44,8 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     end
 
     it 'tags commit shas in comment' do
-      commit_shas = repo.log.map(&:sha)
       shas_in_comment = socket_comment[:message].scan(/\S{40}/)
-
-      expect(commit_shas).to include(*shas_in_comment)
+      shas_in_comment.each { |sha| expect(repo.exists?(sha)).to be(true) }
     end
 
     it 'does not include methods below threshold' do

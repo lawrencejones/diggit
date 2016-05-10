@@ -36,6 +36,17 @@ module Diggit
         nil
       end
 
+      # Finds the commits between the common ancestor of base and head, and head.
+      def commits_between(base, head)
+        common_ancestor = repo.merge_base(base, head)
+
+        Rugged::Walker.new(repo).tap do |walker|
+          walker.sorting(Rugged::SORT_DATE)
+          walker.push(head)
+          walker.hide(common_ancestor)
+        end.to_a
+      end
+
       private
 
       attr_reader :repo
