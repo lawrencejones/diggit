@@ -52,7 +52,7 @@ module Diggit
         # files.
         def commits_of_interest
           @commits_of_interest ||= ruby_files_changed.
-            flat_map { |ruby_file| rev_list(head, ruby_file) }.
+            flat_map { |ruby_file| rev_list(head, ruby_file).first(10) }.
             uniq(&:oid).
             sort_by { |commit| -commit.author[:time].to_i }
         end

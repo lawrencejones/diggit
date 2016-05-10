@@ -158,6 +158,7 @@ GEM
       powerpack (~> 0.1)
       rainbow (>= 1.99.1, < 3.0)
       ruby-progressbar (~> 1.7)
+    ruby-prof (0.15.9)
     ruby-progressbar (1.7.5)
     rugged (0.24.0)
     sawyer (0.7.0)
@@ -222,6 +223,7 @@ DEPENDENCIES
   rspec
   rspec-its
   rubocop
+  ruby-prof
   rugged
   shoulda-matchers
   simplecov
