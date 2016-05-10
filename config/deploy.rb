@@ -9,7 +9,7 @@ set :deploy_user, 'deploy'
 set :format, :pretty
 set :log_level, :info
 
-set :linked_dirs, %w(log tmp node_modules web/jspm_packages)
+set :linked_dirs, %w(log keys tmp node_modules web/jspm_packages)
 set :linked_files, %w(env)
 set :keep_releases, 5
 

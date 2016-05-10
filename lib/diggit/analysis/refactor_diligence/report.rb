@@ -30,7 +30,7 @@ module Diggit
             { report: 'RefactorDiligence',
               index: method,
               location: method_locations.fetch(method),
-              message: "#{method} has increased in size the last "\
+              message: "`#{method}` has increased in size the last "\
                        "#{history.size} times it has been modified - "\
                        "#{history.map(&:last).join(' ')}",
               meta: {

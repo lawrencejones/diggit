@@ -7,7 +7,7 @@ require_relative '../logger'
 module Diggit
   module Analysis
     class Pipeline
-      REPORTERS = [RefactorDiligence::Report, Complexity::Report].freeze
+      REPORTERS = [RefactorDiligence::Report].freeze
       class BadGitHistory < StandardError; end
       include InstanceLogger
 
