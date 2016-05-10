@@ -36,8 +36,13 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
   subject(:pipeline) { described_class.new(repo, head: head, base: base) }
   let(:repo) { pipeline_test_repo }
 
-  let(:head) { repo.log.first.sha }
-  let(:base) { repo.log.last.sha }
+  let(:head) { repo.head.target.oid }
+  let(:base) do
+    Rugged::Walker.new(repo).tap do |w|
+      w.sorting(Rugged::SORT_DATE | Rugged::SORT_REVERSE)
+      w.push(repo.head.target)
+    end.first.oid
+  end
 
   # rubocop:disable Lint/UnusedBlockArgument
   def mock_reporter(mock_comments, &block)
@@ -50,9 +55,15 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
 
   let(:mutating_reporter) do
     mock_reporter(['ran mutating_reporter']) do |repo|
-      File.write(File.join(repo.dir.path, 'new_file'), 'contents')
-      repo.add('new_file')
-      repo.commit('added new file')
+      File.write(File.join(repo.workdir, 'new_file'), 'contents')
+      repo.index.add(path: 'new_file', mode: 0100644,
+                     oid: Rugged::Blob.from_workdir(repo, 'new_file'))
+      commit_tree = repo.index.write_tree
+      repo.index.write
+      person = { email: 'e', name: 'n', time: Time.now }
+      Rugged::Commit.create(repo, message: 'a new commit', tree: commit_tree,
+                            author: person, committer: person,
+                            parents: [repo.head.target].compact, update_ref: 'HEAD')
     end
   end
 
@@ -60,7 +71,7 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
   let(:reporters) { [mock_reporter(%w(1a 1b)), mock_reporter(%w(2a 2b))] }
 
   context 'when the given HEAD sha is not in repo' do
-    let(:head) { 'bad-head-reference' }
+    let(:head) { 'a' * 40 }
     it 'raises Pipeline::BadGitHistory' do
       expect { pipeline }.to raise_exception(described_class::BadGitHistory)
     end
@@ -83,8 +94,8 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
       let(:reporters) { [mutating_reporter, verifying_reporter] }
       let(:verifying_reporter) do
         mock_reporter(['ran_verifying_reporter']) do |repo|
-          expect(repo.gblob('HEAD').sha).to eql(head)
-          expect(File.exist?(File.join(repo.dir.path, 'new_file'))).to be(false)
+          expect(repo.head.target.oid).to eql(head)
+          expect(File.exist?(File.join(repo.workdir, 'new_file'))).to be(false)
         end
       end
 

@@ -16,14 +16,14 @@ module Diggit
         @head = head
         @base = base
 
-        verify_head!
-        repo.reset_hard(head)
+        verify_refs!
+        repo.reset(head, :hard)
       end
 
       def aggregate_comments
         REPORTERS.map do |report|
           info { "[#{repo_label}] #{report}..." }
-          repo.reset_hard(head)
+          repo.reset(head, :hard)
           report.new(repo, base: base, head: head).comments
         end.flatten
       end
@@ -32,14 +32,13 @@ module Diggit
 
       attr_reader :repo, :head, :base
 
-      def verify_head!
-        repo.show(head)
-      rescue Git::GitExecuteError
-        raise BadGitHistory, "Missing head commit #{head}"
+      def verify_refs!
+        raise BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
+        raise BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
       end
 
       def repo_label
-        File.basename(repo.dir.path)
+        File.basename(repo.workdir)
       end
     end
   end
