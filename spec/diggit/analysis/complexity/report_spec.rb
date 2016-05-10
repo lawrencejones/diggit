@@ -15,7 +15,7 @@ def complexity_test_repo
     repo.commit('one week ago', time: Time.now.advance(days: -6))
 
     # Branch yesterday
-    repo.g.branch('feature').checkout
+    repo.branch('feature')
     repo.write('master.rb', 'four')
     # This verifies fix for https://rollbar.com/lawrencejones/diggit/items/55/
     repo.rm('to_be_removed.rb')
@@ -26,8 +26,8 @@ end
 RSpec.describe(Diggit::Analysis::Complexity::Report) do
   subject(:report) { described_class.new(repo, base: base, head: head) }
 
-  let(:head) { 'feature' }
-  let(:base) { 'master' }
+  let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
+  let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
 
   let(:repo) { complexity_test_repo }
 

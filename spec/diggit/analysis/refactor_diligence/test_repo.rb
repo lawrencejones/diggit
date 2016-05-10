@@ -2,7 +2,7 @@ require_relative '../temporary_analysis_repo'
 
 # rubocop:disable Metrics/MethodLength, Style/AlignParameters
 def refactor_diligence_test_repo
-  TemporaryAnalysisRepo.new.tap do |repo|
+  TemporaryAnalysisRepo.create do |repo|
     repo.write('master.rb',
     %(class Master
         def initialize
@@ -28,7 +28,7 @@ def refactor_diligence_test_repo
     repo.commit('Master::initialize +2')
 
     # Start feature branch here
-    repo.g.branch('feature').checkout
+    repo.branch('feature')
 
     repo.write('file.rb',
     %(module Utils
@@ -79,8 +79,8 @@ def refactor_diligence_test_repo
     repo.commit('.from_uri and log')
 
     # Start non-ruby branch here
-    repo.g.branch('non-ruby').checkout
+    repo.branch('non-ruby')
     repo.write('main.c', %(int main(int argc, char **argv) { return 0; }))
     repo.commit('non-ruby file')
-  end.g
+  end
 end

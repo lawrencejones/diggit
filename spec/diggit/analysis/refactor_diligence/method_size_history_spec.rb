@@ -2,7 +2,7 @@ require 'diggit/analysis/refactor_diligence/method_size_history'
 
 RSpec.describe(Diggit::Analysis::RefactorDiligence::MethodSizeHistory) do
   subject(:instance) { described_class.new(repo) }
-  let(:repo) { instance_double(Git::Base) }
+  let(:repo) { instance_double(Rugged::Repository) }
 
   let(:commits) { [:third_commit, :second_commit, :first_commit] }
 

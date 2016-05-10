@@ -1,4 +1,4 @@
-require 'git'
+require 'rugged'
 require 'diggit/jobs/analyse_pull'
 
 RSpec.describe(Diggit::Jobs::AnalysePull) do
@@ -10,7 +10,7 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
   let(:head) { 'head-sha' }
   let(:base) { 'base-sha' }
 
-  let(:repo_handle) { instance_double(Git::Base) }
+  let(:repo_handle) { instance_double(Rugged::Repository) }
   let(:comments) { [] }
 
   let(:pipeline) { instance_double(Diggit::Analysis::Pipeline) }

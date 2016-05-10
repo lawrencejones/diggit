@@ -11,18 +11,13 @@ module Diggit
         end
 
         def scan(ref, files: nil)
-          checkout(ref)
+          repo.checkout(ref, strategy: :force)
           scan_methods(files || all_ruby_files)
         end
 
         private
 
         attr_reader :repo, :logger
-
-        def checkout(ref)
-          repo.checkout(ref, force: true)
-          repo.object(ref)
-        end
 
         def scan_methods(ruby_files)
           ruby_files.
@@ -32,7 +27,7 @@ module Diggit
         end
 
         def read_if_exists(file)
-          Dir.chdir(repo.dir.path) { File.read(file) if File.exist?(file) }
+          Dir.chdir(repo.workdir) { File.read(file) if File.exist?(file) }
         end
       end
     end
