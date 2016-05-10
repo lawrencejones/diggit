@@ -1,4 +1,3 @@
-require 'shellwords'
 require 'active_support/core_ext/object'
 
 module Diggit
@@ -20,6 +19,21 @@ module Diggit
         command(*args).split.map do |commit_sha|
           repo.lookup(commit_sha)
         end
+      end
+
+      # Generates the string content of the blob located at `path` in commit `commit`.
+      # Returns nil if file does not exist in this commit.
+      def cat_file(path, commit)
+        tree = commit.try(:tree) || repo.lookup(commit).tree
+
+        blob_entry = path.split('/').reduce(tree) do |treeish, ref|
+          entry = treeish[ref]
+          break if entry.nil?
+          repo.lookup(entry[:oid])
+        end
+
+        return blob_entry.read_raw.data unless blob_entry.nil?
+        nil
       end
 
       private

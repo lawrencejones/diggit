@@ -5,7 +5,9 @@ class TemporaryAnalysisRepo
   @repos = []
 
   def self.create(&block); new.tap(&block).repo; end
+
   def self.clean!(); @repos.map(&:destroy); end
+
   def self.schedule_for_removal(repo); @repos << repo; end
 
   def initialize(base = Dir.mktmpdir)

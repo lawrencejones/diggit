@@ -1,4 +1,5 @@
 require 'action_view/helpers'
+require_relative '../../services/git_helpers'
 require_relative 'whitespace_analysis'
 
 module Diggit
@@ -9,6 +10,7 @@ module Diggit
         CHANGE_WINDOW = 3
         CHANGE_THRESHOLD = 50.0
 
+        include Services::GitHelpers
         extend ActionView::Helpers::DateHelper
 
         def self.compute_complexity(content)
@@ -16,16 +18,15 @@ module Diggit
         end
 
         def self.humanize_duration(head, base)
-          distance_of_time_in_words(base.date, head.date, include_seconds: false)
+          distance_of_time_in_words(base.author[:time],
+                                    head.author[:time],
+                                    include_seconds: false)
         end
 
         def initialize(repo, conf)
           @repo = repo
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
-
-          @repo.checkout(head)
-          @files_in_head = repo.ls_files
         end
 
         def comments
@@ -34,40 +35,40 @@ module Diggit
 
         private
 
-        attr_reader :base, :head, :repo, :files_in_head
+        attr_reader :base, :head, :repo
 
         def generate_comments
-          files_above_threshold.to_h.map do |file, (complexity_increase, head, base)|
+          paths_above_threshold.to_h.map do |path, (complexity_increase, head, base)|
             { report: 'Complexity',
-              index: file,
-              location: "#{file}:1",
-              message: "`#{file}` has increased in complexity by "\
+              index: path,
+              location: "#{path}:1",
+              message: "`#{path}` has increased in complexity by "\
                        "#{complexity_increase.to_i}% over the last "\
                        "#{self.class.humanize_duration(head, base)}",
               meta: {
-                file: file,
+                file: path,
                 complexity_increase: complexity_increase,
-                head: head.sha, base: base.sha
+                head: head.oid, base: base.oid
               },
             }
           end
         end
 
-        # Selects those files that exceed the CHANGE_THRESHOLD from the changed files
+        # Selects those paths that exceed the CHANGE_THRESHOLD from the changed paths
         # complexity history.
-        def files_above_threshold
-          file_complexity_change.select do |_file, (complexity_increase)|
+        def paths_above_threshold
+          path_complexity_change.select do |_, (complexity_increase)|
             complexity_increase >= CHANGE_THRESHOLD
           end
         end
 
-        # Computes how much the complexity of the file has increased, in percentage,
+        # Computes how much the complexity of the path has increased, in percentage,
         # over the last CHANGE_WINDOW changes.
         #
         #   { 'file.rb' => [56.8, latest_commitish, lowest_committish] }
         #
-        def file_complexity_change
-          files_with_complexity_increase.map do |file, complexity_history|
+        def path_complexity_change
+          paths_with_complexity_increase.map do |path, complexity_history|
             head, head_complexity = complexity_history.first
             base, base_complexity = complexity_history.min_by(&:last)
 
@@ -75,14 +76,14 @@ module Diggit
             change = 0.0 if change.infinite?
             pct_change = (100 * change).round(2)
 
-            [file, [pct_change, head, base]]
+            [path, [pct_change, head, base]]
           end
         end
 
-        # Filter file histories for those that have increased in complexity in this last
+        # Filter path histories for those that have increased in complexity in this last
         # change.
-        def files_with_complexity_increase
-          file_complexity_history.select do |_file, complexity_history|
+        def paths_with_complexity_increase
+          path_complexity_history.select do |_, complexity_history|
             _, head_complexity = complexity_history.first
             _, previous_complexity = complexity_history.first(2).last
 
@@ -90,48 +91,40 @@ module Diggit
           end
         end
 
-        # Compute the history of a files complexity, retaining the associated commitish
+        # Compute the history of a paths complexity, retaining the associated commitish
         #
         #   { 'file.rb' => [[commitish, 56.8], ...] }
         #
-        def file_complexity_history
-          @file_complexity_history ||= file_changes.map do |file, changes|
-            [file, changes.first(CHANGE_WINDOW).map do |commit|
-              [commit, self.class.compute_complexity(read(file, commit))]
+        def path_complexity_history
+          @path_complexity_history ||= path_changes.map do |path, changes|
+            [path, changes.first(CHANGE_WINDOW).map do |commit|
+              [commit, self.class.compute_complexity(cat_file(path, commit) || '')]
             end]
           end
         end
 
-        # Reads file contents at commit, returning an empty string for files that don't
-        # exist in the given commit.
-        def read(file, commit)
-          repo.show(commit, file)
-        rescue Git::GitExecuteError => err
-          raise(err) unless err.message[/does not exist in/]
-          return ''
-        end
-
-        # Generate a map of file to commit objects where that file has been changed,
+        # Generate a map of path to commit objects where that path has been changed,
         # taking only the last commit of each day.
         #
         #   { 'file.rb' => [commitish, ...] }
         #
-        def file_changes
-          tracked_files.reduce(Hamster::Hash.new) do |changes, file|
-            last_commits_of_the_day = repo.log.path(file).
-              group_by { |commit| commit.date.to_date }.
-              map { |(_, commits)| commits.max_by(&:date) }.
-              sort_by { |commit| -commit.date.to_i }
-            changes.merge(file => last_commits_of_the_day)
-          end.reject { |_file, history| history.empty? }
+        def path_changes
+          tracked_paths.reduce(Hamster::Hash.new) do |changes, path|
+            last_commits_of_the_day = rev_list(repo.head.target, path).
+              group_by { |commit| commit.author[:time].to_date }.
+              map { |(_, commits)| commits.max_by { |c| c.author[:time] } }.
+              sort_by { |commit| -commit.author[:time].to_i }
+            changes.merge(path => last_commits_of_the_day)
+          end.reject { |_, history| history.empty? }
         end
 
-        # All files that should be scanned for complexity growth.
-        def tracked_files
-          @tracked_files ||= repo.
-            diff("#{base}...#{head}").stats[:files].keys.
-            select { |file| files_in_head.include?(file) }.
-            reject { |file| IGNORED_EXTENSIONS.include?(File.extname(file)) }
+        # All paths that should be scanned for complexity growth.
+        def tracked_paths
+          @tracked_paths ||= repo.
+            diff(repo.merge_base(base, head), head).deltas.
+            reject { |delta| delta.status == :deleted }.
+            map { |delta| delta.new_file[:path] }.
+            reject { |path| IGNORED_EXTENSIONS.include?(File.extname(path)) }
         end
       end
     end

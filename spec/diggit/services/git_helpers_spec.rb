@@ -44,4 +44,20 @@ RSpec.describe(Diggit::Services::GitHelpers) do
       end
     end
   end
+
+  describe '.cat_file' do
+    let(:commit) { repo.last_commit.parents.first.oid }
+
+    context 'for file that exists' do
+      it 'returns string contents' do
+        expect(helpers.cat_file('README.md', commit)).to eql('content')
+      end
+    end
+
+    context 'for file that does not exist' do
+      it 'returns nil' do
+        expect(helpers.cat_file('not_here', commit)).to be_nil
+      end
+    end
+  end
 end
