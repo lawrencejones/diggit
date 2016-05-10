@@ -36,14 +36,14 @@ module Diggit
       end
 
       def poll(project)
-        info { "Polling #{project.gh_path} for new PRs..." }
-        Github.client.pulls(project.gh_path).each do |pull|
-          queue_analysis(pull, project) unless pull_analysis_exists?(pull)
-        end
+        info { "[#{project.gh_path}] Polling for new PRs..." }
+        Github.client.pulls(project.gh_path).
+          reject { |pull| pull_analysis_exists?(pull) }.
+          each   { |pull| queue_analysis(pull, project) }
       end
 
       def queue_analysis(pull, project)
-        info { "Queue analysis for #{project.gh_path}/pulls/#{pull[:number]}" }
+        info { "[#{project.gh_path}] Queue analysis for pull #{pull[:number]}" }
         AnalysePull.
           enqueue(project.gh_path,
                   pull[:number],

@@ -34,12 +34,12 @@ module Diggit
 
       def validate
         unless project && project.watch
-          info { "#{project.gh_path} is not watched, doing nothing" }
+          info { "[#{project.gh_path}] Not watched, doing nothing" }
           return false
         end
 
         if PullAnalysis.exists?(project: project, pull: pull, head: head, base: base)
-          info { "Pull #{pull} for #{project.gh_path} already analysed, doing nothing" }
+          info { "[#{project.gh_path}] Pull #{pull} already analysed, doing nothing" }
           return false
         end
 
@@ -51,20 +51,23 @@ module Diggit
         pull_analysis = create_pull_analysis(pull, comments)
         PushAnalysisComments.enqueue(pull_analysis.id) unless project.silent
       rescue Analysis::Pipeline::BadGitHistory
-        info { "Pull #{pull} references commits that no longer exist, skipping analysis" }
+        info do
+          "[#{project.gh_path}] Pull #{pull} references commits that no longer exist, "\
+          'skipping analysis'
+        end
       end
 
       def generate_comments(head, base)
-        info { "Cloning #{project.gh_path}..." }
+        info { "[#{project.gh_path}] Cloning..." }
         cloner.clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
-          info { "Running pipeline on #{project.gh_path}..." }
+          info { "[#{project.gh_path}] Running pipeline..." }
           pipeline.aggregate_comments
         end
       end
 
       def create_pull_analysis(pull, comments)
-        info { 'Creating PullAnalysis record...' }
+        info { "[#{project.gh_path}] Creating PullAnalysis record for pull #{pull}..." }
         PullAnalysis.create!(project: project,
                              pull: pull,
                              head: head, base: base,

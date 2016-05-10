@@ -34,6 +34,7 @@ group :development do
   gem 'capistrano-passenger'
   gem 'capistrano-rbenv'
   gem 'capistrano-npm'
+  gem 'ruby-prof'
 end
 
 group :test do
