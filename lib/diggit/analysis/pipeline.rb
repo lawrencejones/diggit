@@ -33,8 +33,8 @@ module Diggit
       attr_reader :repo, :head, :base
 
       def verify_refs!
-        raise BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
-        raise BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
+        fail BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
+        fail BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
       end
 
       def repo_label

@@ -62,8 +62,8 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
       repo.index.write
       person = { email: 'e', name: 'n', time: Time.now }
       Rugged::Commit.create(repo, message: 'a new commit', tree: commit_tree,
-                            author: person, committer: person,
-                            parents: [repo.head.target].compact, update_ref: 'HEAD')
+                                  author: person, committer: person,
+                                  parents: [repo.head.target].compact, update_ref: 'HEAD')
     end
   end
 

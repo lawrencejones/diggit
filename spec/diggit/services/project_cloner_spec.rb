@@ -45,7 +45,7 @@ RSpec.describe(Diggit::Services::ProjectCloner) do
       cloner.clone { |repo| repo }
     end
 
-    pending 'yields with instance of Rugged::Repo' do
+    it 'yields with instance of Rugged::Repo' do
       expect { |b| cloner.clone(&b) }.
         to yield_with_args(instance_of(Rugged::Repository))
     end

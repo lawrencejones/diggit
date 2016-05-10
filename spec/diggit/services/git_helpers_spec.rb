@@ -40,7 +40,7 @@ RSpec.describe(Diggit::Services::GitHelpers) do
       let(:path) { 'README.md' }
 
       it 'lists Rugged::Commits that modified the given path' do
-        expect(log.map(&:message)).to eql(['3', '1'])
+        expect(log.map(&:message)).to eql(%w(3 1))
       end
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe(Diggit::Services::GitHelpers) do
     let(:base) { repo.lookup(head).parents.first.parents.first.oid } # 1
 
     it 'finds all commits between base and head' do
-      expect(helpers.commits_between(base, head).map(&:message)).to eql(['3', '2'])
+      expect(helpers.commits_between(base, head).map(&:message)).to eql(%w(3 2))
     end
   end
 end

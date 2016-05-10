@@ -1,5 +1,4 @@
 require 'que'
-require 'git'
 require 'tempfile'
 
 require_relative 'push_analysis_comments'

@@ -1,4 +1,3 @@
-require 'git'
 require 'rugged'
 require 'fileutils'
 
@@ -24,13 +23,12 @@ module Diggit
         @repo ||= Rugged::Repository.new(repo_path)
       end
 
-      # Yields with a Git::Base handle to the project, referencing a temporary working
-      # directory that exists only within the block.
+      # Yields with a Rugged::Repository handle to the project, referencing a temporary
+      # working directory that exists only within the block.
       def clone
         fetch
         with_temporary_dir do |scratch_repo_path|
-          Rugged::Repository.clone_at(repo_path, scratch_repo_path)
-          yield(Git.open(scratch_repo_path))
+          yield(Rugged::Repository.clone_at(repo_path, scratch_repo_path))
         end
       end
 

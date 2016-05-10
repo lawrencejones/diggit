@@ -6,7 +6,6 @@ require 'active_record'
 require 'yaml'
 require 'rack'
 require 'coach'
-require 'git'
 
 require_relative './logger'
 require_relative '../../config/prius'
@@ -25,7 +24,6 @@ module Diggit
 
     def self.init
       @config ||= begin
-        verify_git!
         configure_i18n!
         configure_rollbar!
         configure_active_record!
@@ -54,13 +52,6 @@ module Diggit
           github_token: Prius.get(:diggit_github_token),
           webhook_endpoint: Prius.get(:diggit_webhook_endpoint)
         )
-      end
-    end
-
-    def self.verify_git!
-      version = `#{Git.config.binary_path} --version`.match(/git version (\d+\.\d+)/)[1]
-      unless version && version.to_f > 2.0
-        fail 'Diggit required git version >2.0.0'
       end
     end
 
