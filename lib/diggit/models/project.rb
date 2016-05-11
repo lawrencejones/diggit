@@ -23,18 +23,9 @@ class Project < ActiveRecord::Base
     ssh_public_key.present? && encrypted_ssh_private_key.present?
   end
 
-  def ssh_private_key
-    return nil unless keys?
-    Diggit::Services::Secure.
-      decode(encrypted_ssh_private_key, ssh_initialization_vector)
-  end
-
-  def ssh_private_key=(private_key)
-    encrypted_key, initialization_vector = Diggit::Services::Secure.
-      encode(private_key)
-    self.encrypted_ssh_private_key = encrypted_key
-    self.ssh_initialization_vector = initialization_vector
-  end
+  extend Diggit::Services::Secure::ActiveRecordHelpers
+  encrypted_field :ssh_private_key, iv: :ssh_initialization_vector
+  encrypted_field :gh_token, iv: :gh_token_initialization_vector
 
   def generate_keypair!
     key = SSHKey.generate(type: 'RSA', bits: 2048)

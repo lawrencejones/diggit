@@ -3,6 +3,23 @@ require 'digest'
 module Diggit
   module Services
     module Secure
+      module ActiveRecordHelpers
+        def encrypted_field(field, iv:)
+          define_method(field) do
+            encrypted_payload = send(:"encrypted_#{field}")
+            return nil if encrypted_payload.nil?
+
+            Secure.decode(encrypted_payload, send(iv))
+          end
+
+          define_method(:"#{field}=") do |value|
+            encrypted, initialization_vector = Secure.encode(value)
+            send(:"encrypted_#{field}=", encrypted)
+            send(:"#{iv}=", initialization_vector)
+          end
+        end
+      end
+
       def self.secret=(value)
         @secret = Digest::SHA2.digest(value)
       end
