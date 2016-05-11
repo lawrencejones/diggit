@@ -54,7 +54,7 @@ module Diggit
       def pull_analysis_exists?(pull)
         PullAnalysis.
           joins(:project).
-          where('projects.gh_path' => pull[:head][:repo][:full_name]).
+          where('projects.gh_path' => pull[:base][:repo][:full_name]).
           exists?(pull: pull[:number],
                   head: pull[:head][:sha],
                   base: pull[:base][:sha])

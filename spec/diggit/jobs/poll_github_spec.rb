@@ -20,8 +20,9 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
   end
 
   def mock_pull(project, number, head:, base:)
-    { head: { sha: head, repo: { full_name: project.gh_path } },
-      base: { sha: base }, number: number }
+    { number: number,
+      head: { sha: head, repo: { full_name: 'user/fork' } },
+      base: { sha: base, repo: { full_name: project.gh_path } } }
   end
 
   describe '.run' do
@@ -52,8 +53,7 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
       end
     end
 
-    context 'when pull has been analysed but there are new commits' do
-      let(:head) { 'new-head-sha' }
+    context 'when pull has been analysed' do
       let!(:existing_analysis) do
         FactoryGirl.create(:pull_analysis,
                            project: payments_service,
@@ -62,11 +62,20 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
                            head: 'head-sha')
       end
 
-      it 'enqueues analysis' do
-        expect(Diggit::Jobs::AnalysePull).
-          to receive(:enqueue).
-          with(payments_service.gh_path, 1, head, 'base-sha')
+      it 'does not enqueue analysis' do
+        expect(Diggit::Jobs::AnalysePull).not_to receive(:enqueue)
         run!
+      end
+
+      context 'but there are new commits' do
+        let(:head) { 'new-head-sha' }
+
+        it 'enqueues analysis' do
+          expect(Diggit::Jobs::AnalysePull).
+            to receive(:enqueue).
+            with(payments_service.gh_path, 1, head, 'base-sha')
+          run!
+        end
       end
     end
   end
