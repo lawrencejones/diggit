@@ -11,21 +11,13 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def owner
-    gh_path.split('/').first
-  end
-
-  def repo
-    gh_path.split('/').last
-  end
+  extend Diggit::Services::Secure::ActiveRecordHelpers
+  encrypted_field :ssh_private_key, iv: :ssh_initialization_vector
+  encrypted_field :gh_token, iv: :gh_token_initialization_vector
 
   def keys?
     ssh_public_key.present? && encrypted_ssh_private_key.present?
   end
-
-  extend Diggit::Services::Secure::ActiveRecordHelpers
-  encrypted_field :ssh_private_key, iv: :ssh_initialization_vector
-  encrypted_field :gh_token, iv: :gh_token_initialization_vector
 
   def generate_keypair!
     key = SSHKey.generate(type: 'RSA', bits: 2048)

@@ -20,17 +20,4 @@ namespace :one_off do
     puts('Add the following public key to Github account with access to this repo:')
     puts("\n#{project.ssh_public_key}\n")
   end
-
-  desc 'Backfills projects to use diggit-bot github token'
-  task :backfill_projects_gh_token do
-    puts("Backfilling #{Project.count} projects...")
-    ActiveRecord::Base.transaction do
-      Project.all.each do |project|
-        puts("- #{project.gh_path}")
-        project.gh_token = Prius.get(:diggit_github_token)
-        project.save!
-      end
-    end
-    puts('Done!')
-  end
 end

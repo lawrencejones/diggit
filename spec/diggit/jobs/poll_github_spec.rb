@@ -28,6 +28,9 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
   describe '.run' do
     let(:head) { 'head-sha' }
     before do
+      allow(Diggit::Github).
+        to receive(:gh_client_for).
+        with(anything).and_return(gh_client)
       allow(gh_client).
         to receive(:pulls).
         with(payments_service.gh_path).
