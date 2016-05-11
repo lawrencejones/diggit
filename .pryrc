@@ -8,7 +8,7 @@ Pry.config.prompt = [proc { 'diggit> ' }]
 require './lib/diggit/system'
 Diggit::System.init
 
-Que.mode = :sync
+Que.mode = :off
 Que.logger = Logger.new(STDOUT)
 Que.logger.level = Logger::INFO.to_i
 

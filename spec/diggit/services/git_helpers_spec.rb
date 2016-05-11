@@ -14,12 +14,15 @@ RSpec.describe(Diggit::Services::GitHelpers) do
   let(:repo) do
     TemporaryAnalysisRepo.create do |repo|
       repo.write('README.md', 'content')
+      repo.write('transient', 'hey there')
       repo.commit('1')
 
       repo.write('another_file', 'content')
+      repo.rm('transient')
       repo.commit('2')
 
       repo.write('README.md', 'more content')
+      repo.write('transient', 'hey again')
       repo.commit('3')
     end
   end
@@ -41,6 +44,14 @@ RSpec.describe(Diggit::Services::GitHelpers) do
 
       it 'lists Rugged::Commits that modified the given path' do
         expect(log.map(&:message)).to eql(%w(3 1))
+      end
+
+      context 'when path is transient' do
+        let(:path) { 'transient' }
+
+        it 'stops at deletion revision' do
+          expect(log.size).to be(1)
+        end
       end
     end
   end

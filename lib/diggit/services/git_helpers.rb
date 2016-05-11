@@ -13,7 +13,7 @@ module Diggit
       # Runs the rev-list command, returning an array of commit shas that are ancestors of
       # the given commit, filtered by path if one is supplied.
       def rev_list(commit:, path: nil)
-        args = ['rev-list', commit.try(:oid) || commit]
+        args = ['rev-list', '--remove-empty', commit.try(:oid) || commit]
         args.push('--', path) unless path.nil?
 
         command(*args).split.map do |commit_sha|
