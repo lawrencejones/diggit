@@ -12,7 +12,7 @@ module Diggit
 
       # Runs the rev-list command, returning an array of commit shas that are ancestors of
       # the given commit, filtered by path if one is supplied.
-      def rev_list(commit, path = nil)
+      def rev_list(commit:, path: nil)
         args = ['rev-list', commit.try(:oid) || commit]
         args.push('--', path) unless path.nil?
 
@@ -23,7 +23,7 @@ module Diggit
 
       # Generates the string content of the blob located at `path` in commit `commit`.
       # Returns nil if file does not exist in this commit.
-      def cat_file(path, commit)
+      def cat_file(commit:, path:)
         tree = commit.try(:tree) || repo.lookup(commit).tree
 
         blob_entry = path.split('/').reduce(tree) do |treeish, ref|
