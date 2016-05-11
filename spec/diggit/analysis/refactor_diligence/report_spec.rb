@@ -5,8 +5,12 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
   subject(:report) { described_class.new(repo, base: base, head: head) }
   let(:repo) { refactor_diligence_test_repo }
 
-  let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
-  let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
+  def branch_oid(branch)
+    repo.branches.find { |b| b.name == branch }.target.oid
+  end
+
+  let(:head) { branch_oid('feature') }
+  let(:base) { branch_oid('master') }
 
   before { stub_const("#{described_class}::TIMES_INCREASED_THRESHOLD", threshold) }
   let(:threshold) { 2 }
@@ -21,8 +25,8 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     let(:master_comment) { comment_for(/Master::initialize/) }
 
     context 'when pull does not change ruby files' do
-      let(:head) { 'non-ruby' }
-      let(:base) { 'feature' }
+      let(:head) { branch_oid('non-ruby') }
+      let(:base) { branch_oid('feature') }
 
       it { is_expected.to eql([]) }
     end
@@ -45,6 +49,7 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
 
     it 'tags commit shas in comment' do
       shas_in_comment = socket_comment[:message].scan(/\S{40}/)
+      expect(shas_in_comment.size).to be(3)
       shas_in_comment.each { |sha| expect(repo.exists?(sha)).to be(true) }
     end
 

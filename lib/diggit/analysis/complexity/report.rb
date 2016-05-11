@@ -98,7 +98,8 @@ module Diggit
         def path_complexity_history
           @path_complexity_history ||= path_changes.map do |path, changes|
             [path, changes.first(CHANGE_WINDOW).map do |commit|
-              [commit, self.class.compute_complexity(cat_file(path, commit) || '')]
+              file_content = cat_file(path: path, commit: commit) || ''
+              [commit, self.class.compute_complexity(file_content)]
             end]
           end
         end
@@ -110,7 +111,7 @@ module Diggit
         #
         def path_changes
           tracked_paths.reduce(Hamster::Hash.new) do |changes, path|
-            last_commits_of_the_day = rev_list(repo.head.target, path).
+            last_commits_of_the_day = rev_list(commit: repo.head.target, path: path).
               group_by { |commit| commit.author[:time].to_date }.
               map { |(_, commits)| commits.max_by { |c| c.author[:time] } }.
               sort_by { |commit| -commit.author[:time].to_i }

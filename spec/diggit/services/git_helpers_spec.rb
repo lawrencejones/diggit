@@ -25,7 +25,7 @@ RSpec.describe(Diggit::Services::GitHelpers) do
   end
 
   describe '.rev_list' do
-    subject(:log) { helpers.rev_list(commit, path) }
+    subject(:log) { helpers.rev_list(commit: commit, path: path) }
     let(:commit) { repo.last_commit.oid }
 
     context 'without path' do
@@ -50,13 +50,13 @@ RSpec.describe(Diggit::Services::GitHelpers) do
 
     context 'for file that exists' do
       it 'returns string contents' do
-        expect(helpers.cat_file('README.md', commit)).to eql('content')
+        expect(helpers.cat_file(path: 'README.md', commit: commit)).to eql('content')
       end
     end
 
     context 'for file that does not exist' do
       it 'returns nil' do
-        expect(helpers.cat_file('not_here', commit)).to be_nil
+        expect(helpers.cat_file(path: 'not_here', commit: commit)).to be_nil
       end
     end
   end
