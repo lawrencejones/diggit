@@ -7,7 +7,9 @@ require_relative '../logger'
 module Diggit
   module Analysis
     class Pipeline
-      REPORTERS = [RefactorDiligence::Report].freeze
+      REPORTERS = [RefactorDiligence::Report, Complexity::Report].freeze
+      MAX_FILES_CHANGED = 25
+
       class BadGitHistory < StandardError; end
       include InstanceLogger
 
@@ -17,10 +19,11 @@ module Diggit
         @base = base
 
         verify_refs!
-        repo.reset(head, :hard)
       end
 
       def aggregate_comments
+        return [] unless validate_diff_size
+
         REPORTERS.map do |report|
           info { "[#{repo_label}] #{report}..." }
           repo.reset(head, :hard)
@@ -32,6 +35,13 @@ module Diggit
 
       attr_reader :repo, :head, :base
 
+      def validate_diff_size
+        return true if no_files_changed < MAX_FILES_CHANGED
+
+        info { "[#{repo_label}] #{no_files_changed} files changed, too large, skipping" }
+        false
+      end
+
       def verify_refs!
         fail BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
         fail BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
@@ -39,6 +49,10 @@ module Diggit
 
       def repo_label
         File.basename(repo.workdir)
+      end
+
+      def no_files_changed
+        repo.diff(base, head).deltas.count
       end
     end
   end

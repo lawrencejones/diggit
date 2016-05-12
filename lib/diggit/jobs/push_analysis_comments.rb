@@ -9,6 +9,8 @@ require_relative '../github/client'
 module Diggit
   module Jobs
     class PushAnalysisComments < Que::Job
+      # For reporters that are in trial mode
+      SILENT_REPORTERS = %w(Complexity).freeze
       include InstanceLogger
 
       def run(pull_analysis_id)
@@ -42,9 +44,9 @@ module Diggit
       end
 
       def pending_comments
-        @pending_comments ||= pull_analysis.comments.reject do |comment|
-          existing_comments.include?(comment.slice('report', 'index'))
-        end
+        @pending_comments ||= pull_analysis.comments.
+          reject { |c| SILENT_REPORTERS.include?(c['report']) }.
+          reject { |c| existing_comments.include?(c.slice('report', 'index')) }
       end
 
       def existing_comments
