@@ -20,6 +20,7 @@ module Diggit
         @project = Project.find_by!(gh_path: gh_path)
         @cloner = Services::ProjectCloner.new(project)
 
+        @logger_prefix = "[#{project.gh_path}/#{pull}]"
         return destroy unless validate
 
         ActiveRecord::Base.transaction do
@@ -34,12 +35,12 @@ module Diggit
 
       def validate
         unless project && project.watch
-          info { "[#{project.gh_path}] Not watched, doing nothing" }
+          info { 'Not watched, doing nothing' }
           return false
         end
 
         if PullAnalysis.exists?(project: project, pull: pull, head: head, base: base)
-          info { "[#{project.gh_path}] Pull #{pull} already analysed, doing nothing" }
+          info { 'Pull already analysed, doing nothing' }
           return false
         end
 
@@ -51,23 +52,19 @@ module Diggit
         pull_analysis = create_pull_analysis(pull, comments)
         PushAnalysisComments.enqueue(pull_analysis.id) unless project.silent
       rescue Analysis::Pipeline::BadGitHistory
-        info do
-          "[#{project.gh_path}] Pull #{pull} references commits that no longer exist, "\
-          'skipping analysis'
-        end
+        info { 'Pull references commits that no longer exist, skipping analysis' }
       end
 
       def generate_comments(head, base)
-        info { "[#{project.gh_path}] Cloning..." }
         cloner.clone do |repo|
           pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
-          info { "[#{project.gh_path}] Running pipeline..." }
+          info { 'Running pipeline...' }
           pipeline.aggregate_comments
         end
       end
 
       def create_pull_analysis(pull, comments)
-        info { "[#{project.gh_path}] Creating PullAnalysis record for pull #{pull}..." }
+        info { 'Creating PullAnalysis record...' }
         PullAnalysis.create!(project: project,
                              pull: pull,
                              head: head, base: base,

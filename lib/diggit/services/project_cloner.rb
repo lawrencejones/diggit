@@ -50,7 +50,7 @@ module Diggit
         credentials.with_keyfiles do |keyfiles|
           ssh_creds = Rugged::Credentials::SshKey.
             new(keyfiles.merge(username: 'git'))
-          info { "[#{project.gh_path}] Fetching origin..." }
+          info { 'Fetching origin...' }
           repo.fetch('origin', credentials: ssh_creds)
         end
       end

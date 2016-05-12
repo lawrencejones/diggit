@@ -18,6 +18,7 @@ module Diggit
         @head = head
         @base = base
 
+        @logger_prefix ||= "[#{File.basename(repo.workdir)}]"
         verify_refs!
       end
 
@@ -25,7 +26,7 @@ module Diggit
         return [] unless validate_diff_size
 
         REPORTERS.map do |report|
-          info { "[#{repo_label}] #{report}..." }
+          info { "#{report}..." }
           repo.reset(head, :hard)
           report.new(repo, base: base, head: head).comments
         end.flatten
@@ -38,17 +39,13 @@ module Diggit
       def validate_diff_size
         return true if no_files_changed < MAX_FILES_CHANGED
 
-        info { "[#{repo_label}] #{no_files_changed} files changed, too large, skipping" }
+        info { "#{no_files_changed} files changed, too large, skipping" }
         false
       end
 
       def verify_refs!
         fail BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
         fail BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
-      end
-
-      def repo_label
-        File.basename(repo.workdir)
       end
 
       def no_files_changed
