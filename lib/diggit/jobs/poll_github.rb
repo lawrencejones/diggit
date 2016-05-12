@@ -13,7 +13,7 @@ module Diggit
     #
     # Will continually queue the next job, with the POLLING_INTERVAL delay.
     class PollGithub < Que::Job
-      POLLING_INTERVAL = 45 # seconds
+      POLLING_INTERVAL = 60 # seconds
 
       include InstanceLogger
       @run_at = proc { Time.now.advance(seconds: POLLING_INTERVAL) }
@@ -39,6 +39,7 @@ module Diggit
         info { "[#{project.gh_path}] Polling for new PRs..." }
         Github.client_for(project).pulls(project.gh_path).
           reject { |pull| pull_analysis_exists?(pull) }.
+          reject { |pull| analysis_queued?(pull) }.
           each   { |pull| queue_analysis(pull, project) }
       end
 
@@ -49,6 +50,22 @@ module Diggit
                   pull[:number],
                   pull[:head][:sha],
                   pull[:base][:sha])
+      end
+
+      def analysis_queued?(pull)
+        analysis_jobs = Que.execute <<-SQL
+        SELECT args
+          FROM que_jobs
+         WHERE job_class='Diggit::Jobs::AnalysePull';
+        SQL
+
+        job_args = job_args_for(pull)
+        analysis_jobs.any? { |job| job['args'] == job_args }
+      end
+
+      def job_args_for(pull)
+        [pull[:base][:repo][:full_name], pull[:number],
+         pull[:head][:sha], pull[:base][:sha]]
       end
 
       def pull_analysis_exists?(pull)
