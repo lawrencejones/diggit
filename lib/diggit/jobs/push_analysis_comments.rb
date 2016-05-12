@@ -17,9 +17,10 @@ module Diggit
         @pull_analysis = PullAnalysis.find(pull_analysis_id)
         @comment_generator = Github::CommentGenerator.
           new(project.gh_path, pull_analysis.pull, Github.client)
+        @logger_prefix = "[#{pull_analysis.project.gh_path}/#{pull_analysis.pull}]"
 
         if pull_analysis.pushed_to_github
-          info { "Already commented for analysis #{pull_analysis.id}, doing nothing" }
+          info { 'Already commented for analysis, doing nothing' }
           return destroy
         end
 

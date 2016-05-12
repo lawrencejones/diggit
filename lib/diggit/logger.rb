@@ -17,8 +17,12 @@ module Diggit
 
     %i(debug error fatal info log warn).each do |method|
       define_method(method) do |label = nil, &block|
-        Diggit.logger.send(method, label || self.class.to_s, &block)
+        Diggit.logger.send(method, label || self.class.to_s) do
+          [logger_prefix, block.call].compact.join(' ')
+        end
       end
     end
+
+    attr_accessor :logger_prefix
   end
 end
