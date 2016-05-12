@@ -67,6 +67,8 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand(config.seed)
 
+  config.filter_run_excluding integration: true unless ENV['INTEG']
+
   config.include(Shoulda::Matchers::ActiveModel)
   config.include(Shoulda::Matchers::ActiveRecord)
 

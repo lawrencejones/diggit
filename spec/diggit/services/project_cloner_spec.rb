@@ -45,9 +45,31 @@ RSpec.describe(Diggit::Services::ProjectCloner) do
       cloner.clone { |repo| repo }
     end
 
+    # This will cause libssh2 to fail the authentication
+    it 'creates ssh credentials without the publickey' do
+      expect(Rugged::Credentials::SshKey).to receive(:new) do |conf|
+        expect(conf).not_to include(:publickey)
+      end
+      cloner.clone { |repo| repo }
+    end
+
     it 'yields with instance of Rugged::Repo' do
       expect { |b| cloner.clone(&b) }.
         to yield_with_args(instance_of(Rugged::Repository))
+    end
+  end
+
+  context 'cloning from github repo', integration: true do
+    let(:project) do
+      FactoryGirl.create(:project, gh_path: 'lawrencejones/diggit-tests')
+    end
+
+    it 'successfully pulls diggit-tests by using default creds' do
+      cloner.clone do |repo|
+        @yielded = true
+        expect(repo.exists?('9c6ddb63e1d90f7d4d88f210884cd73bcaeccde8')).to be(true)
+      end
+      expect(@yielded).to be(true)
     end
   end
 end
