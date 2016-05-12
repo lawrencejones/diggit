@@ -13,6 +13,10 @@ FactoryGirl.define do
       ssh_private_key 'ssh-private-key'
     end
 
+    trait :gh_token do
+      gh_token 'github-token'
+    end
+
     trait :diggit do
       watched
       gh_path 'lawrencejones/diggit'

@@ -7,9 +7,6 @@ RSpec.describe(Project) do
       ssh_public_key: 'ssh-public-key', ssh_private_key: 'ssh-private-key' }
   end
 
-  its(:owner) { is_expected.to eql('lawrencejones') }
-  its(:repo) { is_expected.to eql('diggit') }
-
   it { is_expected.to be_valid }
   it { is_expected.to validate_presence_of(:gh_path) }
   it { is_expected.not_to allow_value('lawrencejones').for(:gh_path) }
