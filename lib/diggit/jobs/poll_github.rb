@@ -29,10 +29,8 @@ module Diggit
           return destroy
         end
 
-        ActiveRecord::Base.transaction do
-          polled_projects.each { |project| poll(project) }
-          destroy
-        end
+        polled_projects.each { |project| poll(project) }
+        destroy
       end
 
       def poll(project)
