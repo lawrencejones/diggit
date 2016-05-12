@@ -7,6 +7,7 @@ RSpec.describe(Diggit::Jobs::PushAnalysisComments) do
   let(:head) { 'head-sha' }
   let(:base) { 'base-sha' }
   let(:pushed_to_github) { false }
+  let(:silent_reporters) { [] }
 
   let!(:pull_analysis) do
     FactoryGirl.create(:pull_analysis,
@@ -34,6 +35,8 @@ RSpec.describe(Diggit::Jobs::PushAnalysisComments) do
     allow(comment_generator).to receive(:add_comment)
     allow(comment_generator).to receive(:push)
     expect(job).to receive(:destroy)
+
+    stub_const("#{described_class}::SILENT_REPORTERS", silent_reporters)
   end
 
   shared_examples 'audited comment job' do
@@ -96,6 +99,18 @@ RSpec.describe(Diggit::Jobs::PushAnalysisComments) do
         with('Socket::initialize has increase in size the last 3 times', 'socket.rb:15')
       expect(comment_generator).to receive(:push)
       run!
+    end
+
+    context 'with comments from SILENT_REPORTERS' do
+      let(:silent_reporters) { ['Complexity'] }
+
+      it 'does not push to github' do
+        expect(comment_generator).
+          not_to receive(:add_comment).
+          with('increased in complexity by 50% over last 7 days', 'file.rb:1')
+        expect(comment_generator).to receive(:push)
+        run!
+      end
     end
   end
 end

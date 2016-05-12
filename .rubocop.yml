@@ -16,6 +16,9 @@ MethodLength:
 Metrics/AbcSize:
   Max: 25
 
+Style/BlockDelimiters:
+  Enabled: false
+
 Style/TrailingCommaInLiteral:
   EnforcedStyleForMultiline: comma
 

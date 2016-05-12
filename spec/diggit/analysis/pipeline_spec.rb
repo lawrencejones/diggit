@@ -1,36 +1,37 @@
 require_relative 'temporary_analysis_repo'
 require 'diggit/analysis/pipeline'
 
-# rubocop:disable Style/AlignParameters
 def pipeline_test_repo
   TemporaryAnalysisRepo.create do |repo|
-    repo.write('file.c',
-    %(int main(int argc, char **argv) {
-        return 0;
-      }))
+    repo.write 'file.c', <<-C
+    int main(int argc, char **argv) {
+      return 0;
+    }
+    C
     repo.commit('initial commit')
 
     repo.write('.gitignore', %(*.o))
-    repo.write('file.c',
-    %(int main(int argc, char **argv) {
-        printf("Second commit change");
-        return 0;
-      }))
+    repo.write 'file.c', <<-C
+    int main(int argc, char **argv) {
+      printf("Second commit change");
+      return 0;
+    }
+    C
     repo.commit('second commit')
 
-    repo.write('README.md',
-    %(# Simple C Project
-      Keep it real dawg (⌐■_■)))
-    repo.write('file.c',
-    %(int main(int argc, char **argv) {
-        printf("Second commit change");
-        printf("Third commit change");
-        return 0;
-      }))
+    repo.write 'README.md', <<-MD
+    # Simple C Project
+    Keep it real dawg (⌐■_■)
+    MD
+    repo.write 'file.c', <<-C
+    int main(int argc, char **argv) {
+      printf("Second commit change");
+      printf("Third commit change");
+      return 0;
+    C
     repo.commit('third commit')
   end
 end
-# rubocop:enable Style/AlignParameters
 
 RSpec.describe(Diggit::Analysis::Pipeline) do
   subject(:pipeline) { described_class.new(repo, head: head, base: base) }
@@ -78,8 +79,10 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
   end
 
   describe '#aggregate_comments' do
+    subject(:comments) { pipeline.aggregate_comments }
+
     it 'collects comments from all reporters' do
-      expect(pipeline.aggregate_comments).to match_array(%w(1a 1b 2a 2b))
+      expect(comments).to match_array(%w(1a 1b 2a 2b))
     end
 
     it 'logs running each reporter' do
@@ -87,7 +90,20 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
         expect(prefix).to eql('Diggit::Analysis::Pipeline')
         expect(block.call).to match(/\[\S+\] \S+\.\.\./)
       end
-      pipeline.aggregate_comments
+      comments
+    end
+
+    context 'when diff changes too many files' do
+      before { stub_const("#{described_class}::MAX_FILES_CHANGED", 1) }
+
+      it { is_expected.to be_empty }
+
+      it 'logs that it is skipping analysis' do
+        expect(pipeline).to receive(:info) do |&message_block|
+          expect(message_block.call).to match(/3 files changed, too large, skipping/)
+        end
+        comments
+      end
     end
 
     context 'with bad mutating reporters' do
@@ -100,7 +116,6 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
       end
 
       it 'does not persist index or checkout' do
-        comments = pipeline.aggregate_comments
         expect(comments).to eql(['ran mutating_reporter', 'ran_verifying_reporter'])
       end
     end
