@@ -20,7 +20,7 @@ class Project < ActiveRecord::Base
   end
 
   def generate_keypair!
-    key = SSHKey.generate(type: 'RSA', bits: 2048)
+    key = SSHKey.generate(type: 'RSA', bits: 2048, comment: 'bot@diggit-repo.com')
     self.ssh_public_key = key.ssh_public_key
     self.ssh_private_key = key.private_key
     save!

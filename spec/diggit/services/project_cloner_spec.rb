@@ -45,14 +45,6 @@ RSpec.describe(Diggit::Services::ProjectCloner) do
       cloner.clone { |repo| repo }
     end
 
-    # This will cause libssh2 to fail the authentication
-    it 'creates ssh credentials without the publickey' do
-      expect(Rugged::Credentials::SshKey).to receive(:new) do |conf|
-        expect(conf).not_to include(:publickey)
-      end
-      cloner.clone { |repo| repo }
-    end
-
     it 'yields with instance of Rugged::Repo' do
       expect { |b| cloner.clone(&b) }.
         to yield_with_args(instance_of(Rugged::Repository))
