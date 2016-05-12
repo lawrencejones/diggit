@@ -15,7 +15,6 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
   let(:gh_client) { instance_double(Octokit::Client) }
   before do
     allow(Diggit::Github).to receive(:client).and_return(gh_client)
-    allow(Diggit::Jobs::AnalysePull).to receive(:enqueue)
     allow(gh_client).to receive(:pulls)
   end
 
@@ -52,6 +51,18 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
         expect(Diggit::Jobs::AnalysePull).
           to receive(:enqueue).
           with(payments_service.gh_path, 1, head, 'base-sha')
+        run!
+      end
+    end
+
+    context 'when analysis is currently queued' do
+      before do
+        Diggit::Jobs::AnalysePull.
+          enqueue('gocardless/payments_service', 1, head, 'base-sha')
+      end
+
+      it 'does not enqueue analysis' do
+        expect(Diggit::Jobs::AnalysePull).not_to receive(:enqueue)
         run!
       end
     end
