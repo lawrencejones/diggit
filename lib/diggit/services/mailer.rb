@@ -66,6 +66,8 @@ module Diggit
           mail.html_part = render
           mail.html_part.content_type = 'text/html; charset=UTF-8'
           mail.delivery_method(*DELIVERY_METHOD)
+          mail.charset = 'UTF-8'
+          mail.content_transfer_encoding = '8bit'
         end.tap(&:deliver!)
       end
 
