@@ -84,8 +84,12 @@ module Diggit
         "https://github.com/#{project.gh_path}"
       end
 
+      def last_day
+        @last_day ||= start_at.advance(days: -1)...start_at
+      end
+
       def new_analyses_for(project)
-        PullAnalysis.where(project: project, created_at: time_range)
+        PullAnalysis.where(project: project, created_at: last_day)
       end
 
       def projects_with_new_analyses
@@ -94,7 +98,7 @@ module Diggit
       end
 
       def new_analyses
-        @new_analyses ||= PullAnalysis.where(created_at: time_range)
+        @new_analyses ||= PullAnalysis.where(created_at: last_day)
       end
 
       def new_comments

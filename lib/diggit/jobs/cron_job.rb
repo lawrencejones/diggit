@@ -40,6 +40,8 @@ module Diggit
         @end_at = Time.at(args.delete('end_at'))
         @time_range = @start_at...@end_at
 
+        attrs[:args].shift if args.empty?
+
         super
 
         self.class.schedule

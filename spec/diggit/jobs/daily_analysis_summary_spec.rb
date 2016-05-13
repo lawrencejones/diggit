@@ -4,8 +4,7 @@ require 'diggit/jobs/daily_analysis_summary'
 RSpec.describe(Diggit::Jobs::DailyAnalysisSummary) do
   subject(:job) { described_class.new({}) }
 
-  before { allow(job).to receive(:time_range).and_return(time_range) }
-  let(:time_range) { Time.now.advance(hours: -6)...Time.now.advance(hours: 18) }
+  before { allow(job).to receive(:start_at).and_return(Time.now.advance(hours: 6)) }
 
   describe '.render' do
     subject(:html) { job.send(:render) }
