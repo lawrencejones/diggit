@@ -14,6 +14,7 @@ end
 require 'rspec'
 require 'rspec/its'
 require 'que'
+require 'mail'
 require 'timecop'
 require 'pry'
 require 'coach'
@@ -73,6 +74,7 @@ RSpec.configure do |config|
   config.include(Shoulda::Matchers::ActiveRecord)
 
   config.before(:all) { FactoryGirl.reload }
+  config.before(:each) { Mail::TestMailer.deliveries.clear }
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

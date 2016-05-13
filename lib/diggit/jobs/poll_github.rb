@@ -1,5 +1,6 @@
 require 'que'
 
+require_relative 'repeat_job'
 require_relative 'analyse_pull'
 require_relative '../logger'
 require_relative '../models/project'
@@ -12,16 +13,9 @@ module Diggit
     # for any that have un-analysed pulls.
     #
     # Will continually queue the next job, with the POLLING_INTERVAL delay.
-    class PollGithub < Que::Job
-      POLLING_INTERVAL = 60 # seconds
-
+    class PollGithub < RepeatJob
+      INTERVAL = 60 # seconds
       include InstanceLogger
-      @run_at = proc { Time.now.advance(seconds: POLLING_INTERVAL) }
-
-      def _run
-        super
-        self.class.enqueue
-      end
 
       def run
         if polled_projects.empty?

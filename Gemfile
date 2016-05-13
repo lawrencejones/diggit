@@ -26,6 +26,8 @@ gem 'octokit'
 gem 'json-schema'
 gem 'sshkey'
 gem 'rollbar'
+gem 'mail'
+gem 'roadie'
 
 group :development do
   gem 'rerun'
