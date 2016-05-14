@@ -38,6 +38,7 @@ group :development do
   gem 'capistrano-rbenv'
   gem 'capistrano-npm'
   gem 'ruby-prof'
+  gem 'stackprof'
 end
 
 group :test do
