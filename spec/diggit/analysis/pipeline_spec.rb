@@ -45,14 +45,12 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
     end.first.oid
   end
 
-  # rubocop:disable Lint/UnusedBlockArgument
   def mock_reporter(mock_comments, &block)
     Class.new do
       define_method(:initialize) { |repo, conf| yield repo if block }
       define_method(:comments) { mock_comments }
     end
   end
-  # rubocop:enabled Lint/UnusedBlockArgument
 
   let(:mutating_reporter) do
     mock_reporter(['ran mutating_reporter']) do |repo|

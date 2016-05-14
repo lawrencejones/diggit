@@ -10,6 +10,17 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
       '300' => [1, 2, 3, 5],
       '400' => [2, 5] }
   end
+  let(:itemsets) do
+    [[[1], 2],
+     [[2], 3],
+     [[3], 3],
+     [[5], 3],
+     [[1, 3], 2],
+     [[2, 3], 2],
+     [[2, 5], 3],
+     [[3, 5], 2],
+     [[2, 3, 5], 2]]
+  end
 
   let(:conf) do
     { min_support: min_support, min_confidence: min_confidence,
@@ -20,7 +31,9 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
   let(:min_items) { 1 }
   let(:max_items) { 50 }
 
-  describe '.apriori_tid' do
+  describe '.apriori' do
+    subject { apriori.apriori }
+    it { is_expected.to include(*itemsets) }
   end
 
   describe '.large_one_itemsets' do
@@ -44,7 +57,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
 
     it { is_expected.to eql(result) }
     it 'produces sets of one greater arity' do
-      joined.each { |set| expect(set.size).to be(large_itemsets.first.size) }
+      joined.each { |set| expect(set.size).to be(large_itemsets.first.size + 1) }
     end
   end
 
