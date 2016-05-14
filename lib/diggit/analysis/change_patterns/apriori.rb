@@ -1,5 +1,5 @@
 # encoding: utf-8
-# rubocop:disable Style/AsciiComments
+# rubocop:disable Style/AsciiComments, Metrics/AbcSize
 require 'set'
 require 'hamster/hash'
 
@@ -37,6 +37,40 @@ module Diggit
             end
 
             l[k] = ck.select { |(_, count)| count >= min_support }
+            k += 1
+          end
+
+          l.compact.inject(:+)
+        end
+
+        # 2.2 AprioriTid
+        # Returns [[itemset, support], ...]
+        def apriori_tid
+          k = 2
+          l = [nil, large_one_itemsets]
+          tid_itemsets = transactions.map do |tid, itemset|
+            [tid, itemset.map { |item| [item] }]
+          end
+
+          until l[k - 1].empty?
+            ck = gen(l[k - 1])
+            kth_tid_itemsets = Hamster::Hash[{}]
+
+            tid_itemsets.each do |tid, set_of_itemsets|
+              # Find candidate itemsets in Ck contained in the transaction
+              ct = ck.select do |(itemset)|
+                set_of_itemsets.include?(itemset[0..-2]) &&
+                  set_of_itemsets.include?([*itemset[0..-3], itemset.last])
+              end.each { |candidate| candidate[1] += 1 }
+
+              unless ct.empty?
+                candidate_itemsets = ct.map(&:first)
+                kth_tid_itemsets = kth_tid_itemsets.merge(tid => candidate_itemsets)
+              end
+            end
+
+            l[k] = ck.select { |(_, count)| count >= min_support }
+            tid_itemsets = kth_tid_itemsets
             k += 1
           end
 

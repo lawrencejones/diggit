@@ -28,6 +28,7 @@ gem 'sshkey'
 gem 'rollbar'
 gem 'mail'
 gem 'roadie'
+gem 'oj'
 
 group :development do
   gem 'rerun'

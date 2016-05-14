@@ -36,6 +36,11 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
     it { is_expected.to include(*itemsets) }
   end
 
+  describe '.apriori_tid' do
+    subject { apriori.apriori_tid }
+    it { is_expected.to include(*itemsets) }
+  end
+
   describe '.large_one_itemsets' do
     subject(:itemsets) { apriori.large_one_itemsets }
     let(:min_support) { 2 }

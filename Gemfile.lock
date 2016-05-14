@@ -106,6 +106,7 @@ GEM
       mini_portile2 (~> 2.0.0.rc2)
     octokit (4.3.0)
       sawyer (~> 0.7.0, >= 0.5.3)
+    oj (2.15.0)
     parser (2.3.0.1)
       ast (~> 2.2)
     pg (0.18.4)
@@ -220,6 +221,7 @@ DEPENDENCIES
   jwt
   mail
   octokit
+  oj
   parser
   pg
   prius
