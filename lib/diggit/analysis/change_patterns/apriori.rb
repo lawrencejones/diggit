@@ -30,17 +30,17 @@ module Diggit
             ck = gen(l[k - 1])
             transactions.each do |tid, t|
               # Candidates contained in transaction t
-              ct = ck.select { |(itemset)| t & itemset == itemset }
+              ct = ck.select { |candidate| t & candidate[:items] == candidate[:items] }
               ct.each do |candidate|
-                candidate[1] += 1
+                candidate[:support] += 1
               end
             end
 
-            l[k] = ck.select { |(_, count)| count >= min_support }
+            l[k] = ck.select { |candidate| candidate[:support] >= min_support }
             k += 1
           end
 
-          l.compact.inject(:+)
+          l.flatten.compact.map { |itemset| itemset.slice(:items, :support) }
         end
 
         # 2.2 AprioriTid
@@ -48,44 +48,53 @@ module Diggit
         def apriori_tid
           k = 2
           l = [nil, large_one_itemsets]
-          tid_itemsets = transactions.map do |tid, itemset|
-            [tid, itemset.map { |item| [item] }]
+          # Transform transactions into a mapping of tid to {id}, where id is an index
+          # into l[k-1] itemsets.
+          tid_itemsets = transactions.map do |tid, items|
+            [tid, items.map do |item|
+              l[k - 1].index { |itemset| itemset[:items][0] == item }
+            end.compact.to_set]
           end
 
           until l[k - 1].empty?
-            ck = gen(l[k - 1])
+            cks = gen(l[k - 1])
             kth_tid_itemsets = Hamster::Hash[{}]
 
-            tid_itemsets.each do |tid, set_of_itemsets|
-              # Find candidate itemsets in Ck contained in the transaction
-              ct = ck.select do |(itemset)|
-                set_of_itemsets.include?(itemset[0..-2]) &&
-                  set_of_itemsets.include?([*itemset[0..-3], itemset.last])
-              end.each { |candidate| candidate[1] += 1 }
+            tid_itemsets.each do |tid, itemset_indexes|
+              # Find candidate itemsets in ck contained in the transaction
+              cts = itemset_indexes.flat_map do |itemset_index|
+                ck_1 = l[k - 1][itemset_index]
+                ck_1[:extensions].map do |ck_index|
+                  ck = cks[ck_index]
+                  ck[:generators].subset?(itemset_indexes) ? [ck_index, ck] : nil
+                end
+              end.compact
 
-              unless ct.empty?
-                candidate_itemsets = ct.map(&:first)
-                kth_tid_itemsets = kth_tid_itemsets.merge(tid => candidate_itemsets)
+              # Register the support for each transaction candidate
+              cts.each { |(_ct_index, ct)| ct[:support] += 1 }
+
+              # Update the transaction candidate list for the next k value
+              unless cts.empty?
+                kth_tid_itemsets = kth_tid_itemsets.merge(tid => cts.map(&:first).to_set)
               end
             end
 
-            l[k] = ck.select { |(_, count)| count >= min_support }
+            l[k] = cks.select { |candidate| candidate[:support] >= min_support }
             tid_itemsets = kth_tid_itemsets
             k += 1
           end
 
-          l.compact.inject(:+)
+          l.flatten.compact.map { |itemset| itemset.slice(:items, :support) }
         end
 
         # 2.1.1 Apriori Candidate Generation
         # Processes L_{k-1} to generate the set of L_{k} large itemsets.
         #
-        #   [[itemset, count], ...]
+        #   [[items: [item, ...], support: 0, generators: Set, extensions: Set], ...]
         #
         def gen(lk)
-          large_itemsets = lk.map(&:first)
-          candidates = gen_join(large_itemsets)
-          gen_prune(large_itemsets, candidates).map { |itemset| [itemset, 0] }
+          candidates = gen_join(lk)
+          gen_prune(lk, candidates)
         end
 
         # 2.1.1 Candidate Join
@@ -97,10 +106,21 @@ module Diggit
         #
         #   [itemset, ...]
         #
-        def gen_join(large_itemsets)
-          large_itemsets.product(large_itemsets).map do |(p, q)|
-            [*p, q.last] if p[0..-2] == q[0..-2] && p.last < q.last
+        # TODO: Spent 0.75
+        def gen_join(lk)
+          candidates = lk.each_with_index.flat_map do |p, pid|
+            lk.each_with_index.map do |q, qid|
+              if p[:items][0..-2] == q[:items][0..-2] && p[:items].last < q[:items].last
+                { items: [*p[:items], q[:items].last], support: 0,
+                  generators: Set[pid, qid], extensions: Set[] }
+              end
+            end
           end.compact
+
+          # Add index of joined to extensions of generators
+          candidates.each_with_index do |j, jid|
+            j[:generators].each { |gid| lk[gid][:extensions].add(jid) }
+          end
         end
 
         # 2.1.1 Candidate Pruning
@@ -111,12 +131,13 @@ module Diggit
         #
         #   [itemset, ...]
         #
-        def gen_prune(large_itemsets, candidates)
+        def gen_prune(lk, candidates)
           return [] if candidates.empty?
 
-          k = candidates.first.size
+          lk_itemsets = lk.map { |c| c[:items] }
+          k = candidates.first[:items].size
           candidates.reject do |c|
-            c.combination(k - 1).any? { |s| !large_itemsets.include?(s) }
+            c[:items].combination(k - 1).any? { |s| !lk_itemsets.include?(s) }
           end
         end
 
@@ -124,10 +145,13 @@ module Diggit
         # Each member of this set has two fields, [itemset@[uid], support]
         def large_one_itemsets
           transactions.each_with_object(counter) do |(_, itemset), support|
-            itemset.each { |uid| support[uid] += 1 }
+            itemset.each { |item| support[item] += 1 }
           end.
-          select { |uid, support| support >= @min_support }.
-          map    { |uid, support| [[uid], support] }
+          select { |item, support| support >= @min_support }.
+          map   do |item, support|
+            { items: [item], support: support,
+              generators: Set.new, extensions: Set.new }
+          end
         end
 
         private

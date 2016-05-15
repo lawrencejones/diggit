@@ -1,14 +1,15 @@
 require_relative '../diggit/analysis/change_patterns/apriori'
 
 namespace :apriori do
-  BENCHMARK_DUMP_FILE = File.join(Rake.application.original_dir, 'tmp/apriori.dump')
+  BENCHMARK_DUMP_DIR = File.join(Rake.application.original_dir, 'tmp/apriori.dump')
   RAILS_CHANGESETS_FILE = File.join(Rake.application.original_dir,
                                     'tmp/rails_changesets.yaml')
 
   desc 'Benchmarks Diggit::Analysis::ChangePatterns::Apriori'
   task :benchmark, [:count] do |_, args|
     require 'yaml'
-    require 'stackprof'
+    require 'ruby-prof'
+    require 'fileutils'
 
     count = args.fetch(:count, 5000)
     puts('Loading rails changesets...')
@@ -19,14 +20,19 @@ namespace :apriori do
 
     puts('Beginning benchmark...')
     run_time = Benchmark.measure do
-      StackProf.run(mode: :cpu, out: BENCHMARK_DUMP_FILE) do
+      profile = RubyProf.profile do
         apriori = Diggit::Analysis::ChangePatterns::Apriori.
           new(changesets, min_support: 30)
         apriori.apriori_tid
       end
+      RubyProf::FlatPrinter.new(profile).print
+      FileUtils.rm_rf(BENCHMARK_DUMP_DIR)
+      FileUtils.mkdir_p(BENCHMARK_DUMP_DIR)
+      RubyProf::MultiPrinter.new(profile).
+        print(path: BENCHMARK_DUMP_DIR, profile: 'profile')
     end
     puts(run_time)
-    puts("Saved dump to #{BENCHMARK_DUMP_FILE}")
+    puts("Saved dump to #{BENCHMARK_DUMP_DIR}")
   end
 
   desc 'Generate rails changesets'
