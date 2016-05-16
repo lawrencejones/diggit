@@ -48,6 +48,7 @@ module Diggit
         def apriori_tid
           k = 2
           l = [nil, large_one_itemsets]
+
           # Transform transactions into a mapping of tid to {id}, where id is an index
           # into l[k-1] itemsets.
           tid_itemsets = transactions.map do |tid, items|
@@ -66,21 +67,22 @@ module Diggit
                 ck_1 = l[k - 1][itemset_index]
                 ck_1[:extensions].map do |ck_index|
                   ck = cks[ck_index]
-                  ck[:generators].subset?(itemset_indexes) ? [ck_index, ck] : nil
+                  ck[:generators].subset?(itemset_indexes) ? ck : nil
                 end
-              end.compact
+              end.compact.to_set
 
               # Register the support for each transaction candidate
-              cts.each { |(_ct_index, ct)| ct[:support] += 1 }
+              cts.each { |ct| ct[:support] += 1 }
 
               # Update the transaction candidate list for the next k value
-              unless cts.empty?
-                kth_tid_itemsets = kth_tid_itemsets.merge(tid => cts.map(&:first).to_set)
-              end
+              kth_tid_itemsets = kth_tid_itemsets.merge(tid => cts) unless cts.empty?
             end
 
             l[k] = cks.select { |candidate| candidate[:support] >= min_support }
-            tid_itemsets = kth_tid_itemsets
+            tid_itemsets = kth_tid_itemsets.map do |tid, cts|
+              [tid, cts.map { |c| l[k].index(c) }.compact.to_set]
+            end
+
             k += 1
           end
 
@@ -92,9 +94,13 @@ module Diggit
         #
         #   [[items: [item, ...], support: 0, generators: Set, extensions: Set], ...]
         #
+        # Sets extensions of lk candidates, and generators of the new k+1 candidates.
         def gen(lk)
           candidates = gen_join(lk)
-          gen_prune(lk, candidates)
+          # Prune, then add index of new candidates to extensions of it's generators
+          gen_prune(lk, candidates).each_with_index do |j, jid|
+            j[:generators].each { |gid| lk[gid][:extensions].add(jid) }
+          end
         end
 
         # 2.1.1 Candidate Join
@@ -106,9 +112,10 @@ module Diggit
         #
         #   [itemset, ...]
         #
-        # TODO: Spent 0.75
+        # Sets the generators field of every new candidate, but cannot set extensions
+        # until pruning has taken place (to maintain the indexes)
         def gen_join(lk)
-          candidates = lk.each_with_index.flat_map do |p, pid|
+          lk.each_with_index.flat_map do |p, pid|
             lk.each_with_index.map do |q, qid|
               if p[:items][0..-2] == q[:items][0..-2] && p[:items].last < q[:items].last
                 { items: [*p[:items], q[:items].last], support: 0,
@@ -116,11 +123,6 @@ module Diggit
               end
             end
           end.compact
-
-          # Add index of joined to extensions of generators
-          candidates.each_with_index do |j, jid|
-            j[:generators].each { |gid| lk[gid][:extensions].add(jid) }
-          end
         end
 
         # 2.1.1 Candidate Pruning
