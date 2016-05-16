@@ -6,6 +6,7 @@ require 'active_record'
 require 'yaml'
 require 'rack'
 require 'coach'
+require 'active_support/time'
 
 require_relative './logger'
 require_relative '../../config/prius'
