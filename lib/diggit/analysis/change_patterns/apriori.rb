@@ -10,38 +10,30 @@ module Diggit
         def initialize(transactions,
                        min_support: 1,
                        min_confidence: 0.75,
-                       min_items: 2, max_items: 50)
+                       min_items: 2, max_items: 10)
           @min_support = min_support
           @min_confidence = min_confidence
           @transactions = Hamster::Hash[transactions].
             select { |tid, itemset| itemset.size.between?(min_items, max_items) }
         end
 
-        attr_reader :min_support, :min_confidence, :transactions
-
-        # 2.1 Apriori Standard
-        # Returns [[itemset, support], ...]
-        def apriori
-          # [[[uid], support], ...]
-          l = [nil, large_one_itemsets]
-          k = 2
-
-          until l[k - 1].empty?
-            ck = gen(l[k - 1])
-            transactions.each do |tid, t|
-              # Candidates contained in transaction t
-              ct = ck.select { |candidate| t & candidate[:items] == candidate[:items] }
-              ct.each do |candidate|
-                candidate[:support] += 1
-              end
-            end
-
-            l[k] = ck.select { |candidate| candidate[:support] >= min_support }
-            k += 1
+        class Itemset
+          def initialize(items, params = {})
+            @items = items
+            @support = params.fetch(:support, 0)
+            @generators = params.fetch(:generators, Set[])
+            @extensions = params.fetch(:extensions, Set[])
           end
 
-          l.flatten.compact.map { |itemset| itemset.slice(:items, :support) }
+          def to_h
+            { items: @items, support: @support }
+          end
+
+          attr_reader :items, :generators, :extensions
+          attr_accessor :support
         end
+
+        attr_reader :min_support, :min_confidence, :transactions
 
         # 2.2 AprioriTid
         # Returns [[itemset, support], ...]
@@ -49,11 +41,10 @@ module Diggit
           k = 2
           l = [nil, large_one_itemsets]
 
-          # Transform transactions into a mapping of tid to {id}, where id is an index
-          # into l[k-1] itemsets.
+          # Transform transactions into a mapping of tid to {Itemset}
           tid_itemsets = transactions.map do |tid, items|
             [tid, items.map do |item|
-              l[k - 1].index { |itemset| itemset[:items][0] == item }
+              l[k - 1].find { |itemset| itemset.items[0] == item }
             end.compact.to_set]
           end
 
@@ -61,32 +52,30 @@ module Diggit
             cks = gen(l[k - 1])
             kth_tid_itemsets = Hamster::Hash[{}]
 
-            tid_itemsets.each do |tid, itemset_indexes|
+            tid_itemsets.each do |tid, set_of_itemsets|
               # Find candidate itemsets in ck contained in the transaction
-              cts = itemset_indexes.flat_map do |itemset_index|
-                ck_1 = l[k - 1][itemset_index]
-                ck_1[:extensions].map do |ck_index|
-                  ck = cks[ck_index]
-                  ck[:generators].subset?(itemset_indexes) ? ck : nil
+              cts = set_of_itemsets.flat_map do |ck_1|
+                ck_1.extensions.select do |ck|
+                  ck.generators.subset?(set_of_itemsets)
                 end
-              end.compact.to_set
+              end.to_set
 
               # Register the support for each transaction candidate
-              cts.each { |ct| ct[:support] += 1 }
+              cts.each { |ct| ct.support += 1 }
 
               # Update the transaction candidate list for the next k value
               kth_tid_itemsets = kth_tid_itemsets.merge(tid => cts) unless cts.empty?
             end
 
-            l[k] = cks.select { |candidate| candidate[:support] >= min_support }
+            l[k] = cks.select { |candidate| candidate.support >= min_support }
             tid_itemsets = kth_tid_itemsets.map do |tid, cts|
-              [tid, cts.map { |c| l[k].index(c) }.compact.to_set]
+              [tid, cts.select { |c| l[k].include?(c) }.to_set]
             end
 
             k += 1
           end
 
-          l.flatten.compact.map { |itemset| itemset.slice(:items, :support) }
+          l.flatten.compact.map(&:to_h)
         end
 
         # 2.1.1 Apriori Candidate Generation
@@ -98,8 +87,8 @@ module Diggit
         def gen(lk)
           candidates = gen_join(lk)
           # Prune, then add index of new candidates to extensions of it's generators
-          gen_prune(lk, candidates).each_with_index do |j, jid|
-            j[:generators].each { |gid| lk[gid][:extensions].add(jid) }
+          gen_prune(lk, candidates).each do |candidate|
+            candidate.generators.each { |g| g.extensions.add(candidate) }
           end
         end
 
@@ -115,12 +104,9 @@ module Diggit
         # Sets the generators field of every new candidate, but cannot set extensions
         # until pruning has taken place (to maintain the indexes)
         def gen_join(lk)
-          lk.each_with_index.flat_map do |p, pid|
-            lk.each_with_index.map do |q, qid|
-              if p[:items][0..-2] == q[:items][0..-2] && p[:items].last < q[:items].last
-                { items: [*p[:items], q[:items].last], support: 0,
-                  generators: Set[pid, qid], extensions: Set[] }
-              end
+          lk.product(lk).map do |(p, q)|
+            if p.items[0..-2] == q.items[0..-2] && p.items.last < q.items.last
+              Itemset.new([*p.items, q.items.last], generators: Set[p, q])
             end
           end.compact
         end
@@ -136,10 +122,11 @@ module Diggit
         def gen_prune(lk, candidates)
           return [] if candidates.empty?
 
-          lk_itemsets = lk.map { |c| c[:items] }
-          k = candidates.first[:items].size
-          candidates.reject do |c|
-            c[:items].combination(k - 1).any? { |s| !lk_itemsets.include?(s) }
+          lk_itemsets = lk.map(&:items).to_set
+          k = candidates.first.items.size
+          candidates.reject do |candidate|
+            candidate.items.combination(k - 1).
+              any? { |subset| !lk_itemsets.include?(subset) }
           end
         end
 
@@ -150,10 +137,7 @@ module Diggit
             itemset.each { |item| support[item] += 1 }
           end.
           select { |item, support| support >= @min_support }.
-          map   do |item, support|
-            { items: [item], support: support,
-              generators: Set.new, extensions: Set.new }
-          end
+          map    { |item, support| Itemset.new([item], support: support) }
         end
 
         private
