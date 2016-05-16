@@ -36,3 +36,8 @@ Style/Documentation:
 
 Style/ParallelAssignment:
   Enabled: false
+
+# When chaining functions enforcing an underscore can create extra visual noise
+# that I'd rather avoid.
+Lint/UnusedBlockArgument:
+  Enabled: false

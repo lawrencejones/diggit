@@ -28,6 +28,7 @@ gem 'sshkey'
 gem 'rollbar'
 gem 'mail'
 gem 'roadie'
+gem 'oj'
 
 group :development do
   gem 'rerun'
@@ -37,6 +38,7 @@ group :development do
   gem 'capistrano-rbenv'
   gem 'capistrano-npm'
   gem 'ruby-prof'
+  gem 'stackprof'
 end
 
 group :test do
