@@ -3,7 +3,7 @@ require 'diggit/analysis/pipeline'
 
 def pipeline_test_repo
   TemporaryAnalysisRepo.create do |repo|
-    repo.write 'file.c', <<-C
+    repo.write('file.c', <<-C)
     int main(int argc, char **argv) {
       return 0;
     }
@@ -11,7 +11,7 @@ def pipeline_test_repo
     repo.commit('initial commit')
 
     repo.write('.gitignore', %(*.o))
-    repo.write 'file.c', <<-C
+    repo.write('file.c', <<-C)
     int main(int argc, char **argv) {
       printf("Second commit change");
       return 0;
@@ -19,11 +19,11 @@ def pipeline_test_repo
     C
     repo.commit('second commit')
 
-    repo.write 'README.md', <<-MD
+    repo.write('README.md', <<-MD)
     # Simple C Project
     Keep it real dawg (⌐■_■)
     MD
-    repo.write 'file.c', <<-C
+    repo.write('file.c', <<-C)
     int main(int argc, char **argv) {
       printf("Second commit change");
       printf("Third commit change");
