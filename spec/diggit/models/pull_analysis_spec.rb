@@ -11,6 +11,7 @@ RSpec.describe(PullAnalysis) do
     it { is_expected.to validate_presence_of(:pull) }
     it { is_expected.to validate_presence_of(:head) }
     it { is_expected.to validate_presence_of(:base) }
+    it { is_expected.to validate_presence_of(:duration) }
     it do
       is_expected.to validate_uniqueness_of(:pull).scoped_to(:project_id, :base, :head)
     end

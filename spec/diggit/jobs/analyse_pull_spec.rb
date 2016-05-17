@@ -61,13 +61,20 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
     end
 
     context 'with valid pull' do
-      it 'creates new PullAnalysis' do
+      around(:each) do |example|
+        Timecop.scale(3600) { example.run }
+      end
+
+      it 'creates new PullAnalysis', :aggregate_failures do
+        # Make aggregate_comments take some time to process
+        allow(pipeline).to receive(:aggregate_comments) { sleep(0.001) && [] }
         expect { run! }.to change(PullAnalysis, :count).by(1)
         pull_analysis = PullAnalysis.last
 
         expect(pull_analysis.pull).to eql(pull)
         expect(pull_analysis.project_id).to eql(project.id)
         expect(pull_analysis.comments).to match(comments.as_json)
+        expect(pull_analysis.duration).to be > 0.0
       end
 
       it 'enqueues PushAnalysisComments job' do

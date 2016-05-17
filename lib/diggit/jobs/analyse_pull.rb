@@ -32,6 +32,7 @@ module Diggit
       private
 
       attr_reader :project, :cloner, :pull, :head, :base
+      attr_accessor :pipeline_duration
 
       def validate
         unless project && project.watch
@@ -57,10 +58,17 @@ module Diggit
 
       def generate_comments(head, base)
         cloner.clone do |repo|
-          pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
-          info { 'Running pipeline...' }
-          pipeline.aggregate_comments
+          time_pipeline do
+            pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
+            info { 'Running pipeline...' }
+            pipeline.aggregate_comments
+          end
         end
+      end
+
+      def time_pipeline
+        started_at = Time.now
+        yield.tap { @pipeline_duration = Time.now - started_at }
       end
 
       def create_pull_analysis(pull, comments)
@@ -68,7 +76,8 @@ module Diggit
         PullAnalysis.create!(project: project,
                              pull: pull,
                              head: head, base: base,
-                             comments: comments)
+                             comments: comments,
+                             duration: pipeline_duration)
       end
     end
   end
