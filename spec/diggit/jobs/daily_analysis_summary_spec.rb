@@ -4,7 +4,7 @@ require 'diggit/jobs/daily_analysis_summary'
 RSpec.describe(Diggit::Jobs::DailyAnalysisSummary) do
   subject(:job) { described_class.new({}) }
 
-  before { allow(job).to receive(:start_at).and_return(Time.now.advance(hours: 6)) }
+  before { allow(job).to receive(:start_at).and_return(Time.zone.now.advance(hours: 6)) }
 
   describe '.render' do
     subject(:html) { job.send(:render) }
@@ -21,7 +21,7 @@ RSpec.describe(Diggit::Jobs::DailyAnalysisSummary) do
     end
     let!(:old_analysis) do
       FactoryGirl.create(:pull_analysis, project: project_old,
-                                         created_at: Time.now.advance(days: -1))
+                                         created_at: Time.zone.now.advance(days: -1))
     end
 
     let(:project_links) { dom.css('a.project') }
