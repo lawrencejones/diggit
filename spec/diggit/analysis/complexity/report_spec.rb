@@ -4,22 +4,22 @@ def complexity_test_repo
   TemporaryAnalysisRepo.create do |repo|
     # Two weeks ago
     repo.write('master.rb', 'one')
-    repo.commit('initial', time: Time.now.advance(days: -13))
+    repo.commit('initial', time: Time.zone.now.advance(days: -13))
 
     repo.write('master.rb', 'two')
-    repo.commit('same day', time: Time.now.advance(days: -13))
+    repo.commit('same day', time: Time.zone.now.advance(days: -13))
 
     # One week ago
     repo.write('master.rb', 'three')
     repo.write('to_be_removed.rb', 'three')
-    repo.commit('one week ago', time: Time.now.advance(days: -6))
+    repo.commit('one week ago', time: Time.zone.now.advance(days: -6))
 
     # Branch yesterday
     repo.branch('feature')
     repo.write('master.rb', 'four')
     # This verifies fix for https://rollbar.com/lawrencejones/diggit/items/55/
     repo.rm('to_be_removed.rb')
-    repo.commit('yesterday', time: Time.now.advance(days: -1))
+    repo.commit('yesterday', time: Time.zone.now.advance(days: -1))
   end
 end
 

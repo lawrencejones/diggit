@@ -85,7 +85,7 @@ RSpec.describe(Diggit::Routes::Auth) do
     it 'encodes state param that expires STATE_EXPIRATION minutes later' do
       state = query_params.fetch('state')
       expect { Diggit::Services::Jwt.decode(state) }.not_to raise_error
-      Timecop.travel(Time.now.advance(minutes: state_expiration + 1)) do
+      Timecop.travel(Time.zone.now.advance(minutes: state_expiration + 1)) do
         expect { Diggit::Services::Jwt.decode(state) }.
           to raise_error(JWT::ExpiredSignature)
       end

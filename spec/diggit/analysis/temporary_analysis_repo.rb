@@ -43,11 +43,11 @@ class TemporaryAnalysisRepo
     end
   end
 
-  def commit(message, time: Time.now)
+  def commit(message, time: Time.zone.now)
     commit_tree = repo.index.write_tree(repo)
     repo.index.write
 
-    person = { email: 'git@test.com', name: 'Test', time: time }
+    person = { email: 'git@test.com', name: 'Test', time: time.to_time }
     Rugged::Commit.
       create(repo,
              message: message,

@@ -28,7 +28,7 @@ module Diggit
         end
 
         def create_state
-          Services::Jwt.encode('github', Time.now.advance(minutes: STATE_EXPIRATION))
+          Services::Jwt.encode('github', Time.zone.now.advance(minutes: STATE_EXPIRATION))
         end
       end
 
@@ -41,7 +41,7 @@ module Diggit
 
           access_token = Services::Jwt.
             encode({ gh_token: gh_token },
-                   Time.now.advance(minutes: TOKEN_EXPIRATION))
+                   Time.zone.now.advance(minutes: TOKEN_EXPIRATION))
 
           [200, {}, [{ access_token: { token: access_token } }.to_json]]
         end

@@ -7,6 +7,15 @@ AllCops:
     - 'db/schema.rb'
     - 'vendor/bundle/**/*'
 
+Rails:
+  Enabled: true
+
+Rails/Output:
+  Enabled: false
+
+Rails/Date:
+  Enabled: false
+
 LineLength:
   Max: 90
 

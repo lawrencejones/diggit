@@ -9,7 +9,7 @@ RSpec.describe(Diggit::Middleware::Authorize) do
   let(:auth_header) { "Bearer #{auth_token}" }
   let(:next_middleware) { null_middleware }
 
-  let(:token_expiry) { Time.now.advance(minutes: 10) }
+  let(:token_expiry) { Time.zone.now.advance(minutes: 10) }
 
   let(:auth_token) { Diggit::Services::Jwt.encode(auth_token_data, token_expiry) }
   let(:auth_token_data) { load_json_fixture('api/auth/access_token.create.fixture.json') }
@@ -34,7 +34,7 @@ RSpec.describe(Diggit::Middleware::Authorize) do
   end
 
   context 'with expired header' do
-    let(:token_expiry) { Time.now.advance(minutes: -10) }
+    let(:token_expiry) { Time.zone.now.advance(minutes: -10) }
 
     it { is_expected.to respond_with_status(401) }
     it { is_expected.to respond_with_body_that_matches(/expired_authorization_header/) }

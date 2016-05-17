@@ -24,6 +24,7 @@ module Diggit
 
     def self.init
       @config ||= begin
+        configure_timezone!
         configure_i18n!
         configure_rollbar!
         configure_active_record!
@@ -53,6 +54,10 @@ module Diggit
           webhook_endpoint: Prius.get(:diggit_webhook_endpoint)
         )
       end
+    end
+
+    def self.configure_timezone!
+      Time.zone = 'UTC'
     end
 
     def self.configure_i18n!
