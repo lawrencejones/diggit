@@ -67,8 +67,8 @@ module Diggit
       end
 
       def time_pipeline
-        started_at = Time.zone.now
-        yield.tap { @pipeline_duration = Time.zone.now - started_at }
+        started_at = Time.now
+        yield.tap { @pipeline_duration = Time.now - started_at }
       end
 
       def create_pull_analysis(pull, comments)

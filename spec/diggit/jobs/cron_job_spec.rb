@@ -18,7 +18,7 @@ RSpec.describe(Diggit::Jobs::CronJob) do
     let(:end_at) { start_end[1] }
 
     context 'when next period is today' do
-      let(:stubbed_now) { Time.zone.parse('10:30') }
+      let(:stubbed_now) { Time.parse('10:30') }
 
       it 'returns start and end of next period' do
         expect(start_at.to_date).to eql(stubbed_now.to_date)
@@ -30,7 +30,7 @@ RSpec.describe(Diggit::Jobs::CronJob) do
     end
 
     context 'when next end is tomorrow' do
-      let(:stubbed_now) { Time.zone.parse('11:30') }
+      let(:stubbed_now) { Time.parse('11:30') }
 
       it 'computes end_at to be tomorrow' do
         expect(start_at.to_date).to eql(stubbed_now.to_date)
@@ -42,7 +42,7 @@ RSpec.describe(Diggit::Jobs::CronJob) do
     end
 
     context 'when next period is tomorrow' do
-      let(:stubbed_now) { Time.zone.parse('13:00') }
+      let(:stubbed_now) { Time.parse('13:00') }
 
       it 'computes start and end to be tomorrow' do
         expect(start_at.to_date).to eql(tomorrow.to_date)
