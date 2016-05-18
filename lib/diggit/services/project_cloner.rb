@@ -11,6 +11,7 @@ module Diggit
     class ProjectCloner
       CACHE_DIR = File.join(System::APP_ROOT, 'tmp', 'project_cache').freeze
       GITHUB_PULLS_REFSPEC = '+refs/pull/*/head:refs/remotes/origin/pull/*'.freeze
+      LOCK_FILE = 'config'.freeze # lock on the git config file
 
       include InstanceLogger
 
@@ -50,8 +51,22 @@ module Diggit
         credentials.with_keyfiles do |keyfiles|
           ssh_creds = Rugged::Credentials::SshKey.
             new(keyfiles.merge(username: 'git'))
-          info { 'Fetching origin...' }
-          repo.fetch('origin', credentials: ssh_creds)
+          synchronise do
+            info { 'Fetching origin...' }
+            repo.fetch('origin', credentials: ssh_creds)
+          end
+        end
+      end
+
+      # Process lock on the project cache config file. This prevents multiple processes
+      # from fetching into the cache at the same time.
+      def synchronise
+        info { "Acquiring lock on .git/#{LOCK_FILE}..." }
+        lock_file = File.open(File.join(repo_path, LOCK_FILE), File::CREAT)
+        lock_file.flock(File::LOCK_EX)
+        yield.tap do
+          info { 'Releasing lock...' }
+          lock_file.flock(File::LOCK_UN)
         end
       end
 
