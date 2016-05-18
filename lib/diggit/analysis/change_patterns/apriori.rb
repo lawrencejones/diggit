@@ -9,7 +9,7 @@ module Diggit
       class Apriori
         def initialize(itemsets,
                        min_support: 1,
-                       min_items: 2, max_items: 10)
+                       min_items: 1, max_items: 25)
           @min_support = min_support
           @min_confidence = min_confidence
           @itemsets = preprocess(itemsets.select do |itemset|
