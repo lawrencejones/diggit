@@ -14,7 +14,7 @@ module Diggit
       def reenqueue
         return if in_queue?
 
-        rerun_at = now.advance(seconds: INTERVAL.to_i)
+        rerun_at = now.advance(seconds: self.class::INTERVAL.to_i)
         self.class.enqueue(*attrs[:args], run_at: rerun_at)
       end
 

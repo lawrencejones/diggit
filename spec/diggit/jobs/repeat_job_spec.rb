@@ -1,8 +1,11 @@
 require 'diggit/jobs/repeat_job'
 
 RSpec.describe(Diggit::Jobs::RepeatJob) do
-  subject(:job) { described_class.new({}) }
-  let(:job_class) { described_class.to_s }
+  class MockRepeatJob < Diggit::Jobs::RepeatJob
+    INTERVAL = 10
+  end
+  subject(:job) { MockRepeatJob.new({}) }
+  let(:job_class) { MockRepeatJob.to_s }
 
   def job_counts
     Que.job_stats.map { |stat| stat.values_at('job_class', 'count') }.to_h
@@ -14,15 +17,15 @@ RSpec.describe(Diggit::Jobs::RepeatJob) do
         job._run
         expect(job_counts[job_class]).to equal(1)
 
-        run_ats = Que.execute(<<-SQL)
-        SELECT run_at
+        run_ats = Que.execute(<<-SQL).map { |row| row['timezone'] }
+        SELECT run_at AT TIME ZONE 'UTC'
           FROM que_jobs
          WHERE job_class='#{job_class}';
         SQL
 
         now = job.now
-        expected_next_run_at = now.advance(seconds: described_class::INTERVAL)
-        next_run_at = Time.zone.parse(run_ats.first['run_at'])
+        expected_next_run_at = now.advance(seconds: MockRepeatJob::INTERVAL)
+        next_run_at = run_ats.first.in_time_zone
 
         expect(next_run_at.to_i).
           to be_within(1).
@@ -31,7 +34,7 @@ RSpec.describe(Diggit::Jobs::RepeatJob) do
     end
 
     context 'when there is job already queued' do
-      before { described_class.enqueue }
+      before { MockRepeatJob.enqueue }
 
       it 'does not reenqueue job' do
         initial_count = job_counts[job_class]

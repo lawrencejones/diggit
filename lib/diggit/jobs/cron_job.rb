@@ -21,7 +21,7 @@ module Diggit
       # tomorrow.
       def self.schedule_times
         times = self::SCHEDULE_AT.map do |time_string|
-          Time.zone.parse(time_string)
+          Time.parse(time_string)
         end.sort
         times.push(*times.first(2).map { |t| t.advance(days: 1) })
         times
@@ -36,8 +36,8 @@ module Diggit
       def _run
         args = attrs[:args].first
 
-        @start_at = Time.zone.at(args.delete('start_at'))
-        @end_at = Time.zone.at(args.delete('end_at'))
+        @start_at = Time.at(args.delete('start_at'))
+        @end_at = Time.at(args.delete('end_at'))
         @time_range = @start_at...@end_at
 
         attrs[:args].shift if args.empty?
