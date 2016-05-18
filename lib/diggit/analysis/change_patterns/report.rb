@@ -45,7 +45,7 @@ module Diggit
 
         # TODO: Probably move into TransactionGenerator
         def transactions
-          @transactions ||= files_modified.
+          @transactions ||= files_modified(base: base, head: head).
             map { |file| rev_list(head, path: file) }.uniq.
             map { |commit| files_modified_in(commit) }
         end

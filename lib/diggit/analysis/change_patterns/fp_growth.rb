@@ -99,7 +99,7 @@ module Diggit
             itemset.
               select  { |item| counts.key?(item) }.
               sort_by { |item| -counts[item] }
-          end
+          end.reject(&:empty?)
         end
 
         # 3.1 Building the initial FP-Tree
