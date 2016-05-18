@@ -36,7 +36,7 @@ namespace :frequent_pattern do
 
   # Runs and profiles blocks that generate frequent pattern sets from the rails
   # changesets.
-  def benchmark_fp_discovery(args, dump_dir)
+  def benchmark_fp_discovery(algorithm, args, dump_dir)
     require 'yaml'
     require 'ruby-prof'
     require 'fileutils'
@@ -44,14 +44,16 @@ namespace :frequent_pattern do
     count = args.fetch(:count, 10_000).to_i
     min_support = args.fetch(:min_support, 10).to_i
     puts('Loading rails changesets...')
-    changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count)
+    changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count).map(&:second)
 
     profile = patterns = nil
 
     puts('Beginning benchmark...')
     run_time = Benchmark.measure do
       profile = RubyProf.profile do
-        patterns = yield(changesets, min_support)
+        patterns = algorithm.new(changesets,
+                                 min_support: min_support,
+                                 max_items: 10).frequent_itemsets
       end
     end
     puts('Finished!')
@@ -85,12 +87,8 @@ namespace :frequent_pattern do
     desc 'Benchmark Diggit::Analysis::ChangePatterns::FpGrowth'
     task :benchmark, [:count, :min_support] do |_, args|
       require_relative '../diggit/analysis/change_patterns/fp_growth'
-
-      benchmark_fp_discovery(args, FP_GROWTH_DUMP_DIR) do |changesets, min_support|
-        fp_growth = Diggit::Analysis::ChangePatterns::FpGrowth.
-          new(changesets.map(&:second), min_support: min_support)
-        fp_growth.frequent_itemsets
-      end
+      benchmark_fp_discovery(Diggit::Analysis::ChangePatterns::FpGrowth,
+                             args, FP_GROWTH_DUMP_DIR)
     end
   end
 
@@ -100,12 +98,8 @@ namespace :frequent_pattern do
     desc 'Benchmark Diggit::Analysis::ChangePatterns::Apriori'
     task :benchmark, [:count, :min_support] do |_, args|
       require_relative '../diggit/analysis/change_patterns/apriori'
-
-      benchmark_fp_discovery(args, APRIORI_DUMP_DIR) do |changesets, min_support|
-        apriori = Diggit::Analysis::ChangePatterns::Apriori.
-          new(changesets, min_support: min_support)
-        apriori.apriori_tid
-      end
+      benchmark_fp_discovery(Diggit::Analysis::ChangePatterns::Apriori,
+                             args, FP_GROWTH_DUMP_DIR)
     end
   end
 end

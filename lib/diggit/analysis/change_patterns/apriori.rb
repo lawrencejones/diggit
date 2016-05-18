@@ -7,14 +7,14 @@ module Diggit
   module Analysis
     module ChangePatterns
       class Apriori
-        def initialize(transactions,
+        def initialize(itemsets,
                        min_support: 1,
-                       min_confidence: 0.75,
                        min_items: 2, max_items: 10)
           @min_support = min_support
           @min_confidence = min_confidence
-          @transactions = Hamster::Hash[transactions].
-            select { |tid, itemset| itemset.size.between?(min_items, max_items) }
+          @itemsets = preprocess(itemsets.select do |itemset|
+            itemset.size.between?(min_items, max_items)
+          end)
         end
 
         class Itemset
@@ -33,16 +33,16 @@ module Diggit
           attr_accessor :support
         end
 
-        attr_reader :min_support, :min_confidence, :transactions
+        attr_reader :min_support, :min_confidence, :itemsets
 
         # 2.2 AprioriTid
         # Returns [[itemset, support], ...]
-        def apriori_tid
+        def frequent_itemsets
           k = 2
           l = [nil, large_one_itemsets]
 
-          # Transform transactions into a mapping of tid to {Itemset}
-          tid_itemsets = transactions.map do |tid, items|
+          # Transform itemsets into a mapping of tid to {Itemset}
+          tid_itemsets = itemsets.map do |tid, items|
             [tid, items.map do |item|
               l[k - 1].find { |itemset| itemset.items[0] == item }
             end.compact.to_set]
@@ -133,7 +133,7 @@ module Diggit
         # Set of large 1-itemsets
         # Each member of this set has two fields, [itemset@[uid], support]
         def large_one_itemsets
-          transactions.each_with_object(counter) do |(_, itemset), support|
+          itemsets.each_with_object(counter) do |(_, itemset), support|
             itemset.each { |item| support[item] += 1 }
           end.
           select { |item, support| support >= @min_support }.
@@ -141,6 +141,10 @@ module Diggit
         end
 
         private
+
+        def preprocess(itemsets)
+          Hamster::Hash[itemsets.each_with_index.map { |itemset, i| [i, itemset] }]
+        end
 
         def counter
           {}.tap { |h| h.default = 0 }

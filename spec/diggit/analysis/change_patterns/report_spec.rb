@@ -12,7 +12,7 @@ def change_patterns_test_repo
     repo.commit('app controller')
 
     repo.write('app_template.html', '<html></html>')
-    repo.write 'app_controller.rb', <<-RUBY
+    repo.write('app_controller.rb', <<-RUBY)
     class AppController
       def render_template
         render('app_template.html')
@@ -22,7 +22,7 @@ def change_patterns_test_repo
     repo.commit('render app_template')
 
     repo.write('app_template.html', '<html> @first </html>')
-    repo.write 'app_controller.rb', <<-RUBY
+    repo.write('app_controller.rb', <<-RUBY)
     class AppController
       def render_template
         render('app_template.html', first: 'first')
@@ -32,7 +32,7 @@ def change_patterns_test_repo
     repo.commit('@first param for app_template render')
 
     repo.write('app_template.html', '<html> @first @second</html>')
-    repo.write 'app_controller.rb', <<-RUBY
+    repo.write('app_controller.rb', <<-RUBY)
     class AppController
       def render_template
         render('app_template.html', first: 'first', second: 'second')
@@ -42,7 +42,7 @@ def change_patterns_test_repo
     repo.commit('@second param for app_template render')
 
     # Create suspect feature branch
-    repo.branch('feature').checkout
+    repo.branch('feature')
     repo.write('app_template.html', '<html> @first @second @third </html>')
     repo.commit('@third param for app_template')
   end
@@ -98,7 +98,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
           message: /was expected to be modified in this change/,
           meta: {
             missing_file: 'app_controller.rb',
-            confidence: 0
+            confidence: 0,
           }
         )
       end

@@ -1,17 +1,17 @@
 require 'diggit/analysis/change_patterns/apriori'
 
-# The plan is to implement this absolutely correct in pure ruby, then write rust
-# extensions to replace each function one at a time.
 RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
-  subject(:apriori) { described_class.new(transactions, conf) }
-  let(:transactions) do
-    { '100' => [1, 3, 4],
-      '200' => [2, 3, 5],
-      '300' => [1, 2, 3, 5],
-      '400' => [2, 5] }
+  subject(:apriori) { described_class.new(itemsets, conf) }
+  let(:itemsets) do
+    [
+      [1, 3, 4],
+      [2, 3, 5],
+      [1, 2, 3, 5],
+      [2, 5],
+    ]
   end
   # Resultant itemsets, after running apriori
-  let(:itemsets) do
+  let(:expected_frequent_itemsets) do
     [
       { items: [1], support: 2 },
       { items: [2], support: 3 },
@@ -38,11 +38,9 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
   end
 
   let(:conf) do
-    { min_support: min_support, min_confidence: min_confidence,
-      min_items: min_items, max_items: max_items }
+    { min_support: min_support, min_items: min_items, max_items: max_items }
   end
   let(:min_support) { 2 }
-  let(:min_confidence) { 0.1 }
   let(:min_items) { 1 }
   let(:max_items) { 50 }
 
@@ -56,21 +54,20 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
     ].shuffle # ensure each test verified indexes are set correctly
   end
 
-  describe '.apriori_tid' do
-    subject { apriori.apriori_tid }
-    it { is_expected.to include(*itemsets) }
+  describe '.frequent_itemsets' do
+    subject { apriori.frequent_itemsets }
+    it { is_expected.to include(*expected_frequent_itemsets) }
   end
 
   describe '.large_one_itemsets' do
-    subject(:itemsets) { apriori.large_one_itemsets }
-    let(:min_support) { 2 }
+    subject(:lk_1) { apriori.large_one_itemsets }
 
     it 'does not include items with < min_support' do
-      expect(itemsets.map(&:items)).not_to include([4])
+      expect(lk_1.map(&:items)).not_to include([4])
     end
 
     it 'includes items with >= min_support', :aggregate_failures do
-      serialized = itemsets.map(&:to_h)
+      serialized = lk_1.map(&:to_h)
       expect(serialized).to include(hash_including(items: [1], support: 2))
       expect(serialized).to include(hash_including(items: [2], support: 3))
       expect(serialized).to include(hash_including(items: [3], support: 3))

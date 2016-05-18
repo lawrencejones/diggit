@@ -7,8 +7,7 @@ module Diggit
       class FpGrowth
         def initialize(itemsets,
                        min_support: 1,
-                       min_items: 2,
-                       max_items: 10)
+                       min_items: 2, max_items: 10)
           @min_support = min_support
           @database = preprocess(itemsets.select do |itemset|
             itemset.size.between?(min_items, max_items)

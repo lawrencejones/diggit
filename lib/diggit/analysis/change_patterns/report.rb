@@ -34,7 +34,7 @@ module Diggit
               meta: {
                 missing_file: file,
                 confidence: confidence,
-              }
+              },
             }
           end
         end
@@ -43,7 +43,7 @@ module Diggit
           []
         end
 
-        # TODO - Probably move into TransactionGenerator
+        # TODO: Probably move into TransactionGenerator
         def transactions
           @transactions ||= files_modified.
             map { |file| rev_list(head, path: file) }.uniq.
