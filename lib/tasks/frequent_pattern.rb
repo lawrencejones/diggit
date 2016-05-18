@@ -1,5 +1,4 @@
-require_relative '../diggit/analysis/change_patterns/apriori'
-
+# rubocop:disable Lint/Debugger, Metrics/AbcSize, Metrics/MethodLength
 namespace :frequent_pattern do
   RAILS_CHANGESETS_FILE = File.join(Rake.application.original_dir,
                                     'tmp/rails_changesets.yaml')
@@ -35,48 +34,78 @@ namespace :frequent_pattern do
     puts('Done!')
   end
 
+  # Runs and profiles blocks that generate frequent pattern sets from the rails
+  # changesets.
+  def benchmark_fp_discovery(args, dump_dir)
+    require 'yaml'
+    require 'ruby-prof'
+    require 'fileutils'
+
+    count = args.fetch(:count, 10_000).to_i
+    min_support = args.fetch(:min_support, 10).to_i
+    puts('Loading rails changesets...')
+    changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count)
+
+    profile = patterns = nil
+
+    puts('Beginning benchmark...')
+    run_time = Benchmark.measure do
+      profile = RubyProf.profile do
+        patterns = yield(changesets, min_support)
+      end
+    end
+    puts('Finished!')
+    puts(run_time)
+
+    FileUtils.rm_rf(dump_dir)
+    FileUtils.mkdir_p(dump_dir)
+
+    sorted_patterns = patterns.
+      map { |itemset| itemset.merge(items: itemset[:items].to_a.sort) }.
+      sort_by { |itemset| itemset[:items].join }
+    File.write(File.join(dump_dir, 'results.json'), JSON.pretty_generate(sorted_patterns))
+    puts("Written results to #{dump_dir}/results.json")
+
+    RubyProf::MultiPrinter.new(profile).print(path: dump_dir, profile: 'profile')
+    puts("Saved dump to #{dump_dir}")
+
+    print('Inspect patterns? [y/n]: ')
+    if STDIN.gets.chomp[/y(es)?/]
+      require 'pry'
+      binding.pry
+      patterns
+    end
+
+    puts('Done!')
+  end
+
+  namespace :fp_growth do
+    FP_GROWTH_DUMP_DIR = File.join(Rake.application.original_dir, 'tmp/fp_growth.dump')
+
+    desc 'Benchmark Diggit::Analysis::ChangePatterns::FpGrowth'
+    task :benchmark, [:count, :min_support] do |_, args|
+      require_relative '../diggit/analysis/change_patterns/fp_growth'
+
+      benchmark_fp_discovery(args, FP_GROWTH_DUMP_DIR) do |changesets, min_support|
+        fp_growth = Diggit::Analysis::ChangePatterns::FpGrowth.
+          new(changesets.map(&:second), min_support: min_support)
+        fp_growth.frequent_itemsets
+      end
+    end
+  end
+
   namespace :apriori do
     APRIORI_DUMP_DIR = File.join(Rake.application.original_dir, 'tmp/apriori.dump')
 
-    desc 'Benchmarks Diggit::Analysis::ChangePatterns::Apriori'
+    desc 'Benchmark Diggit::Analysis::ChangePatterns::Apriori'
     task :benchmark, [:count, :min_support] do |_, args|
-      require 'yaml'
-      require 'ruby-prof'
-      require 'fileutils'
+      require_relative '../diggit/analysis/change_patterns/apriori'
 
-      count = args.fetch(:count, 10_000).to_i
-      min_support = args.fetch(:min_support, 10).to_i
-      puts('Loading rails changesets...')
-      changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count)
-
-      patterns = nil
-
-      puts('Beginning benchmark...')
-      run_time = Benchmark.measure do
-        profile = RubyProf.profile do
-          apriori = Diggit::Analysis::ChangePatterns::Apriori.
-            new(changesets, min_support: min_support)
-          patterns = apriori.apriori_tid
-        end
-        RubyProf::FlatPrinter.new(profile).print
-        FileUtils.rm_rf(APRIORI_DUMP_DIR)
-        FileUtils.mkdir_p(APRIORI_DUMP_DIR)
-        RubyProf::MultiPrinter.new(profile).
-          print(path: APRIORI_DUMP_DIR, profile: 'profile')
+      benchmark_fp_discovery(args, APRIORI_DUMP_DIR) do |changesets, min_support|
+        apriori = Diggit::Analysis::ChangePatterns::Apriori.
+          new(changesets, min_support: min_support)
+        apriori.apriori_tid
       end
-      puts(run_time)
-      puts("Saved dump to #{APRIORI_DUMP_DIR}")
-
-      print('Inspect patterns? [y/n]: ')
-      if STDIN.gets.chomp[/y(es)?/]
-        # rubocop:disable Lint/Debugger
-        require 'pry'
-        binding.pry
-        patterns
-        # rubocop:enable Lint/Debugger
-      end
-
-      puts('Done!')
     end
   end
 end
