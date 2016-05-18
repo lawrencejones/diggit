@@ -1,4 +1,5 @@
 require 'diggit/analysis/change_patterns/apriori'
+require_relative 'frequent_pattern_miner.example'
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
   subject(:apriori) { described_class.new(itemsets, conf) }
@@ -53,6 +54,8 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Apriori) do
       mock_itemset([2, 3, 4]),
     ].shuffle # ensure each test verified indexes are set correctly
   end
+
+  it_behaves_like 'frequent pattern miner'
 
   describe '.frequent_itemsets' do
     subject { apriori.frequent_itemsets }

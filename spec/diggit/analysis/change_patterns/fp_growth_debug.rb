@@ -1,4 +1,4 @@
-require_relative 'fp_growth'
+require 'diggit/analysis/change_patterns/fp_growth'
 
 module Diggit
   module Analysis
