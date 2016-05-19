@@ -12,7 +12,7 @@ module Diggit
                        min_items: 1, max_items: 25)
           @min_support = min_support
           @min_confidence = min_confidence
-          @itemsets = preprocess(itemsets.select do |itemset|
+          @database = preprocess(itemsets.select do |itemset|
             itemset.size.between?(min_items, max_items)
           end)
         end
@@ -33,7 +33,7 @@ module Diggit
           attr_accessor :support
         end
 
-        attr_reader :min_support, :min_confidence, :itemsets
+        attr_reader :min_support, :min_confidence, :database
 
         # 2.2 AprioriTid
         # Returns [[itemset, support], ...]
@@ -133,7 +133,7 @@ module Diggit
         # Set of large 1-itemsets
         # Each member of this set has two fields, [itemset@[uid], support]
         def large_one_itemsets
-          itemsets.each_with_object(counter) do |(_, itemset), support|
+          database.each_with_object(counter) do |(_, itemset), support|
             itemset.each { |item| support[item] += 1 }
           end.
           select { |item, support| support >= @min_support }.
