@@ -1,11 +1,14 @@
 require_relative '../../services/git_helpers'
+require_relative 'file_suggester'
+require_relative 'changeset_generator'
+require_relative 'fp_growth'
 
 module Diggit
   module Analysis
     module ChangePatterns
       class Report
         MIN_SUPPORT = 5 # required coupled changes to be seen as associated
-        MIN_CONFIDENCE = 0.5 # required confidence that files are coupled
+        MIN_CONFIDENCE = 0.75 # required confidence that files are coupled
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
 
         include Services::GitHelpers
@@ -14,6 +17,7 @@ module Diggit
           @repo = repo
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
+          @changeset_generator = ChangesetGenerator.new(repo, head: head)
         end
 
         def comments
@@ -22,15 +26,16 @@ module Diggit
 
         private
 
-        attr_reader :base, :head
+        attr_reader :base, :head, :changeset_generator
+        delegate :changesets, to: :changeset_generator
 
         def generate_comments
-          likely_missing_files.map do |(file, confidence)|
+          likely_missing_files.map do |file, confidence|
             { report: 'ChangePatterns',
               index: file,
               location: "#{file}:1",
-              message: "`#{file}` was expected to be modified in this change! "\
-                       "[#{confidence.to_i}% confidence]",
+              message: "`#{file}` was modified in #{(100 * confidence).to_i}% of "\
+                       'past changes involving these files.',
               meta: {
                 missing_file: file,
                 confidence: confidence,
@@ -40,14 +45,22 @@ module Diggit
         end
 
         def likely_missing_files
-          []
+          FileSuggester.
+            new(frequent_itemsets,
+                min_confidence: MIN_CONFIDENCE).
+            suggest(files_modified(base: base, head: head))
         end
 
-        # TODO: Probably move into TransactionGenerator
-        def transactions
-          @transactions ||= files_modified(base: base, head: head).
-            map { |file| rev_list(head, path: file) }.uniq.
-            map { |commit| files_modified_in(commit) }
+        def frequent_itemsets
+          FpGrowth.
+            new(changesets,
+                min_support: MIN_SUPPORT,
+                max_items: MAX_CHANGESET_SIZE).
+            frequent_itemsets
+        end
+
+        def changesets
+          ChangesetGenerator.new(repo, head: head).changesets
         end
       end
     end

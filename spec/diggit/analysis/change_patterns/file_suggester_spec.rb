@@ -1,27 +1,31 @@
 require 'diggit/analysis/change_patterns/file_suggester'
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::FileSuggester) do
-  subject(:suggester) { described_class.new(frequent_itemsets) }
+  subject(:suggester) do
+    described_class.new(frequent_itemsets, min_confidence: min_confidence)
+  end
+  let(:min_confidence) { 0.75 }
 
   let(:frequent_itemsets) do
-    [
-      { items: ['CHANGELOG.md', 'app.rb'], support: 4 },
-      { items: ['CHANGELOG.md'], support: 9 },
-      { items: ['app.rb'], support: 4 },
-      { items: ['Gemfile', 'Gemfile.lock'], support: 4 },
-      { items: ['Gemfile'], support: 6 },
-      { items: ['Gemfile.lock'], support: 4 },
-    ]
+    load_json_fixture('frequent_pattern/diggit_frequent_patterns.json').map do |is|
+      { items: Hamster::Set.new(is['items']), support: is['support'] }
+    end
   end
 
   describe '.suggest' do
+    subject(:suggestions) { suggester.suggest(files) }
+    let(:files) do
+      ['Rakefile',
+       'lib/diggit/analysis/refactor_diligence/report.rb',
+       'spec/diggit/analysis/refactor_diligence/report_spec.rb']
+    end
+
     it 'includes files that are above the confidence threshold' do
-      expect(suggester.suggest('app.rb')).to include('CHANGELOG.md')
-      expect(suggester.suggest('Gemfile.lock')).to include('Gemfile')
+      expect(suggestions).to include('lib/diggit/analysis/pipeline.rb' => 0.75)
     end
 
     it 'does not include files without sufficient confidence' do
-      expect(suggester.suggest('CHANGELOG.md')).not_to include('app.rb')
+      expect(suggestions).not_to include('Gemfile.lock', 'Gemfile')
     end
   end
 end

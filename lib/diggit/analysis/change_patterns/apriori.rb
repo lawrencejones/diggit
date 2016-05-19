@@ -42,7 +42,7 @@ module Diggit
           l = [nil, large_one_itemsets]
 
           # Transform itemsets into a mapping of tid to {Itemset}
-          tid_itemsets = itemsets.map do |tid, items|
+          tid_itemsets = database.map do |tid, items|
             [tid, items.map do |item|
               l[k - 1].find { |itemset| itemset.items[0] == item }
             end.compact.to_set]

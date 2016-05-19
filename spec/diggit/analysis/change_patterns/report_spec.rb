@@ -72,13 +72,13 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
     let(:controller_comment) { comments.find { |c| c[:index] == 'app_controller.rb' } }
 
     context 'when there is insufficient support' do
-      let(:min_support) { nil }
+      let(:min_support) { 5 }
 
       it { is_expected.to be_empty }
     end
 
     context 'when there is insufficient confidence' do
-      let(:min_confidence) { nil }
+      let(:min_confidence) { 0.8 }
 
       it { is_expected.to be_empty }
     end
@@ -95,10 +95,10 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
           report: 'ChangePatterns',
           index: 'app_controller.rb',
           location: 'app_controller.rb:1',
-          message: /was expected to be modified in this change/,
+          message: /was modified in 75% of past changes involving these files/,
           meta: {
             missing_file: 'app_controller.rb',
-            confidence: 0,
+            confidence: 0.75,
           }
         )
       end
