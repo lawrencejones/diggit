@@ -7,10 +7,8 @@ AllCops:
     - 'db/schema.rb'
     - 'vendor/bundle/**/*'
 
-Rails/Date:
+Rails:
   Enabled: true
-  Exclude:
-    - 'lib/diggit/jobs/**/*'
 
 Rails/Output:
   Enabled: false
