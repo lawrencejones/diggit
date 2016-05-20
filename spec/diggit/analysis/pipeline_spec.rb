@@ -59,7 +59,9 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
                      oid: Rugged::Blob.from_workdir(repo, 'new_file'))
       commit_tree = repo.index.write_tree
       repo.index.write
+      # rubocop:disable Rails/Date
       person = { email: 'e', name: 'n', time: Time.zone.now.to_time }
+      # rubocop:enable Rails/Date
       Rugged::Commit.create(repo, message: 'a new commit', tree: commit_tree,
                                   author: person, committer: person,
                                   parents: [repo.head.target].compact, update_ref: 'HEAD')

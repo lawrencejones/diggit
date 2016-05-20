@@ -58,7 +58,8 @@ module Diggit
     end
 
     def self.configure_timezone!
-      Time.zone = 'UTC'
+      Time.zone = 'Europe/London'
+      Time.zone_default = Time.zone
     end
 
     def self.configure_i18n!

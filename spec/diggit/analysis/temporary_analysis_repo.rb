@@ -47,7 +47,10 @@ class TemporaryAnalysisRepo
     commit_tree = repo.index.write_tree(repo)
     repo.index.write
 
+    # rubocop:disable Rails/Date
     person = { email: 'git@test.com', name: 'Test', time: time.to_time }
+    # rubocop:enable Rails/Date
+
     Rugged::Commit.
       create(repo,
              message: message,
