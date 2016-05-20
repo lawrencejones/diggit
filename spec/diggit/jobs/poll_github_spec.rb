@@ -32,7 +32,7 @@ RSpec.describe(Diggit::Jobs::PollGithub) do
         with(anything).and_return(gh_client)
       allow(gh_client).
         to receive(:pulls).
-        with(payments_service.gh_path).
+        with(payments_service.gh_path, per_page: 100).
         and_return([mock_pull(payments_service, 1, base: 'base-sha', head: head)])
     end
 

@@ -29,7 +29,7 @@ module Diggit
 
       def poll(project)
         info { "[#{project.gh_path}] Polling for new PRs..." }
-        Github.client_for(project).pulls(project.gh_path).
+        Github.client_for(project).pulls(project.gh_path, per_page: 100).
           reject { |pull| pull_analysis_exists?(pull) }.
           reject { |pull| analysis_queued?(pull) }.
           each   { |pull| queue_analysis(pull, project) }
