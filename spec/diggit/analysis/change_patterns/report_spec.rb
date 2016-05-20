@@ -96,7 +96,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
           report: 'ChangePatterns',
           index: 'app_controller.rb',
           location: 'app_controller.rb:1',
-          message: /was modified in 75% of past changes involving these files/,
+          message: /was modified in 75% of past changes involving/,
           meta: {
             missing_file: 'app_controller.rb',
             confidence: 0.75,

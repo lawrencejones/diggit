@@ -35,9 +35,9 @@ module Diggit
             { report: 'ChangePatterns',
               index: file,
               location: "#{file}:1",
-              message: "`#{file}` was modified in #{(100 * confidence).to_i}% of "\
-                       "past changes involving these files...\n"\
-                       "```\n#{antecedent.join("\n")}\n```",
+              message: "Expected `#{file}` to change, as it was modified in "\
+                       "#{(100 * confidence).to_i}% of past changes involving "\
+                       "#{antecedent.map { |changed| "`#{changed}`" }.join(' ')}",
               meta: {
                 missing_file: file,
                 confidence: confidence,

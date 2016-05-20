@@ -47,7 +47,8 @@ module Diggit
         # Load cache, walk repo, update cache
         def fetch_and_update_cache
           info { 'Walking repo...' }
-          new_changesets = generate_commit_changesets
+          new_changesets = generate_commit_changesets.
+            reject { |entry| entry[:changeset].blank? }
           info { "Found #{new_changesets.size} new changesets" }
 
           changeset_cache.concat(new_changesets).
@@ -68,13 +69,13 @@ module Diggit
         #
         def generate_commit_changesets
           walker.each_with_object([]) do |commit, commit_changesets|
-            next if commit.parents.size > 1
             commit_changesets << {
               oid: commit.oid,
               changeset: commit_diff(commit),
               timestamp: commit.author[:time].to_i,
             }
-          end.take(MAX_CHANGESETS).reject { |entry| entry[:changeset].blank? }
+            return commit_changesets if commit_changesets.size >= MAX_CHANGESETS
+          end
         end
 
         def commit_diff(commit)
@@ -85,6 +86,7 @@ module Diggit
         # cache.
         def walker
           Rugged::Walker.new(repo).tap do |walker|
+            walker.simplify_first_parent
             walker.sorting(Rugged::SORT_DATE)
             walker.push(head)
             walker.hide(changeset_cache.map { |entry| entry[:oid] })
