@@ -30,7 +30,7 @@ module Diggit
         delegate :changesets, to: :changeset_generator
 
         def generate_comments
-          likely_missing_files.map do |file, confidence|
+          likely_missing_files.map do |file, confidence:, antecedent:|
             { report: 'ChangePatterns',
               index: file,
               location: "#{file}:1",
@@ -39,6 +39,7 @@ module Diggit
               meta: {
                 missing_file: file,
                 confidence: confidence,
+                antecedent: antecedent.to_a,
               },
             }
           end

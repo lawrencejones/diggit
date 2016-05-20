@@ -99,6 +99,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
           meta: {
             missing_file: 'app_controller.rb',
             confidence: 0.75,
+            antecedent: ['app_template.html'],
           }
         )
       end

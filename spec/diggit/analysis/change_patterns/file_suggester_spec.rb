@@ -21,7 +21,8 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FileSuggester) do
     end
 
     it 'includes files that are above the confidence threshold' do
-      expect(suggestions).to include('lib/diggit/analysis/pipeline.rb' => 0.75)
+      expect(suggestions).
+        to include('lib/diggit/analysis/pipeline.rb' => hash_including(confidence: 0.75))
     end
 
     it 'does not include files without sufficient confidence' do
@@ -60,7 +61,8 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FileSuggester) do
 
         # :c does not occur with :a or :b >75% of the time, but when we know that :a and
         # :b have changed we have enough confidence to suggest :c
-        expect(suggester.suggest([:a, :b])).to include(c: 0.75)
+        expect(suggester.suggest([:a, :b])).
+          to include(c: { confidence: 0.75, antecedent: [:a, :b] })
       end
     end
   end

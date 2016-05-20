@@ -13,8 +13,8 @@ module Diggit
         # of > min_confidence.
         #
         #     suggest(['report.rb']) => {
-        #       'report_spec.rb' => 0.875,
-        #       'spec_helper.rb' => 0.75,
+        #       'report_spec.rb' => { confidence: 0.875, antecedent: Set[...] },
+        #       'spec_helper.rb' => { confidence: 0.75, antecedent: Set[...] },
         #     }
         #
         def suggest(files)
@@ -25,10 +25,13 @@ module Diggit
             consequent = itemset[:items].difference(antecedent)
 
             confidence = compute_confidence(antecedent, consequent)
+            next unless confidence >= min_confidence
+
             consequent.each do |file|
-              suggestions[file] = [suggestions[file] || 0.0, confidence].max
+              next if suggestions.fetch(file, confidence: 0.0)[:confidence] > confidence
+              suggestions[file] = { confidence: confidence, antecedent: antecedent }
             end
-          end.select { |_, confidence| confidence >= min_confidence }
+          end
         end
 
         private
