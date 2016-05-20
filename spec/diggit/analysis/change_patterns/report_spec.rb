@@ -50,12 +50,13 @@ end
 # rubocop:enable Metrics/MethodLength
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
-  subject(:report) { described_class.new(repo, head: head, base: base) }
+  subject(:report) { described_class.new(repo, head: head, base: base, gh_path: gh_path) }
 
   let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
   let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
 
   let(:repo) { change_patterns_test_repo }
+  let(:gh_path) { 'owner/repo' }
 
   before do
     stub_const("#{described_class}::MIN_SUPPORT", min_support)

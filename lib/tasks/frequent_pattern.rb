@@ -11,25 +11,19 @@ namespace :frequent_pattern do
     end
 
     require 'rugged'
+    require_relative '../diggit/analysis/change_patterns/changeset_generator'
+
     puts('Loading rails repo...')
     rails_path = File.join(Rake.application.original_dir, args.fetch(:rails_path))
     rails = Rugged::Repository.new(rails_path)
 
-    walker = Rugged::Walker.new(rails)
-    walker.sorting(Rugged::SORT_DATE)
-    walker.push(rails.last_commit)
-
     puts('Walking commit history...')
-    transactions = walker.map do |commit|
-      files_changed = commit.diff(commit.parents.first).deltas.map do |delta|
-        delta.new_file[:path]
-      end
-      [commit.oid, files_changed.sort]
-    end.to_h
+    changesets = Diggit::Analysis::ChangePatterns::ChangesetGenerator.
+      new(rails, gh_path: 'frequent_pattern/rails').changesets
 
-    puts("Discovered #{transactions.count} changesets!")
+    puts("Discovered #{changesets.count} changesets!")
     puts("Writing changesets to #{RAILS_CHANGESETS_FILE}...")
-    File.write(RAILS_CHANGESETS_FILE, transactions.to_yaml)
+    File.write(RAILS_CHANGESETS_FILE, changesets.to_yaml)
 
     puts('Done!')
   end
@@ -44,7 +38,7 @@ namespace :frequent_pattern do
     count = args.fetch(:count, 10_000).to_i
     min_support = args.fetch(:min_support, 10).to_i
     puts('Loading rails changesets...')
-    changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count).map(&:second)
+    changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count)
 
     profile = patterns = nil
 

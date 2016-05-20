@@ -17,7 +17,8 @@ module Diggit
           @repo = repo
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
-          @changeset_generator = ChangesetGenerator.new(repo, head: head)
+          @changeset_generator = ChangesetGenerator.
+            new(repo, head: head, gh_path: conf.fetch(:gh_path))
         end
 
         def comments
@@ -58,10 +59,6 @@ module Diggit
                 min_support: MIN_SUPPORT,
                 max_items: MAX_CHANGESET_SIZE).
             frequent_itemsets
-        end
-
-        def changesets
-          ChangesetGenerator.new(repo, head: head).changesets
         end
       end
     end

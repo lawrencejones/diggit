@@ -31,7 +31,9 @@ class TemporaryAnalysisRepo
 
   def write(path, contents)
     repo.index.tap do |index|
-      File.write(File.join(repo.workdir, path), contents)
+      filepath = File.join(repo.workdir, path)
+      FileUtils.mkdir_p(File.dirname(filepath))
+      File.write(filepath, contents)
       index.add(path: path, oid: Rugged::Blob.from_workdir(repo, path), mode: 0100644)
     end
   end

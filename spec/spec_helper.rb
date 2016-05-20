@@ -2,6 +2,7 @@ ENV['RACK_ENV'] = 'test'
 
 require 'bundler/setup'
 Bundler.setup(:default, :test)
+Bundler.require(:test)
 
 if ENV['CIRCLE_ARTIFACTS']
   require 'simplecov'
@@ -74,7 +75,10 @@ RSpec.configure do |config|
   config.include(Shoulda::Matchers::ActiveRecord)
 
   config.before(:all) { FactoryGirl.reload }
-  config.before(:each) { Mail::TestMailer.deliveries.clear }
+  config.before(:each) do
+    Mail::TestMailer.deliveries.clear
+    Redis.new.flushall
+  end
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

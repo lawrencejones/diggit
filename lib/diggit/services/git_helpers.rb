@@ -55,9 +55,26 @@ module Diggit
         end.to_a
       end
 
+      # Generates list of files present in the given commit
+      def ls_files(commit)
+        tree = commit.try(:tree) || repo.lookup(commit).tree
+        ls_tree(tree).map { |path| path.gsub(%r{^/}, '') }
+      end
+
       private
 
       attr_reader :repo
+
+      def ls_tree(tree, prefix = '')
+        tree.each_with_object([]) do |entry, entries|
+          case entry[:type]
+          when :blob then entries << File.join(prefix, entry[:name])
+          when :tree
+            subtree = repo.lookup(entry[:oid])
+            entries.push(*ls_tree(subtree, File.join(prefix, entry[:name])))
+          end
+        end
+      end
 
       def command(*args)
         opts = []

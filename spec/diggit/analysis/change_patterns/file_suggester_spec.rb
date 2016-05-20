@@ -62,7 +62,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FileSuggester) do
         # :c does not occur with :a or :b >75% of the time, but when we know that :a and
         # :b have changed we have enough confidence to suggest :c
         expect(suggester.suggest([:a, :b])).
-          to include(c: { confidence: 0.75, antecedent: [:a, :b] })
+          to include(c: { confidence: 0.75, antecedent: match_array([:a, :b]) })
       end
     end
   end

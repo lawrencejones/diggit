@@ -59,7 +59,8 @@ module Diggit
       def generate_comments(head, base)
         cloner.clone do |repo|
           time_pipeline do
-            pipeline = Analysis::Pipeline.new(repo, head: head, base: base)
+            pipeline = Analysis::Pipeline.
+              new(repo, head: head, base: base, gh_path: project.gh_path)
             info { 'Running pipeline...' }
             pipeline.aggregate_comments
           end

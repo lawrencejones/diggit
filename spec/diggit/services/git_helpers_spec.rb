@@ -18,6 +18,7 @@ RSpec.describe(Diggit::Services::GitHelpers) do
       repo.commit('1')
 
       repo.write('another_file', 'content')
+      repo.write('dir/nested_file', 'file in directory')
       repo.rm('transient')
       repo.commit('2')
 
@@ -101,5 +102,13 @@ RSpec.describe(Diggit::Services::GitHelpers) do
     it 'includes files that have been changed' do
       expect(files).to include('another_file')
     end
+  end
+
+  describe '.ls_files' do
+    subject(:files) { helpers.ls_files(target) }
+    let(:target) { commits.find { |c| c.message == '2' } }
+
+    it { is_expected.not_to include('transient') }
+    it { is_expected.to include('README.md', 'another_file', 'dir/nested_file') }
   end
 end
