@@ -1,13 +1,19 @@
 require 'hamster/hash'
 
+require_relative '../logger'
 require_relative 'refactor_diligence/report'
 require_relative 'complexity/report'
-require_relative '../logger'
+require_relative 'change_patterns/report'
 
 module Diggit
   module Analysis
     class Pipeline
-      REPORTERS = [RefactorDiligence::Report, Complexity::Report].freeze
+      REPORTERS = [
+        RefactorDiligence::Report,
+        Complexity::Report,
+        ChangePatterns::Report,
+      ].freeze
+
       MAX_FILES_CHANGED = 25
 
       class BadGitHistory < StandardError; end
