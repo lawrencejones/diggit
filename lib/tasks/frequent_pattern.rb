@@ -1,17 +1,15 @@
 # rubocop:disable Lint/Debugger, Metrics/AbcSize, Metrics/MethodLength
 namespace :frequent_pattern do
-  RAILS_CHANGESETS_FILE = File.join(Rake.application.original_dir,
-                                    'tmp/rails_changesets.yaml')
+  # Runs and profiles blocks that generate frequent pattern sets from the rails
+  # changesets.
+  def benchmark_fp_discovery(algorithm, args, dump_dir)
+    require 'yaml'
+    require 'ruby-prof'
+    require 'fileutils'
 
-  desc 'Generate rails changesets'
-  task :generate_changesets, [:rails_path] do |_, args|
-    if File.exist?(RAILS_CHANGESETS_FILE)
-      puts('Found existing changesets file!')
-      next
-    end
-
-    require 'rugged'
     require_relative '../diggit/analysis/change_patterns/changeset_generator'
+
+    min_support = args.fetch(:min_support, 10).to_i
 
     puts('Loading rails repo...')
     rails_path = File.join(Rake.application.original_dir, args.fetch(:rails_path))
@@ -20,25 +18,7 @@ namespace :frequent_pattern do
     puts('Walking commit history...')
     changesets = Diggit::Analysis::ChangePatterns::ChangesetGenerator.
       new(rails, gh_path: 'frequent_pattern/rails').changesets
-
-    puts("Discovered #{changesets.count} changesets!")
-    puts("Writing changesets to #{RAILS_CHANGESETS_FILE}...")
-    File.write(RAILS_CHANGESETS_FILE, changesets.to_yaml)
-
-    puts('Done!')
-  end
-
-  # Runs and profiles blocks that generate frequent pattern sets from the rails
-  # changesets.
-  def benchmark_fp_discovery(algorithm, args, dump_dir)
-    require 'yaml'
-    require 'ruby-prof'
-    require 'fileutils'
-
-    count = args.fetch(:count, 10_000).to_i
-    min_support = args.fetch(:min_support, 10).to_i
-    puts('Loading rails changesets...')
-    changesets = YAML.load_file(RAILS_CHANGESETS_FILE).first(count)
+    puts("Loaded #{changesets.count} changesets!")
 
     profile = patterns = nil
 
@@ -62,7 +42,7 @@ namespace :frequent_pattern do
     File.write(File.join(dump_dir, 'results.json'), JSON.pretty_generate(sorted_patterns))
     puts("Written results to #{dump_dir}/results.json")
 
-    RubyProf::MultiPrinter.new(profile).print(path: dump_dir, profile: 'profile')
+    # RubyProf::MultiPrinter.new(profile).print(path: dump_dir, profile: 'profile')
     puts("Saved dump to #{dump_dir}")
 
     print('Inspect patterns? [y/n]: ')
@@ -79,7 +59,7 @@ namespace :frequent_pattern do
     FP_GROWTH_DUMP_DIR = File.join(Rake.application.original_dir, 'tmp/fp_growth.dump')
 
     desc 'Benchmark Diggit::Analysis::ChangePatterns::FpGrowth'
-    task :benchmark, [:count, :min_support] do |_, args|
+    task :benchmark, [:rails_path, :min_support] do |_, args|
       require_relative '../diggit/analysis/change_patterns/fp_growth'
       benchmark_fp_discovery(Diggit::Analysis::ChangePatterns::FpGrowth,
                              args, FP_GROWTH_DUMP_DIR)
@@ -90,7 +70,7 @@ namespace :frequent_pattern do
     APRIORI_DUMP_DIR = File.join(Rake.application.original_dir, 'tmp/apriori.dump')
 
     desc 'Benchmark Diggit::Analysis::ChangePatterns::Apriori'
-    task :benchmark, [:count, :min_support] do |_, args|
+    task :benchmark, [:rails_path, :min_support] do |_, args|
       require_relative '../diggit/analysis/change_patterns/apriori'
       benchmark_fp_discovery(Diggit::Analysis::ChangePatterns::Apriori,
                              args, FP_GROWTH_DUMP_DIR)

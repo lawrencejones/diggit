@@ -4,6 +4,7 @@ require 'prius'
 
 module Diggit
   module Services
+    # Redis backed key value cache, with value serialization
     module Cache
       def self.prefix
         "diggit-#{Prius.get(:diggit_env)}"

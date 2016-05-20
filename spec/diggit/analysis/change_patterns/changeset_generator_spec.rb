@@ -25,6 +25,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::ChangesetGenerator) do
 
   describe '.changesets' do
     subject(:changesets) { generator.changesets }
+    let(:cached) { Diggit::Services::Cache.get('owner/repo/changesets') }
 
     it { is_expected.to include(match_array(%w(a b))) }
     it { is_expected.to include(match_array(%w(a c))) }
@@ -36,16 +37,24 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::ChangesetGenerator) do
 
     it 'persists commit changeset hash to diggit cache, including deleted files' do
       changesets
-      expect(Diggit::Services::Cache.get('owner/repo/changesets').values).
-        to eql([
-          %w(d e to_be_deleted),
-          %w(a c to_be_deleted),
-          %w(a b),
-        ])
+      expect(cached.map { |entry| entry[:changeset] }).
+        to eql([%w(d e to_be_deleted),
+                %w(a c to_be_deleted),
+                %w(a b)])
     end
 
     it 'removes files from changesets that are no longer present in repo head' do
       changesets.each { |cs| expect(cs).not_to include('to_be_deleted') }
+    end
+
+    context 'when no of changesets exceeds MAX_CHANGESETS' do
+      before { stub_const("#{described_class}::MAX_CHANGESETS", 1) }
+
+      it 'persists MAX_CHANGESETS most recent changesets' do
+        changesets
+        expect(cached.size).to be(1)
+        expect(cached.first).to include(changeset: %w(d e to_be_deleted))
+      end
     end
 
     context 'when running with active cache' do

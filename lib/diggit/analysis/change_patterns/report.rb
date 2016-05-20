@@ -36,7 +36,8 @@ module Diggit
               index: file,
               location: "#{file}:1",
               message: "`#{file}` was modified in #{(100 * confidence).to_i}% of "\
-                       'past changes involving these files.',
+                       "past changes involving these files...\n"\
+                       "```\n#{antecedent.join("\n")}\n```",
               meta: {
                 missing_file: file,
                 confidence: confidence,
