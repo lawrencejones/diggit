@@ -13,12 +13,13 @@ module Diggit
       class BadGitHistory < StandardError; end
       include InstanceLogger
 
-      def initialize(repo, head:, base:)
+      def initialize(repo, head:, base:, gh_path:)
         @repo = repo
         @head = head
         @base = base
+        @gh_path = gh_path
 
-        @logger_prefix ||= "[#{File.basename(repo.workdir)}]"
+        @logger_prefix ||= "[#{gh_path}]"
         verify_refs!
       end
 
@@ -28,13 +29,13 @@ module Diggit
         REPORTERS.map do |report|
           info { "#{report}..." }
           repo.reset(head, :hard)
-          report.new(repo, base: base, head: head).comments
+          report.new(repo, base: base, head: head, gh_path: gh_path).comments
         end.flatten
       end
 
       private
 
-      attr_reader :repo, :head, :base
+      attr_reader :repo, :head, :base, :gh_path
 
       def validate_diff_size
         return true if no_files_changed < MAX_FILES_CHANGED

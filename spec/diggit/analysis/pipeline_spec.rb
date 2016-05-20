@@ -34,8 +34,11 @@ def pipeline_test_repo
 end
 
 RSpec.describe(Diggit::Analysis::Pipeline) do
-  subject(:pipeline) { described_class.new(repo, head: head, base: base) }
+  subject(:pipeline) do
+    described_class.new(repo, head: head, base: base, gh_path: gh_path)
+  end
   let(:repo) { pipeline_test_repo }
+  let(:gh_path) { 'owner/repo' }
 
   let(:head) { repo.head.target.oid }
   let(:base) do

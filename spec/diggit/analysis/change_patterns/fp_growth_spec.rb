@@ -1,5 +1,7 @@
 require 'diggit/analysis/change_patterns/fp_growth'
-require 'diggit/analysis/change_patterns/fp_debug' # for inspection of trees
+
+require_relative 'fp_growth_debug' # for inspection of trees
+require_relative 'frequent_pattern_miner.example'
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::FpGrowth) do
   subject(:fp_growth) { described_class.new(itemsets, conf) }
@@ -21,7 +23,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FpGrowth) do
 
   let(:conf) { { min_support: min_support, min_items: min_items, max_items: max_items } }
   let(:min_support) { 3 }
-  let(:min_items) { 2 }
+  let(:min_items) { 1 }
   let(:max_items) { 5 }
 
   # Tags in form '[item:count]'
@@ -30,6 +32,8 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FpGrowth) do
       node.to_s == node_tag && (parent_tag.nil? || node.parent.to_s == parent_tag)
     end
   end
+
+  it_behaves_like 'frequent pattern miner'
 
   describe '.database' do
     subject(:database) { fp_growth.database }

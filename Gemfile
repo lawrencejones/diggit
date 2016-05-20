@@ -29,6 +29,7 @@ gem 'rollbar'
 gem 'mail'
 gem 'roadie'
 gem 'oj'
+gem 'redis'
 
 group :development do
   gem 'rerun'
@@ -49,4 +50,5 @@ group :test do
   gem 'factory_girl'
   gem 'shoulda-matchers'
   gem 'simplecov', require: false
+  gem 'fakeredis', require: 'fakeredis/rspec'
 end

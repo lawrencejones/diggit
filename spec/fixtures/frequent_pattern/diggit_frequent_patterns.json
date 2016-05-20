@@ -1,0 +1,832 @@
+[
+  {
+    "items": [
+      ".gitignore"
+    ],
+    "support": 12
+  },
+  {
+    "items": [
+      "README.md"
+    ],
+    "support": 11
+  },
+  {
+    "items": [
+      "code-overview/client/renderer.js"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "code-overview/fixtures/rendererInputFixture.json"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "gulpfile.js"
+    ],
+    "support": 9
+  },
+  {
+    "items": [
+      "gulpfile.js",
+      "package.json"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "web/client/app.js"
+    ],
+    "support": 9
+  },
+  {
+    "items": [
+      ".rubocop.yml"
+    ],
+    "support": 13
+  },
+  {
+    "items": [
+      ".rubocop.yml",
+      "circle.yml"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "config.ru"
+    ],
+    "support": 11
+  },
+  {
+    "items": [
+      "config.ru",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "config.ru",
+      "Gemfile.lock",
+      "Gemfile"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "config.ru",
+      "Gemfile"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "config.ru"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/services/project_cloner.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 13
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/pipeline_spec.rb"
+    ],
+    "support": 13
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/pipeline_spec.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 10
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "spec/diggit/analysis/pipeline_spec.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "spec/diggit/analysis/pipeline_spec.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/refactor_diligence/test_repo.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/refactor_diligence/test_repo.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "Gemfile"
+    ],
+    "support": 27
+  },
+  {
+    "items": [
+      "Gemfile.lock"
+    ],
+    "support": 27
+  },
+  {
+    "items": [
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 26
+  },
+  {
+    "items": [
+      "code-overview/main.js"
+    ],
+    "support": 9
+  },
+  {
+    "items": [
+      "code-overview/vis.js"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "code-overview/vis.js",
+      "code-overview/main.js"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "Rakefile"
+    ],
+    "support": 10
+  },
+  {
+    "items": [
+      "Rakefile",
+      "Gemfile.lock"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "Rakefile",
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "Rakefile",
+      "Gemfile"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "Capfile"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "circle.yml"
+    ],
+    "support": 15
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "circle.yml"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "circle.yml",
+      "package.json"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "utils/git_walker.rb"
+    ],
+    "support": 15
+  },
+  {
+    "items": [
+      "config/deploy.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "config/deploy.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit.rb"
+    ],
+    "support": 11
+  },
+  {
+    "items": [
+      "lib/diggit.rb",
+      "Gemfile.lock"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "Gemfile",
+      "lib/diggit.rb",
+      "Gemfile.lock"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "Gemfile",
+      "lib/diggit.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "diggit.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "dummy-env"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/analysis/refactor_diligence/report.rb"
+    ],
+    "support": 11
+  },
+  {
+    "items": [
+      "lib/diggit/analysis/refactor_diligence/report.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/analyse_pull.rb"
+    ],
+    "support": 10
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/poll_github.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb"
+    ],
+    "support": 21
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "Gemfile.lock"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "Gemfile"
+    ],
+    "support": 9
+  },
+  {
+    "items": [
+      "config/prius.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/system.rb",
+      "config/prius.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "config/prius.rb",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "config/prius.rb",
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "config/prius.rb",
+      "Gemfile"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "config/prius.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/routes/github_webhooks.rb"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "spec/diggit/routes/github_webhooks_spec.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/routes/github_webhooks.rb",
+      "spec/diggit/routes/github_webhooks_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      ".pryrc"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/refactor_diligence/report_spec.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/refactor_diligence/report_spec.rb",
+      "lib/diggit/analysis/refactor_diligence/report.rb"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/refactor_diligence/report_spec.rb",
+      "lib/diggit/analysis/refactor_diligence/report.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/pipeline_spec.rb",
+      "spec/diggit/analysis/refactor_diligence/report_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/pipeline_spec.rb",
+      "spec/diggit/analysis/refactor_diligence/report_spec.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/refactor_diligence/report_spec.rb",
+      "lib/diggit/analysis/pipeline.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/analysis/complexity/report.rb"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "spec/diggit/jobs/analyse_pull_spec.rb"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/analyse_pull.rb",
+      "spec/diggit/jobs/analyse_pull_spec.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/temporary_analysis_repo.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "spec/diggit/analysis/complexity/report_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/services/project_cloner_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/services/project_cloner.rb",
+      "spec/diggit/services/project_cloner_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb"
+    ],
+    "support": 19
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "lib/diggit/system.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "Gemfile.lock"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "Gemfile"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "db/schema.rb"
+    ],
+    "support": 12
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "db/schema.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/github/repo.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/configure_project_github.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/github/repo.rb",
+      "lib/diggit/jobs/configure_project_github.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/jobs/configure_project_github_spec.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/configure_project_github.rb",
+      "spec/diggit/jobs/configure_project_github_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/github/repo.rb",
+      "lib/diggit/jobs/configure_project_github.rb",
+      "spec/diggit/jobs/configure_project_github_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/github/repo.rb",
+      "spec/diggit/jobs/configure_project_github_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/models/project_spec.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "db/schema.rb",
+      "spec/diggit/models/project_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "spec/diggit/models/project_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "spec/diggit/models/project_spec.rb",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "spec/diggit/models/project_spec.rb",
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/spec_helper.rb",
+      "spec/diggit/models/project_spec.rb",
+      "Gemfile"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/models/project_spec.rb",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/models/project_spec.rb",
+      "Gemfile",
+      "Gemfile.lock"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/models/project_spec.rb",
+      "Gemfile"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/models/project.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/routes/projects.rb"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "spec/diggit/routes/projects_spec.rb"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "lib/diggit/routes/projects.rb",
+      "spec/diggit/routes/projects_spec.rb"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "spec/diggit/middleware/authorize_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/analyse_project.rb"
+    ],
+    "support": 9
+  },
+  {
+    "items": [
+      "spec/diggit/jobs/analyse_project_spec.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "spec/diggit/jobs/analyse_project_spec.rb",
+      "lib/diggit/jobs/analyse_project.rb"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "package.json"
+    ],
+    "support": 19
+  },
+  {
+    "items": [
+      "npm-shrinkwrap.json"
+    ],
+    "support": 8
+  },
+  {
+    "items": [
+      "npm-shrinkwrap.json",
+      "package.json"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "client/app.js"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "client/lib/refactorDiligence.js"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "client/routes/refactor-diligence/refactor-diligence.controller.js"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "client/main.scss"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "client/routes/home/home.html"
+    ],
+    "support": 7
+  },
+  {
+    "items": [
+      "client/app.js",
+      "client/routes/home/home.html"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "client/routes/code-overview/code-overview.controller.js"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "client/components/grand-perspective/visualisation.js"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "spec/diggit/jobs/poll_github_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "lib/diggit/jobs/poll_github.rb",
+      "spec/diggit/jobs/poll_github_spec.rb"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "web/system.config.js"
+    ],
+    "support": 6
+  },
+  {
+    "items": [
+      "gulpfile.js",
+      "web/system.config.js"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "gulpfile.js",
+      "web/system.config.js",
+      "package.json"
+    ],
+    "support": 5
+  },
+  {
+    "items": [
+      "web/system.config.js",
+      "package.json"
+    ],
+    "support": 6
+  }
+]

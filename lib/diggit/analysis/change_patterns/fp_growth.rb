@@ -7,8 +7,7 @@ module Diggit
       class FpGrowth
         def initialize(itemsets,
                        min_support: 1,
-                       min_items: 2,
-                       max_items: 10)
+                       min_items: 1, max_items: 25)
           @min_support = min_support
           @database = preprocess(itemsets.select do |itemset|
             itemset.size.between?(min_items, max_items)
@@ -99,8 +98,8 @@ module Diggit
           itemsets.map do |itemset|
             itemset.
               select  { |item| counts.key?(item) }.
-              sort_by { |item| -counts[item] }
-          end
+              sort_by { |item| [-counts[item], item] }
+          end.reject(&:empty?).sort
         end
 
         # 3.1 Building the initial FP-Tree
@@ -130,9 +129,10 @@ module Diggit
           # Create auxiliary node clones with projected counts, setting aux node parents
           # to be non-aux parents
           prefix_node.nodes.each do |node|
+            carry = node.count
             node.parents.reduce(node.clone) do |aux_child, parent|
               parent.aux ||= Node.new(parent.item)
-              parent.aux.count += aux_child.count
+              parent.aux.count += carry
               aux_child.parent = parent.aux
             end
           end
