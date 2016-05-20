@@ -10,7 +10,7 @@ module Diggit
   module Jobs
     class PushAnalysisComments < Que::Job
       # For reporters that are in trial mode
-      SILENT_REPORTERS = %w(Complexity).freeze
+      SILENT_REPORTERS = %w(Complexity ChangePatterns).freeze
       include InstanceLogger
 
       def run(pull_analysis_id)
