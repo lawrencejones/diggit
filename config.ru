@@ -7,16 +7,6 @@ require_relative 'lib/diggit/system'
 use(Rollbar::Middleware::Sinatra)
 run(Diggit::System.rack_app)
 
-# Prevent Passenger hanging when forking for the que workers
-if defined?(PhusionPassenger)
-  PhusionPassenger.on_event(:starting_worker_process) do |forked|
-    Que.mode = :async if forked
-    Que.error_handler = proc do |error, job|
-      Rollbar.error(error, job, "Error in Que job #{job['job_class']}")
-    end
-  end
-end
-
 require_relative 'lib/diggit/jobs/poll_github'
 Diggit::Jobs::PollGithub.enqueue
 

@@ -15,11 +15,12 @@ module Diggit
 
       include InstanceLogger
 
-      def initialize(project)
+      def initialize(project, logger_prefix: nil)
         @project = project
         @repo_path = File.join(CACHE_DIR, project.gh_path)
         @credentials = ProjectCredentials.new(project)
 
+        @logger_prefix = logger_prefix unless logger_prefix.nil?
         @repo ||= create_repo unless File.directory?(repo_path)
         @repo ||= Rugged::Repository.new(repo_path)
       end

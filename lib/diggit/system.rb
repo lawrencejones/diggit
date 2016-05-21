@@ -17,6 +17,7 @@ module Diggit
     DUMMY_ENV     = File.join(APP_ROOT, 'dummy-env').freeze
     DATABASE_YAML = File.join(APP_ROOT, 'config', 'database.yml').freeze
     LOCALES_PATH  = File.join(APP_ROOT, 'config', 'locales', '*.yml').freeze
+    JOBS_PATH     = File.join(APP_ROOT, 'lib', 'diggit', 'jobs').freeze
 
     def self.rack_app
       config = init
@@ -89,7 +90,7 @@ module Diggit
 
     def self.configure_que!
       Que.connection = ActiveRecord
-      Que.mode = :off   if Prius.get(:diggit_env) == 'test'
+      Que.mode = :off
       Que.mode = :async if Prius.get(:diggit_env) == 'development'
       Que.logger = Diggit.logger
     end

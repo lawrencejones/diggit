@@ -29,7 +29,7 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
     it 'clones repo with ProjectCloner' do
       expect(Diggit::Services::ProjectCloner).
         to receive(:new).
-        with(project)
+        with(project, logger_prefix: "[#{project.gh_path}/#{pull}]")
       expect(cloner).to receive(:clone)
       run!
     end

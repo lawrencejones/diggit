@@ -41,6 +41,16 @@ def change_patterns_test_repo
     RUBY
     repo.commit('@second param for app_template render')
 
+    repo.write('app_template.html', <<-HTML)
+    <html>
+      <ul>
+        <li>@first</li>
+        <li>@second</li>
+      </ul>
+    </html>
+    HTML
+    repo.commit('Add additional formatting to app_template')
+
     # Create suspect feature branch
     repo.branch('feature')
     repo.write('app_template.html', '<html> @first @second @third </html>')
