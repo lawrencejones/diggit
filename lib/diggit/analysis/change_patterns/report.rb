@@ -1,4 +1,5 @@
 require_relative '../../services/git_helpers'
+require_relative '../../logger'
 require_relative 'file_suggester'
 require_relative 'changeset_generator'
 require_relative 'fp_growth'
@@ -12,13 +13,15 @@ module Diggit
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
 
         include Services::GitHelpers
+        include InstanceLogger
 
         def initialize(repo, conf)
           @repo = repo
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
-          @changeset_generator = ChangesetGenerator.
-            new(repo, head: head, gh_path: conf.fetch(:gh_path))
+          @gh_path = conf.fetch(:gh_path)
+
+          @logger_prefix = "[#{gh_path}]"
         end
 
         def comments
@@ -27,8 +30,7 @@ module Diggit
 
         private
 
-        attr_reader :base, :head, :changeset_generator
-        delegate :changesets, to: :changeset_generator
+        attr_reader :base, :head, :gh_path
 
         def generate_comments
           likely_missing_files.map do |file, confidence:, antecedent:|
@@ -59,7 +61,15 @@ module Diggit
             new(changesets,
                 min_support: MIN_SUPPORT,
                 max_items: MAX_CHANGESET_SIZE).
-            frequent_itemsets
+            frequent_itemsets.
+            tap { |itemsets| info { "Found #{itemsets.count} frequent itemsets!" } }
+        end
+
+        def changesets
+          ChangesetGenerator.
+            # Use base to avoid including commits that may not be merged into master
+            new(repo, head: base, gh_path: gh_path).
+            changesets
         end
       end
     end

@@ -1,6 +1,3 @@
-require_relative '../diggit/system'
-Diggit::System.init
-
 namespace :one_off do
   desc 'Adds a private repo to be polled'
   task :add_polled_repo, [:gh_path] do |_, args|

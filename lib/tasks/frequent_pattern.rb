@@ -7,7 +7,7 @@ namespace :frequent_pattern do
     require 'ruby-prof'
     require 'fileutils'
 
-    require_relative '../diggit/analysis/change_patterns/changeset_generator'
+    require 'diggit/analysis/change_patterns/changeset_generator'
 
     min_support = args.fetch(:min_support, 10).to_i
 
@@ -27,7 +27,7 @@ namespace :frequent_pattern do
       profile = RubyProf.profile do
         patterns = algorithm.new(changesets,
                                  min_support: min_support,
-                                 max_items: 10).frequent_itemsets
+                                 max_items: 25).frequent_itemsets
       end
     end
     puts('Finished!')
@@ -60,7 +60,7 @@ namespace :frequent_pattern do
 
     desc 'Benchmark Diggit::Analysis::ChangePatterns::FpGrowth'
     task :benchmark, [:rails_path, :min_support] do |_, args|
-      require_relative '../diggit/analysis/change_patterns/fp_growth'
+      require 'diggit/analysis/change_patterns/fp_growth'
       benchmark_fp_discovery(Diggit::Analysis::ChangePatterns::FpGrowth,
                              args, FP_GROWTH_DUMP_DIR)
     end
@@ -71,7 +71,7 @@ namespace :frequent_pattern do
 
     desc 'Benchmark Diggit::Analysis::ChangePatterns::Apriori'
     task :benchmark, [:rails_path, :min_support] do |_, args|
-      require_relative '../diggit/analysis/change_patterns/apriori'
+      require 'diggit/analysis/change_patterns/apriori'
       benchmark_fp_discovery(Diggit::Analysis::ChangePatterns::Apriori,
                              args, FP_GROWTH_DUMP_DIR)
     end

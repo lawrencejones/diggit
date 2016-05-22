@@ -21,3 +21,5 @@ set :npm_flags, '--silent --no-progress'
 set :rollbar_token, ENV['DIGGIT_ROLLBAR_TOKEN']
 set :rollbar_env, proc { fetch :stage }
 set :rollbar_role, proc { :app }
+
+set :que_worker_count, 2

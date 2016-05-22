@@ -18,9 +18,10 @@ module Diggit
         @head = head
         @base = base
         @project = Project.find_by!(gh_path: gh_path)
-        @cloner = Services::ProjectCloner.new(project)
 
         @logger_prefix = "[#{project.gh_path}/#{pull}]"
+        @cloner = Services::ProjectCloner.new(project, logger_prefix: @logger_prefix)
+
         return destroy unless validate
 
         ActiveRecord::Base.transaction do
