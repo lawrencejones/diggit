@@ -7,7 +7,6 @@ require 'capistrano/deploy'
 # Capistrano gems
 require 'capistrano/bundler'
 require 'capistrano/passenger'
-require 'capistrano/rbenv'
 require 'capistrano/npm'
 require 'rollbar/capistrano3'
 

@@ -17,9 +17,10 @@ set :rbenv_type, :system
 set :rbenv_ruby, File.read('.ruby-version').strip
 
 set :npm_flags, '--silent --no-progress'
+set :npm_roles, :web
 
 set :rollbar_token, ENV['DIGGIT_ROLLBAR_TOKEN']
 set :rollbar_env, proc { fetch :stage }
 set :rollbar_role, proc { :app }
 
-set :que_worker_count, 2
+set :que_worker_count, 8
