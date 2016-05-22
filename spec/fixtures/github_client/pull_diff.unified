@@ -18,6 +18,15 @@ index 0000000..c9ff0db
 +    end
 +  end
 +end
+diff --git a/bin/que b/bin/que
+deleted file mode 100755
+index 770eb49..0000000
+--- a/bin/que
++++ /dev/null
+@@ -1,3 +0,0 @@
+-#!/bin/sh
+-
+-bundle exec que ./config/que.rb
 diff --git a/Gemfile b/Gemfile
 index 6e6856c..d1c7d42 100644
 --- a/Gemfile

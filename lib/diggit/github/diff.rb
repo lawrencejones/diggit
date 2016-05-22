@@ -70,7 +70,7 @@ module Diggit
           original_header, new_header = preamble.lines.last(2)
 
           { original: original_header.match(%r{--- a?/(.+)$})[1],
-            new: new_header.match(%r{\+\+\+ b/(.+)$})[1],
+            new: new_header.match(%r{\+\+\+ b?/(.+)$})[1],
             diff_chunks: parse_diff_chunks(diff_content) }
         end
       end
