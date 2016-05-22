@@ -1,9 +1,11 @@
 namespace :logs do
-  desc 'Tail server logs'
-  task :tail do
-    on roles(:app) do
+  desc 'Tail role logs'
+  task :tail, :role do |t, args|
+    on roles(args.fetch(:role)) do
       trap('INT') { exit 0 }
-      execute "tail -f #{shared_path}/log/{diggit,error}.log"
+      SSHKit.config.output_verbosity = Logger::DEBUG
+      SSHKit.config.use_format :simpletext
+      execute "tail -f #{shared_path}/log/diggit.log"
     end
   end
 end

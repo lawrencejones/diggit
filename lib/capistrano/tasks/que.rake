@@ -37,5 +37,5 @@ namespace :que do
     end
   end
 
-  after 'passenger:restart', 'que:restart'
+  after 'deploy:publishing', 'que:restart'
 end
