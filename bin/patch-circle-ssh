@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+# Doc have now closed all access to the cloudstack instances except for internal
+# connections. This patches circle's ssh config to enable tunneling to the instance
+# via shell1.doc.ic.ac.uk
+
+puts('Reading ssh config...')
+ssh_config_file = File.join(ENV['HOME'], '.ssh', 'config')
+ssh_config = File.read(ssh_config_file)
+
+puts('Adding proxy configuration for diggit.worker...')
+ssh_config.gsub!('Host 146.169.47.204', <<-CONFIG.chomp)
+Host 146.169.47.204
+ProxyCommand ssh -T -q shell1.doc.ic.ac.uk nc $(echo %h) 22 2>/dev/null
+CONFIG
+
+puts('Configuring access to shell1.doc tunnel...')
+ssh_config += <<-CONFIG
+
+Host shell1.doc.ic.ac.uk
+IdentityFile /home/ubuntu/.ssh/id_146.169.47.204
+User lmj112
+CONFIG
+
+puts('Patching ~/.ssh/config...')
+File.write(ssh_config_file, ssh_config)
+
+puts("Done!\n\n", ssh_config)
