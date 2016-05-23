@@ -10,7 +10,7 @@ RSpec.describe(Diggit::InstanceLogger) do
   context 'with no logger_prefix' do
     it 'calls Diggit.logger.method with block that yields message' do
       expect(Diggit.logger).to receive(:info) do |&block|
-        expect(block.call).to eql(message)
+        expect(JSON.parse(block.call)['message']).to eql(message)
       end
       instance.info { message }
     end
@@ -22,7 +22,7 @@ RSpec.describe(Diggit::InstanceLogger) do
 
     it 'calls Diggit.logger.method with block that yields prefixed method' do
       expect(Diggit.logger).to receive(:info) do |&block|
-        expect(block.call).to eql('[prefix] how you doin')
+        expect(JSON.parse(block.call)['message']).to eql('[prefix] how you doin')
       end
       instance.info { message }
     end

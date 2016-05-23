@@ -15,10 +15,18 @@ module Diggit
       Diggit.logger
     end
 
+    def log_payload(message)
+      { thread: Thread.current.object_id, pid: Process.pid,
+        class: self.class.to_s, message: message }
+    end
+
     %i(debug error fatal info log warn).each do |method|
       define_method(method) do |label = nil, &block|
-        Diggit.logger.send(method, label || self.class.to_s) do
-          [logger_prefix, block.call].compact.join(' ')
+        Diggit.logger.send(method) do
+          payload = block.call
+          payload = log_payload(payload) if payload.class == String
+          payload[:message] = [logger_prefix, payload[:message]].compact.join(' ')
+          payload.to_json
         end
       end
     end
