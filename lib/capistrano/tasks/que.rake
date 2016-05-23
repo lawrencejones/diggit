@@ -4,19 +4,21 @@ namespace :que do
     on roles(:worker) do
       within release_path do
         invoke :'que:stop'
-        info '[deploy:que] Starting que worker...'
-        execute('start-stop-daemon',
-                '--start',
-                '--pidfile', "#{shared_path}/que_worker.pid",
-                '--make-pidfile',
-                "--chdir #{release_path}",
-                '--background',
-                '--exec', '/usr/bin/env',
-                '--',
-                'bundle', 'exec', 'que',
-                '--worker-count', fetch(:que_worker_count),
-                "#{release_path}/config/que.rb",
-                '>>', "#{shared_path}/que_worker.log", '2>&1')
+        (1..fetch(:que_worker_count) / 2).each do |i|
+          info "[deploy:que] Starting que##{i}..."
+          execute('start-stop-daemon',
+                  '--start',
+                  '--pidfile', "#{shared_path}/que_worker_#{i}.pid",
+                  '--make-pidfile',
+                  "--chdir #{release_path}",
+                  '--background',
+                  '--exec', '/usr/bin/env',
+                  '--',
+                  'bundle', 'exec', 'que',
+                  '--worker-count', '2', # start each process with pool of 2
+                  "#{release_path}/config/que.rb",
+                  '>>', "#{shared_path}/que_worker.log", '2>&1')
+        end
       end
     end
   end
@@ -25,13 +27,15 @@ namespace :que do
   task :stop do
     on roles(:worker) do
       within release_path do
-        if test("[ -f #{shared_path}/que_worker.pid ]")
-          info '[deploy:que] Killing que worker daemon'
+        (1..fetch(:que_worker_count) / 2).each do |i|
+          next if test("[ -f #{shared_path}/que_worker_#{i}.pid ]")
+
+          info "[deploy:que] Killing que##{i} daemon"
           execute('start-stop-daemon',
                   '--stop',
                   '--oknodo',
-                  '--pidfile', "#{shared_path}/que_worker.pid")
-          execute(:rm, '-f', "#{shared_path}/que_worker.pid")
+                  '--pidfile', "#{shared_path}/que_worker_#{i}.pid")
+          execute(:rm, '-f', "#{shared_path}/que_worker_#{i}.pid")
         end
       end
     end

@@ -1,5 +1,6 @@
 require 'rugged'
 require 'fileutils'
+require 'thread'
 
 require_relative 'environment'
 require_relative 'project_credentials'
@@ -12,6 +13,9 @@ module Diggit
       CACHE_DIR = File.join(System::APP_ROOT, 'tmp', 'project_cache').freeze
       GITHUB_PULLS_REFSPEC = '+refs/pull/*/head:refs/remotes/origin/pull/*'.freeze
       LOCK_FILE = 'config'.freeze # lock on the git config file
+
+      # Thread locks for each project
+      @project_locks = {}
 
       include InstanceLogger
 
@@ -63,12 +67,18 @@ module Diggit
       # from fetching into the cache at the same time.
       def synchronise
         info { "Acquiring lock on .git/#{LOCK_FILE}..." }
-        lock_file = File.open(File.join(repo_path, LOCK_FILE), File::CREAT)
-        lock_file.flock(File::LOCK_EX)
-        yield.tap do
-          info { 'Releasing lock...' }
-          lock_file.flock(File::LOCK_UN)
+        project_thread_lock.synchronize do
+          lock_file = File.open(File.join(repo_path, LOCK_FILE), File::CREAT)
+          lock_file.flock(File::LOCK_EX)
+          yield.tap do
+            info { 'Releasing lock...' }
+            lock_file.flock(File::LOCK_UN)
+          end
         end
+      end
+
+      def project_thread_lock
+        self.class.instance_variable_get(:@project_locks)[project.gh_path] ||= Mutex.new
       end
 
       # Temporary directories for this class

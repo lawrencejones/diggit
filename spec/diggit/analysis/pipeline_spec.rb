@@ -89,9 +89,8 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
     end
 
     it 'logs running each reporter' do
-      allow(pipeline.logger).to receive(:info) do |prefix, &block|
-        expect(prefix).to eql('Diggit::Analysis::Pipeline')
-        expect(block.call).to match(/\[\S+\] \S+\.\.\./)
+      allow(pipeline).to receive(:info) do |&block|
+        expect(block.call).to match(/\S+\.\.\./)
       end
       comments
     end
