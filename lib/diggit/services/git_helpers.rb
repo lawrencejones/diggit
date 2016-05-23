@@ -82,11 +82,14 @@ module Diggit
         opts << "--work-tree=#{repo.workdir}" unless repo.bare?
 
         io = IO.popen([GIT_BINARY, *opts, *args])
+        output = io.read
+
         _, status = Process.wait2(io.pid)
+        output += io.read
 
         fail("git command failed!\n\n#{output}") unless status == 0
 
-        io.read
+        output
       end
     end
   end
