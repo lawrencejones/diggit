@@ -8,7 +8,19 @@ module Diggit
 
       def self.schedule
         start_at, end_at = next_start_end
-        enqueue({ start_at: start_at.to_f, end_at: end_at.to_f }, run_at: start_at)
+        job_args = { start_at: start_at.to_f, end_at: end_at.to_f }
+        return if in_queue?(job_args)
+
+        enqueue(job_args, run_at: start_at)
+      end
+
+      def self.in_queue?(job_args)
+        result = Que.execute(<<-SQL)
+        SELECT args
+          FROM que_jobs
+         WHERE job_class='#{self}';
+        SQL
+        result.present? && result.first['args'].first == job_args.stringify_keys
       end
 
       # Computes the next time period with which to schedule this job.

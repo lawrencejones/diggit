@@ -28,7 +28,7 @@ namespace :que do
     on roles(:worker) do
       within release_path do
         (1..fetch(:que_worker_count) / 2).each do |i|
-          next if test("[ -f #{shared_path}/que_worker_#{i}.pid ]")
+          next unless test("[ -f #{shared_path}/que_worker_#{i}.pid ]")
 
           info "[deploy:que] Killing que##{i} daemon"
           execute('start-stop-daemon',

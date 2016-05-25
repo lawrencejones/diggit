@@ -9,6 +9,21 @@ RSpec.describe(Diggit::Jobs::CronJob) do
 
   before { allow(job_class).to receive(:postgres_now).and_return(stubbed_now) }
   let(:schedule_at) { ['10:00', '11:00', '12:00'] }
+  let(:stubbed_now) { Time.zone.now }
+
+  def mock_job_count
+    Que.job_stats.find { |j| j['job_class'] == 'MockJob' }['count']
+  end
+
+  describe '.schedule' do
+    context 'when called twice' do
+      it 'does not reschedule' do
+        MockJob.schedule
+        expect(mock_job_count).to eql(1)
+        expect { MockJob.schedule }.not_to change { mock_job_count }
+      end
+    end
+  end
 
   describe '.next_start_end' do
     subject(:start_end) { job_class.next_start_end }
