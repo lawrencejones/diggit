@@ -11,21 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160517113801) do
+ActiveRecord::Schema.define(version: 20160525122444) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "projects", force: :cascade do |t|
-    t.string  "gh_path",                        limit: 126,                 null: false
-    t.boolean "watch",                                      default: true
-    t.text    "ssh_public_key"
-    t.binary  "encrypted_ssh_private_key"
-    t.binary  "ssh_initialization_vector"
-    t.boolean "polled",                                     default: false, null: false
-    t.boolean "silent",                                     default: false, null: false
-    t.binary  "encrypted_gh_token"
-    t.binary  "gh_token_initialization_vector"
+    t.string   "gh_path",                        limit: 126,                 null: false
+    t.boolean  "watch",                                      default: true
+    t.text     "ssh_public_key"
+    t.binary   "encrypted_ssh_private_key"
+    t.binary   "ssh_initialization_vector"
+    t.boolean  "polled",                                     default: false, null: false
+    t.boolean  "silent",                                     default: false, null: false
+    t.binary   "encrypted_gh_token"
+    t.binary   "gh_token_initialization_vector"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
@@ -40,6 +42,7 @@ ActiveRecord::Schema.define(version: 20160517113801) do
     t.text     "head",                             null: false
     t.boolean  "pushed_to_github", default: false, null: false
     t.decimal  "duration",         default: 0.0,   null: false
+    t.text     "reporters",        default: [],                 array: true
   end
 
   add_index "pull_analyses", ["project_id", "pull", "base", "head"], name: "index_pull_analyses_on_project_id_and_pull_and_base_and_head", unique: true, using: :btree
