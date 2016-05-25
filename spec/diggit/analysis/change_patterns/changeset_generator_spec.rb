@@ -47,6 +47,8 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::ChangesetGenerator) do
       changesets.each { |cs| expect(cs).not_to include('to_be_deleted') }
     end
 
+    it 'does not include merge commits'
+
     context 'when no of changesets exceeds MAX_CHANGESETS' do
       before { stub_const("#{described_class}::MAX_CHANGESETS", 1) }
 

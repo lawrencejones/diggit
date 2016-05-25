@@ -69,6 +69,7 @@ module Diggit
         #
         def generate_commit_changesets
           walker.each_with_object([]) do |commit, commit_changesets|
+            next unless commit.parents.size == 1
             return commit_changesets if commit_changesets.size >= MAX_CHANGESETS ||
                                         commits_in_cache.include?(commit.oid)
             commit_changesets << {
