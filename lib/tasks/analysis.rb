@@ -24,4 +24,34 @@ namespace :analysis do
 
     puts('Done!')
   end
+
+  desc 'Re-enqueues analysis for pulls missing reporters'
+  task :backfill do
+    require 'diggit/analysis/pipeline'
+    require 'diggit/jobs/analyse_pull'
+    require 'diggit/models/pull_analysis'
+
+    include Diggit
+
+    fully_reported_analyses = PullAnalysis.
+      where.contains(reporters: Analysis::Pipeline.reporters).
+      pluck(:id)
+    incomplete_reported_analyses = PullAnalysis.
+      where.not(id: fully_reported_analyses)
+
+    puts("Found #{incomplete_reported_analyses.count} incomplete analyses!")
+    ActiveRecord::Base.transaction do
+      incomplete_reported_analyses.each do |analysis|
+        puts("  - #{analysis.project.gh_path}/pull/#{analysis.pull} "\
+             "#{analysis.base.first(7)}...#{analysis.head.first(7)}")
+        Jobs::AnalysePull.
+          enqueue(analysis.project.gh_path,
+                  analysis.pull,
+                  analysis.head,
+                  analysis.base)
+      end
+    end
+
+    puts('Done!')
+  end
 end

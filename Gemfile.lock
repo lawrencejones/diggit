@@ -112,6 +112,11 @@ GEM
     parser (2.3.0.1)
       ast (~> 2.2)
     pg (0.18.4)
+    pg_array_parser (0.0.9)
+    postgres_ext (3.0.0)
+      activerecord (>= 4.0.0)
+      arel (>= 4.0.1)
+      pg_array_parser (~> 0.0.9)
     powerpack (0.1.1)
     prius (1.0.0)
     pry (0.10.3)
@@ -229,6 +234,7 @@ DEPENDENCIES
   oj
   parser
   pg
+  postgres_ext
   prius
   pry-byebug
   que

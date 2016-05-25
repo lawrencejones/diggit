@@ -83,6 +83,7 @@ module Diggit
         ActiveRecord::Base.logger = Diggit.logger
       end
 
+      require 'postgres_ext'
       database_config = ENV['DATABASE_URL']
       database_config ||= YAML.load_file(DATABASE_YAML).fetch(Prius.get(:diggit_env))
       ActiveRecord::Base.establish_connection(database_config)
