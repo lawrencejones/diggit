@@ -16,6 +16,11 @@ module Diggit
 
       MAX_FILES_CHANGED = 25
 
+      # [ 'RefactorDiligence', 'Complexity', ... ]
+      def self.reporters
+        REPORTERS.map { |r| r.parent.name.demodulize }
+      end
+
       class BadGitHistory < StandardError; end
       include InstanceLogger
 

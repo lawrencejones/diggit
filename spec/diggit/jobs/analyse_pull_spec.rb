@@ -48,6 +48,17 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
         expect(Diggit::Jobs::PushAnalysisComments).not_to receive(:enqueue)
         run!
       end
+
+      context 'but it is incomplete' do
+        before { pull_analysis.update(reporters: []) }
+
+        it 're-runs pipeline' do
+          expect { run! }.
+            to change { pull_analysis.reload.reporters }.
+            from([]).
+            to(['RefactorDiligence'])
+        end
+      end
     end
 
     context 'when referenced commits are no longer in repo' do

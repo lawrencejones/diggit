@@ -41,7 +41,10 @@ module Diggit
           return false
         end
 
-        if PullAnalysis.exists?(project: project, pull: pull, head: head, base: base)
+        analysis = PullAnalysis.
+          find_by(project: project, pull: pull, head: head, base: base)
+
+        if analysis.present? && (Analysis::Pipeline.reporters - analysis.reporters).empty?
           info { 'Pull already analysed, doing nothing' }
           return false
         end
@@ -82,14 +85,9 @@ module Diggit
                                head: head, base: base)
           analysis.update!(comments: comments,
                            duration: pipeline_duration,
-                           reporters: reporters)
+                           reporters: Analysis::Pipeline.reporters)
           analysis
         end
-      end
-
-      # [ 'RefactorDiligence', 'Complexity', ... ]
-      def reporters
-        Analysis::Pipeline::REPORTERS.map { |r| r.parent.name.demodulize }
       end
     end
   end
