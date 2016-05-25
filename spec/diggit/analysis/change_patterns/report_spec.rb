@@ -69,7 +69,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
   let(:gh_path) { 'owner/repo' }
 
   before do
-    stub_const("#{described_class}::MIN_SUPPORT", min_support)
+    allow(described_class).to receive(:min_support_for).and_return(min_support)
     stub_const("#{described_class}::MIN_CONFIDENCE", min_confidence)
     stub_const("#{described_class}::MAX_CHANGESET_SIZE", max_changeset_size)
   end
@@ -77,6 +77,22 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
   let(:min_support) { 1 }
   let(:min_confidence) { 0.5 }
   let(:max_changeset_size) { 10 }
+
+  describe '.min_support_for' do
+    before { allow(described_class).to receive(:min_support_for).and_call_original }
+
+    it 'yields 5 for changesets sizes < 5,000' do
+      expect(described_class.min_support_for(3_000)).to equal(5)
+    end
+
+    it 'linearly interpolates by the thousand up to 10,000' do
+      expect(described_class.min_support_for(7_500)).to equal(7)
+    end
+
+    it 'caps out at 10 for anything over 10,000' do
+      expect(described_class.min_support_for(12_000)).to equal(10)
+    end
+  end
 
   describe '.comments' do
     subject(:comments) { report.comments }

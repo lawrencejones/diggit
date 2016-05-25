@@ -8,9 +8,17 @@ module Diggit
   module Analysis
     module ChangePatterns
       class Report
-        MIN_SUPPORT = 5 # required coupled changes to be seen as associated
         MIN_CONFIDENCE = 0.75 # required confidence that files are coupled
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
+
+        # Scale the required minimum support by the number of changesets we have available
+        def self.min_support_for(no_of_changesets)
+          case no_of_changesets
+          when 0..5_000      then 5
+          when 5_000..10_000 then no_of_changesets / 1_000
+          else                    10
+          end
+        end
 
         include Services::GitHelpers
         include InstanceLogger
@@ -59,14 +67,14 @@ module Diggit
         def frequent_itemsets
           FpGrowth.
             new(changesets,
-                min_support: MIN_SUPPORT,
+                min_support: self.class.min_support_for(changesets.size),
                 max_items: MAX_CHANGESET_SIZE).
             frequent_itemsets.
             tap { |itemsets| info { "Found #{itemsets.count} frequent itemsets!" } }
         end
 
         def changesets
-          ChangesetGenerator.
+          @changesets ||= ChangesetGenerator.
             # Use base to avoid including commits that may not be merged into master
             new(repo, head: base, gh_path: gh_path).
             changesets

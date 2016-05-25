@@ -70,8 +70,8 @@ module Diggit
         def generate_commit_changesets
           walker.each_with_object([]) do |commit, commit_changesets|
             next unless commit.parents.size == 1
-            return commit_changesets if commit_changesets.size >= MAX_CHANGESETS ||
-                                        commits_in_cache.include?(commit.oid)
+            return commit_changesets if commit_changesets.size >= MAX_CHANGESETS
+
             commit_changesets << {
               oid: commit.oid,
               changeset: commit_diff(commit),
@@ -85,17 +85,16 @@ module Diggit
         end
 
         def commits_in_cache
-          @commits_in_cache ||= Hamster::Set.
-            new(changeset_cache.map { |entry| entry[:oid] })
+          @commits_in_cache ||= changeset_cache.map { |entry| entry[:oid] }
         end
 
         # Creates a new commit walker that will ignore commits already present in the
         # cache.
         def walker
           Rugged::Walker.new(repo).tap do |walker|
-            walker.simplify_first_parent
             walker.sorting(Rugged::SORT_DATE)
             walker.push(head)
+            walker.hide(commits_in_cache)
           end
         end
       end
