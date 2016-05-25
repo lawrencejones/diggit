@@ -75,11 +75,21 @@ module Diggit
 
       def create_pull_analysis(pull, comments)
         info { 'Creating PullAnalysis record...' }
-        PullAnalysis.create!(project: project,
-                             pull: pull,
-                             head: head, base: base,
-                             comments: comments,
-                             duration: pipeline_duration)
+        ActiveRecord::Base.transaction do
+          analysis = PullAnalysis.
+            find_or_create_by!(project: project,
+                               pull: pull,
+                               head: head, base: base)
+          analysis.update!(comments: comments,
+                           duration: pipeline_duration,
+                           reporters: reporters)
+          analysis
+        end
+      end
+
+      # [ 'RefactorDiligence', 'Complexity', ... ]
+      def reporters
+        Analysis::Pipeline::REPORTERS.map { |r| r.parent.name.demodulize }
       end
     end
   end

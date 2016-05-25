@@ -6,6 +6,7 @@ FactoryGirl.define do
     base 'base-sha'
     pushed_to_github false
     duration { (3 * Random.rand)**2 }
+    reporters []
     project
   end
 end

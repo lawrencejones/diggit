@@ -23,6 +23,8 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
 
     allow(cloner).to receive(:clone).and_yield(repo_handle)
     allow(pipeline).to receive(:aggregate_comments).and_return(comments)
+    stub_const('Diggit::Analysis::Pipeline::REPORTERS',
+               [Diggit::Analysis::RefactorDiligence::Report])
   end
 
   describe '.run' do
@@ -75,6 +77,7 @@ RSpec.describe(Diggit::Jobs::AnalysePull) do
         expect(pull_analysis.project_id).to eql(project.id)
         expect(pull_analysis.comments).to match(comments.as_json)
         expect(pull_analysis.duration).to be > 0.0
+        expect(pull_analysis.reporters).to eql(['RefactorDiligence'])
       end
 
       it 'enqueues PushAnalysisComments job' do
