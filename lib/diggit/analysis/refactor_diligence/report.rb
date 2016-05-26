@@ -18,7 +18,7 @@ module Diggit
         end
 
         def comments
-          @comments ||= ruby_files_changed.empty? ? [] : generate_comments
+          @comments ||= parseable_files_changed.empty? ? [] : generate_comments
         end
 
         private
@@ -49,22 +49,22 @@ module Diggit
             select { |_, history| commits_in_diff.include?(history.first[1].oid) }
         end
 
-        # Parses all the ruby files changed in head to identify the location of each
+        # Parses all the changed files changed in head to identify the location of each
         # method in the head commit.
         #
         #   { 'method' => 'file.rb:4', ... }
         #
         def method_locations
-          @method_locations ||= ruby_files_changed.
+          @method_locations ||= parseable_files_changed.
             map { |file| [file, cat_file(commit: head, path: file)] }.
-            map { |(file, contents)| RubyMethodParser.new(contents, file: file).methods }.
+            map { |(file, contents)| MethodParser.parse(contents, file: file).methods }.
             inject(:merge).
             transform_values { |method_info| method_info.fetch(:loc) }
         end
 
         def method_size_history
           @method_size_history ||= MethodSizeHistory.
-            new(repo, head: head, files: ruby_files_changed).
+            new(repo, head: head, files: parseable_files_changed).
             history
         end
 
@@ -72,12 +72,12 @@ module Diggit
           @commits_in_diff ||= commits_between(base, head).map(&:oid)
         end
 
-        def ruby_files_changed
-          @ruby_files_changed ||= repo.
+        def parseable_files_changed
+          @parseable_files_changed ||= repo.
             diff(repo.merge_base(base, head), head).deltas.
             reject { |delta| delta.status == :deleted }.
             map { |delta| delta.new_file[:path] }.
-            select { |file| File.extname(file) == '.rb' }
+            select { |file| MethodParser.supported?(file) }
         end
       end
     end
