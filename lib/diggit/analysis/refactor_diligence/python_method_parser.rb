@@ -2,6 +2,8 @@ module Diggit
   module Analysis
     module RefactorDiligence
       class PythonMethodParser
+        EXTENSIONS = %w(.py).freeze
+
         CLASS_DEFINITION = /^(?<ws>\s*)(?<token>class)\s+(?<ident>[^\(:]+)/
         FUNCTION_DEFINITION = /^(?<ws>\s*)(?<token>def)\s+(?<ident>[^\(]+)/
 

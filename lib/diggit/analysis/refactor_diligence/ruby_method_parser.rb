@@ -7,6 +7,8 @@ module Diggit
     module RefactorDiligence
       # Extracts methods and their size/location from ruby code
       class RubyMethodParser
+        EXTENSIONS = %w(.rb).freeze
+
         def initialize(contents, file: '')
           @ast = Parser::Ruby23.parse(contents)
           @file = file

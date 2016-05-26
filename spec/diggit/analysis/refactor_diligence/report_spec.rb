@@ -23,9 +23,10 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     end
     let(:socket_comment) { comment_for(/Socket::initialize/) }
     let(:master_comment) { comment_for(/Master::initialize/) }
+    let(:python_comment) { comment_for(/PythonFile::__init__/) }
 
-    context 'when pull does not change ruby files' do
-      let(:head) { branch_oid('non-ruby') }
+    context 'when pull does not change parseable files' do
+      let(:head) { branch_oid('non-parseable') }
       let(:base) { branch_oid('feature') }
 
       it { is_expected.to eql([]) }
@@ -35,11 +36,25 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
       expect(master_comment).to be_nil
     end
 
-    it 'include methods that are above threshold', :aggregate_failures do
+    it 'includes python methods that are above threshold' do
+      expect(python_comment).to include(
+        report: 'RefactorDiligence',
+        message: /has increased in size the last 3 times/i,
+        location: 'python_file.py:3',
+        index: 'PythonFile::__init__',
+        meta: {
+          method_name: 'PythonFile::__init__',
+          times_increased: 3,
+        }
+      )
+    end
+
+    it 'includes ruby methods that are above threshold' do
       expect(socket_comment).to include(
         report: 'RefactorDiligence',
         message: /has increased in size the last 3 times/i,
         location: 'file.rb:8',
+        index: 'Utils::Socket::initialize',
         meta: {
           method_name: 'Utils::Socket::initialize',
           times_increased: 3,

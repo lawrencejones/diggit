@@ -1,6 +1,6 @@
 require 'active_support/core_ext/module'
 
-require_relative 'ruby_method_parser'
+require_relative 'method_parser'
 require_relative '../../services/git_helpers'
 
 module Diggit
@@ -60,7 +60,7 @@ module Diggit
         #   { 'method' => 4, ... }
         #
         def scan(file, commit)
-          RubyMethodParser.new(cat_file(commit: commit, path: file), file: file).methods.
+          MethodParser.parse(cat_file(commit: commit, path: file), file: file).methods.
             transform_values { |method_info| method_info.fetch(:lines) }
         end
       end

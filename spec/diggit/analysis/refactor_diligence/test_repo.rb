@@ -3,7 +3,7 @@ require_relative '../temporary_analysis_repo'
 # rubocop:disable Metrics/MethodLength
 def refactor_diligence_test_repo
   TemporaryAnalysisRepo.create do |repo|
-    repo.write 'master.rb', <<-RUBY
+    repo.write('master.rb', <<-RUBY)
     class Master
       def initialize
       end
@@ -11,7 +11,16 @@ def refactor_diligence_test_repo
     RUBY
     repo.commit('initial Master::initialize')
 
-    repo.write 'master.rb', <<-RUBY
+    repo.write('python_file.py', <<-PYTHON)
+    class PythonFile(object):
+
+    \tdef __init__(self, file):
+    \t\tself.file = file
+    \t\tprint(self.file)
+    PYTHON
+    repo.commit('initial PythonFile::__init__')
+
+    repo.write('master.rb', <<-RUBY)
     class Master
       def initialize
         puts('first line')
@@ -20,7 +29,17 @@ def refactor_diligence_test_repo
     RUBY
     repo.commit('Master::initialize +1')
 
-    repo.write 'master.rb', <<-RUBY
+    repo.write('python_file.py', <<-PYTHON)
+    class PythonFile(object):
+
+    \tdef __init__(self, file):
+    \t\tself.file = file
+    \t\tprint(self.file)
+    \t\tprint('Adding another line')
+    PYTHON
+    repo.commit('PythonFile::__init__ +1')
+
+    repo.write('master.rb', <<-RUBY)
     class Master
       def initialize
         puts('first line')
@@ -28,12 +47,12 @@ def refactor_diligence_test_repo
       end
     end
     RUBY
-    repo.commit('Master::initialize +2')
+    repo.commit('Master::initialize, PythonFile::__init__ +2')
 
     # Start feature branch here
     repo.branch('feature')
 
-    repo.write 'file.rb', <<-RUBY
+    repo.write('file.rb', <<-RUBY)
     module Utils
       class Socket
         def initialize(host)
@@ -44,7 +63,7 @@ def refactor_diligence_test_repo
     RUBY
     repo.commit('initial Utils::Socket')
 
-    repo.write 'file.rb', <<-RUBY
+    repo.write('file.rb', <<-RUBY)
     module Utils
       class Socket
         def initialize(host, port)
@@ -56,7 +75,7 @@ def refactor_diligence_test_repo
     RUBY
     repo.commit('add port')
 
-    repo.write 'file.rb', <<-RUBY
+    repo.write('file.rb', <<-RUBY)
     module Utils
       class Socket
         def self.from_uri(uri)
@@ -72,7 +91,7 @@ def refactor_diligence_test_repo
       end
     end
     RUBY
-    repo.write 'master.rb', <<-RUBY
+    repo.write('master.rb', <<-RUBY)
     class Master
       def initialize
         puts('first line')
@@ -83,11 +102,20 @@ def refactor_diligence_test_repo
       end
     end
     RUBY
-    repo.commit('.from_uri and log')
+    repo.write('python_file.py', <<-PYTHON)
+    class PythonFile(object):
 
-    # Start non-ruby branch here
-    repo.branch('non-ruby')
+    \tdef __init__(self, file):
+    \t\tself.file = file
+    \t\tprint(self.file)
+    \t\tprint('Adding another line')
+    \t\tprint('Second file increase')
+    PYTHON
+    repo.commit('.from_uri and log, PythonFile::__init__ +1')
+
+    # Start non-parseable branch here
+    repo.branch('non-parseable')
     repo.write('main.c', %(int main(int argc, char **argv) { return 0; }))
-    repo.commit('non-ruby file')
+    repo.commit('unparseable file')
   end
 end
