@@ -87,7 +87,7 @@ module Diggit
         _, status = Process.wait2(io.pid)
         output += io.read
 
-        fail("git command failed!\n\n#{output}") unless status == 0
+        raise("git command failed!\n\n#{output}") unless status == 0
 
         output
       end

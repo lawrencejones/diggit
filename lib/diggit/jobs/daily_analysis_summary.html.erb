@@ -1,0 +1,71 @@
+<!-- Partial for the DailyAnalysisSummary email -->
+<table id="analysis-content">
+  <tr>
+    <td>
+      <h1>Daily Analysis Summary</h1>
+      <p class="summary">
+        <b><%= new_analyses.count %></b> new Pull Analyses created in the last 24
+        hours, pushing <b><%= new_comment_count.values.sum %></b> new comments to
+        GitHub!
+      </p>
+
+      <p class="duration-stats">
+        Each pull took <b><%= duration_stats[:average] %>s</b> on average to
+        process. The longest analysis took <b><%= duration_stats[:max] %>s</b>,
+        while the slowest 10% of analyses averaged
+        <b><%= duration_stats[:tp_90] %>s</b>.
+      </p>
+
+      <p class="report-stats">
+        Of the comments created,
+        <% for (reporter, count), i in new_comment_count.each_with_index %>
+          <% last = i == new_comment_count.size - 1 %>
+          <%= 'and ' if last %>
+          <b><%= count %></b> were <%= reporter %>
+          <%= last ? '.' : ', ' %>
+        <% end %>
+      </p>
+
+      <h2>Breakdown</h2>
+      <table>
+        <tbody>
+          <% for project in projects_with_new_analyses %>
+            <% analyses = new_analyses_for(project) %>
+            <% for analysis, i in analyses.each_with_index %>
+              <tr>
+
+                <% if i == 0 %>
+                  <td rowspan="<%= analyses.count %>" valign="middle">
+                    <a class="project" href="<%= link_for_project(project) %>">
+                      <%= project.gh_path %>
+                    </a>
+                  </td>
+                <% end %>
+
+                <td>
+                  <a href="<%= link_for_pull(project, analysis[:pull]) %>">
+                    <%= analysis[:pull] %>
+                  </a>
+                </td>
+
+                <td>
+                  <%= analysis[:no_of_analyses] %>
+                  /
+                  <%= analysis[:no_of_comments] %>
+                </td>
+
+              </tr>
+            <% end %>
+
+            <tr>
+              <td colspan="3"
+                  style="padding-top: 5px; border-bottom: 1px solid #ddd">
+              </td>
+            </tr>
+            <tr><td colspan="3" style="padding-top: 5px"></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+</table>

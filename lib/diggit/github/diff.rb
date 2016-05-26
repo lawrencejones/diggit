@@ -59,7 +59,7 @@ module Diggit
 
       def diff_for_file(file)
         diff = file_diffs.find { |file_diff| file_diff[:new] == file }
-        fail FileNotFound, "File #{file} not present in diff" if diff.nil?
+        raise FileNotFound, "File #{file} not present in diff" if diff.nil?
 
         diff
       end

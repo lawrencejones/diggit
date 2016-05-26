@@ -5,7 +5,7 @@ namespace :integ do
     fixture_path = File.join(Rake.application.original_dir,
                              'spec/fixtures/api/github_webhooks', fixture_file)
 
-    fail "Fixture #{fixture_file} does not exist!" unless File.exist?(fixture_path)
+    raise "Fixture #{fixture_file} does not exist!" unless File.exist?(fixture_path)
 
     system %(
     curl -X POST \

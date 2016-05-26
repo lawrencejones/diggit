@@ -21,7 +21,7 @@ RSpec.describe(Diggit::Routes::Auth) do
       allow(Diggit::Services::Jwt).
         to receive(:decode).
         with(anything) do |state|
-          fail(JWT::ExpiredSignature) if state == 'expired_state'
+          raise(JWT::ExpiredSignature) if state == 'expired_state'
           { 'data' => state == 'valid_state' ? 'github' : state }
         end
       allow(Diggit::Services::Jwt).

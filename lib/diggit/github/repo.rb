@@ -26,7 +26,8 @@ module Diggit
           path, 'web',
           { url: endpoint, content_type: :json },
           events: ['pull_request'],
-          active: true)
+          active: true
+        )
       end
 
       def remove_webhook!(endpoint)

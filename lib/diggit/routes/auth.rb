@@ -57,7 +57,8 @@ module Diggit
             client_id: config.fetch(:client_id),
             client_secret: config.fetch(:client_secret),
             code: params['code'],
-            state: params['state'])
+            state: params['state']
+          )
 
           response = Unirest.
             post("#{GITHUB_GET_ACCESS_TOKEN}?#{query_string}",

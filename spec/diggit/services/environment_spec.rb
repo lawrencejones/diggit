@@ -19,7 +19,7 @@ RSpec.describe(Diggit::Services::Environment) do
     context 'with failing block' do
       it 'restores old value' do
         begin
-          described_class.with_temporary_env(env) { fail 'ahh!' }
+          described_class.with_temporary_env(env) { raise 'ahh!' }
           expect(ENV['ENV_KEY']).to eql('existing_value')
         rescue RuntimeError => err
           expect(err.message).to match(/ahh!/)
