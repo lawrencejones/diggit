@@ -14,7 +14,7 @@ module Diggit
     #
     # Will continually queue the next job, with the POLLING_INTERVAL delay.
     class PollGithub < RepeatJob
-      INTERVAL = 60 # seconds
+      INTERVAL = 300 # seconds
       include InstanceLogger
 
       def run
