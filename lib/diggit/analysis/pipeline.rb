@@ -56,8 +56,8 @@ module Diggit
       end
 
       def verify_refs!
-        fail BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
-        fail BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
+        raise BadGitHistory, "Missing base commit #{base}" unless repo.exists?(base)
+        raise BadGitHistory, "Missing head commit #{head}" unless repo.exists?(head)
       end
 
       def no_files_changed

@@ -49,7 +49,8 @@ module Diggit
       Handler.new(
         Middleware::FrontEnd,
         rack_static: Rack::Static.new(nil, root: PUBLIC, urls: ['']),
-        fallback_path: '/index.html')
+        fallback_path: '/index.html'
+      )
     end
 
     def build_auth

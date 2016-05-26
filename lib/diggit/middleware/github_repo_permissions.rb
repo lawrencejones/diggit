@@ -12,7 +12,7 @@ module Diggit
 
       def call
         unless repo_permissions?
-          fail Middleware::Authorize::NotAuthorized, 'github_permissions'
+          raise Middleware::Authorize::NotAuthorized, 'github_permissions'
         end
 
         provide(gh_repo: Github::Repo.new(repo, gh_client), gh_repo_path: repo_path)

@@ -72,7 +72,7 @@ module Diggit
       end
 
       def render
-        fail('No html body!') if html_body.nil?
+        raise('No html body!') if html_body.nil?
 
         rendered_body = ERB.new(html_body).result(binding)
         rendered_html = ERB.new(LAYOUT).result(binding_with_block { rendered_body })

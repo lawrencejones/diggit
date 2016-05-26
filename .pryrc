@@ -15,3 +15,5 @@ Que.logger.level = Logger::INFO.to_i
 gh_token = ENV['DIGGIT_GITHUB_TOKEN']
 require_relative 'lib/diggit/github/client'
 gh_client = Diggit::Github.client
+
+Dir['lib/diggit/jobs/*.rb'].each { |r| require_relative r }
