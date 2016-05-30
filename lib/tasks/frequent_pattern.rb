@@ -10,6 +10,7 @@ namespace :frequent_pattern do
     require 'diggit/analysis/change_patterns/changeset_generator'
 
     min_support = args.fetch(:min_support, 10).to_i
+    max_items = args.fetch(:max_items, 20).to_i
 
     puts('Loading rails repo...')
     rails_path = File.join(Rake.application.original_dir, args.fetch(:rails_path))
@@ -17,17 +18,17 @@ namespace :frequent_pattern do
 
     puts('Walking commit history...')
     changesets = Diggit::Analysis::ChangePatterns::ChangesetGenerator.
-      new(rails, gh_path: 'frequent_pattern/rails').changesets
+      new(rails, gh_path: 'frequent_pattern/rails').changesets.first(10_000)
     puts("Loaded #{changesets.count} changesets!")
 
     profile = patterns = nil
 
-    puts('Beginning benchmark...')
+    puts("Beginning benchmark #{{ min_support: min_support, max_items: max_items }}...")
     run_time = Benchmark.measure do
       profile = RubyProf.profile do
         patterns = algorithm.new(changesets,
                                  min_support: min_support,
-                                 max_items: 25).frequent_itemsets
+                                 max_items: max_items).frequent_itemsets
       end
     end
     puts('Finished!')

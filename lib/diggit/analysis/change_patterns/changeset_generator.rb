@@ -17,7 +17,7 @@ module Diggit
         MAX_CHANGESETS = 10_000
 
         def initialize(repo, gh_path:, head: nil)
-          @repo = repo
+          @repo = Rugged::Repository.new(repo.workdir)
           @gh_path = gh_path
           @head = head || repo.last_commit.oid
           @current_files = ls_files(@head)
@@ -49,6 +49,7 @@ module Diggit
           info { 'Walking repo...' }
           new_changesets = generate_commit_changesets.
             reject { |entry| entry[:changeset].blank? }
+          repo.close # to free used memory
           info { "Found #{new_changesets.size} new changesets" }
 
           changeset_cache.concat(new_changesets).
