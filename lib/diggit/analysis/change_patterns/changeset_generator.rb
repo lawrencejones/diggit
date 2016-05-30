@@ -26,7 +26,8 @@ module Diggit
           @changeset_cache = Services::Cache.get("#{gh_path}/changesets") || []
         end
 
-        # Generates list of changesets
+        # Generates list of changesets, returning only files that are present
+        # in @head
         #
         #     [
         #       ['file.rb', 'another_file.rb'],
@@ -36,13 +37,25 @@ module Diggit
         #
         def changesets
           @changesets = begin
-            fetch_and_update_cache.map { |entry| current_files & entry[:changeset] }
+            immute(fetch_and_update_cache).
+              map { |entry| current_files & entry[:changeset] }
           end
         end
 
         private
 
         attr_reader :repo, :head, :gh_path, :current_files, :changeset_cache
+
+        # De-duplicates occurances of strings in the given changesets. Freezes all
+        # strings, which allows ruby to reuse the reference.
+        def immute(changesets)
+          all_files = {}
+          changesets.each do |changeset|
+            changeset[:changeset] = changeset[:changeset].map do |item|
+              all_files[item.freeze] ||= item
+            end
+          end
+        end
 
         # Load cache, walk repo, update cache
         def fetch_and_update_cache
