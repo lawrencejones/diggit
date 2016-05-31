@@ -7,7 +7,7 @@ module Diggit
   module Analysis
     module RefactorDiligence
       class Report
-        TIMES_INCREASED_THRESHOLD = 2
+        TIMES_INCREASED_THRESHOLD = 3
 
         include Services::GitHelpers
 
