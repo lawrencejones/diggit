@@ -18,11 +18,11 @@ module Diggit
         end
 
         class Itemset
-          def initialize(items, params = {})
+          def initialize(items, support: 0, generators: Set[], extensions: Set[])
             @items = items
-            @support = params.fetch(:support, 0)
-            @generators = params.fetch(:generators, Set[])
-            @extensions = params.fetch(:extensions, Set[])
+            @support = support
+            @generators = generators
+            @extensions = extensions
           end
 
           def to_h
