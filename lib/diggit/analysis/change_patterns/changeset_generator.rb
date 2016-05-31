@@ -49,8 +49,6 @@ module Diggit
         # De-duplicates occurances of strings in the given changesets. Freezes all
         # strings, which allows ruby to reuse the reference.
         def immute(changesets)
-          return changesets
-
           all_files = {}
           changesets.each do |changeset|
             changeset[:changeset] = changeset[:changeset].map do |item|
