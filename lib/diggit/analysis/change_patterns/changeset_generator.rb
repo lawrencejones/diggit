@@ -14,7 +14,7 @@ module Diggit
         include Services::GitHelpers
 
         # Specify how many changesets to keep in storage
-        MAX_CHANGESETS = 20_000
+        MAX_CHANGESETS = 10_000
 
         def initialize(repo, gh_path:, head: nil)
           @repo = Rugged::Repository.new(repo.workdir)

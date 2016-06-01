@@ -62,6 +62,39 @@ namespace :analysis do
     puts('Done!')
   end
 
+  def analysis_comment_rows(analyses)
+    unique_comments(analyses.order(:created_at)).map do |comment|
+      ["#{comment['report']}##{comment['index']}", *analyses.map do |a|
+        a.comments.any? { |c| c.slice('report', 'index') == comment } ? 'X' : ''
+      end]
+    end
+  end
+
+  desc 'Examines entire project'
+  task :examine_project, [:gh_path] do |_, args|
+    require 'terminal-table'
+    require 'colorize'
+    require 'diggit/models/pull_analysis'
+
+    rows = []
+    gh_path = args.fetch(:gh_path)
+
+    pulls = PullAnalysis.for_project(gh_path).pluck('DISTINCT pull').sort
+    pulls.each_with_index do |pull, i|
+      analyses = PullAnalysis.for_project(gh_path).where(pull: pull).with_comments
+      next if analyses.empty?
+      rows << :separator unless rows.empty?
+      rows << ["#{gh_path}/pull/#{pull}".colorize(:light_blue)]
+      rows << :separator
+      rows.concat(analysis_comment_rows(analyses))
+      rows << :separator
+      rows << []
+    end
+
+    rows.pop(2)
+    puts(Terminal::Table.new(rows: rows))
+  end
+
   desc 'Examines the comments made to a pull request'
   task :examine, [:gh_path, :pull] do |_, args|
     require 'terminal-table'
@@ -69,17 +102,10 @@ namespace :analysis do
 
     analyses = PullAnalysis.
       for_project(args.fetch(:gh_path)).
-      where(pull: args.fetch(:pull)).
-      order(:created_at)
+      where(pull: args.fetch(:pull))
 
     puts("Found #{analyses.count} analyses for this pull!")
-
-    rows = unique_comments(analyses).map do |comment|
-      ["#{comment['report']}##{comment['index']}", *analyses.map do |a|
-        a.comments.any? { |c| c.slice('report', 'index') == comment } ? 'X' : ''
-      end]
-    end
-    puts(Terminal::Table.new(rows: rows))
+    puts(Terminal::Table.new(rows: analysis_comment_rows(analyses)))
   end
 
   desc 'Generates stats about analysis comments'
