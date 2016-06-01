@@ -10,13 +10,15 @@ module Diggit
   module Jobs
     class PushAnalysisComments < Que::Job
       # For reporters that are in trial mode
-      SILENT_REPORTERS = %w(Complexity ChangePatterns).freeze
+      SILENT_REPORTERS = [].freeze
       include InstanceLogger
 
       def run(pull_analysis_id)
         @pull_analysis = PullAnalysis.find(pull_analysis_id)
         @comment_generator = Github::CommentGenerator.
-          new(project.gh_path, pull_analysis.pull, Github.client)
+          new(project.gh_path,
+              pull_analysis.pull,
+              Github.client_for(pull_analysis.project))
         @logger_prefix = "[#{pull_analysis.project.gh_path}/#{pull_analysis.pull}]"
 
         if pull_analysis.pushed_to_github
