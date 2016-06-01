@@ -1,6 +1,7 @@
 require 'hamster/hash'
 
 require_relative '../logger'
+require_relative '../services/git_helpers'
 require_relative 'refactor_diligence/report'
 require_relative 'complexity/report'
 require_relative 'change_patterns/report'
@@ -23,6 +24,7 @@ module Diggit
 
       class BadGitHistory < StandardError; end
       include InstanceLogger
+      include Services::GitHelpers
 
       def initialize(repo, head:, base:, gh_path:)
         @repo = repo
@@ -61,7 +63,7 @@ module Diggit
       end
 
       def no_files_changed
-        repo.diff(base, head).deltas.count
+        @no_files_changed = files_modified(base: base, head: head).count
       end
     end
   end
