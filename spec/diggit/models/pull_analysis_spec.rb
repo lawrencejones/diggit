@@ -20,17 +20,40 @@ RSpec.describe(PullAnalysis) do
   end
 
   describe 'scopes' do
-    describe '.for_project' do
-      let(:other_project) { FactoryGirl.create(:project) }
-      let(:analysis_a) { FactoryGirl.create(:pull_analysis, project: project) }
-      let(:analysis_b) { FactoryGirl.create(:pull_analysis, project: project) }
-      let(:analysis_c) { FactoryGirl.create(:pull_analysis, project: other_project) }
+    let!(:other_project) { FactoryGirl.create(:project) }
+    let!(:analysis_a) do
+      FactoryGirl.create(:pull_analysis,
+                         project: project,
+                         pull: 1, head: '1',
+                         comments: []) # no comments
+    end
+    let!(:analysis_b) do
+      FactoryGirl.create(:pull_analysis, project: project, pull: 1, head: '2')
+    end
+    let!(:analysis_c) { FactoryGirl.create(:pull_analysis, project: project, pull: 2) }
+    let!(:analysis_d) { FactoryGirl.create(:pull_analysis, project: other_project) }
 
+    describe '.for_project' do
       it 'finds all PullAnalyses for project with gh_path', :aggregate_failures do
-        pull_analyses = described_class.for_project(project.gh_path)
+        pull_analyses = described_class.for_project(project.gh_path).to_a
+        expect(pull_analyses).to include(analysis_a, analysis_b, analysis_c)
+        expect(pull_analyses).not_to include(analysis_d)
+      end
+    end
+
+    describe '.for_pull' do
+      it 'finds all PullAnalyses for that pull', :aggregate_failures do
+        pull_analyses = described_class.for_project(project.gh_path).for_pull(1).to_a
         expect(pull_analyses).to include(analysis_a, analysis_b)
         expect(pull_analyses).not_to include(analysis_c)
       end
+    end
+
+    describe '.with_comments' do
+      subject { described_class.with_comments.to_a }
+
+      it { is_expected.not_to include(analysis_a) }
+      it { is_expected.to include(analysis_b, analysis_c, analysis_d) }
     end
   end
 end
