@@ -115,7 +115,8 @@ namespace :analysis do
   end
 
   def analysis_comment_rows(analyses)
-    unique_comments(analyses.order(:created_at)).map do |comment|
+    analyses = analyses.order(:created_at)
+    unique_comments(analyses).map do |comment|
       ["#{comment['report']}##{comment['index']}", *analyses.map do |a|
         a.comments.any? { |c| c.slice('report', 'index') == comment } ? 'X' : ''
       end]
