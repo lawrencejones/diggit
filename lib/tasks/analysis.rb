@@ -1,4 +1,11 @@
 namespace :analysis do
+  def unique_comments(analyses)
+    analyses.
+      flat_map(&:comments).
+      map { |comment| comment.slice('report', 'index') }.
+      uniq
+  end
+
   desc 'Runs an analysis on the given pull'
   task :run, [:gh_path, :pull] do |_, args|
     require 'diggit/github/client'
@@ -67,16 +74,64 @@ namespace :analysis do
 
     puts("Found #{analyses.count} analyses for this pull!")
 
-    comment_indexes = analyses.
-      flat_map(&:comments).
-      map { |comment| comment.slice('report', 'index') }.
-      uniq
-
-    rows = comment_indexes.map do |comment|
+    rows = unique_comments(analyses).map do |comment|
       ["#{comment['report']}##{comment['index']}", *analyses.map do |a|
         a.comments.any? { |c| c.slice('report', 'index') == comment } ? 'X' : ''
       end]
     end
     puts(Terminal::Table.new(rows: rows))
+  end
+
+  desc 'Generates stats about analysis comments'
+  task :stats do
+    require 'terminal-table'
+    require 'diggit/analysis/pipeline'
+    require 'diggit/models/pull_analysis'
+    require 'diggit/models/project'
+    require 'diggit/services/pull_comment_stats'
+
+    def counter
+      Diggit::Analysis::Pipeline.reporters.map { |r| [r, total: 0, resolved: 0] }.to_h
+    end
+
+    def initial_rows
+      [['Project', 'Pulls', 'Totals', *counter.keys], :separator]
+    end
+
+    def reporter_cell(resolved:, total:)
+      pct = 100 * resolved.to_f / total.to_f
+      pct = 0 if pct.nan?
+
+      "#{resolved}/#{total} (#{pct.round(1)}%)"
+    end
+
+    # Project,    Pulls, Totals,      Reporter
+    # owner/repo, 5,     15/60 (25%), 15/60 (25%)
+    Project.order(:gh_path).each_with_object(initial_rows) do |project, rows|
+      project_analyses = PullAnalysis.where(project: project)
+      next if project_analyses.with_comments.empty?
+
+      rows << row = [project.gh_path, project_analyses.count('DISTINCT pull').to_s]
+      report_counts = counter
+
+      # Compute stats per pull and aggregate
+      project_analyses.with_comments.group_by(&:pull).each do |pull, analyses|
+        stats = Diggit::Services::PullCommentStats.new(project, pull)
+        report_counts.each do |reporter, count|
+          count[:total] += stats.comments.select { |c| c['report'] == reporter }.size
+          count[:resolved] += stats.resolved.select { |c| c['report'] == reporter }.size
+        end
+      end
+
+      # Compute project total of all reporters
+      project_total = report_counts.values.
+        each_with_object(total: 0, resolved: 0) do |report_count, project_count|
+          project_count[:total] += report_count[:total]
+          project_count[:resolved] += report_count[:resolved]
+        end
+
+      row << reporter_cell(project_total)
+      report_counts.each { |_, report_total| row << reporter_cell(report_total) }
+    end.tap { |rows| puts(Terminal::Table.new(rows: rows)) }
   end
 end
