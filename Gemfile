@@ -31,6 +31,7 @@ gem 'mail'
 gem 'roadie'
 gem 'oj'
 gem 'redis'
+gem 'terminal-table'
 
 group :development do
   gem 'rerun'
