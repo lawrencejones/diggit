@@ -8,7 +8,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FileSuggester) do
 
   let(:frequent_itemsets) do
     load_json_fixture('frequent_pattern/diggit_frequent_patterns.json').map do |is|
-      { items: Hamster::Set.new(is['items']), support: is['support'] }
+      { items: Hamster::SortedSet.new(is['items']), support: is['support'] }
     end
   end
 
@@ -51,7 +51,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FileSuggester) do
           { items: %i(a b), support: 4 },
           { items: %i(b c), support: 3 },
           { items: %i(a b c), support: 3 },
-        ].map { |is| is.merge(items: Hamster::Set.new(is[:items])) }
+        ].map { |is| is.merge(items: Hamster::SortedSet.new(is[:items])) }
       end
 
       it 'will make a suggestion if a subset of the given files implies confidence' do

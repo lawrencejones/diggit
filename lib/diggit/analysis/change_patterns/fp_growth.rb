@@ -68,7 +68,7 @@ module Diggit
         # with > min_support.
         def frequent_itemsets(tree = initial_tree,
                               itemsets = Set.new,
-                              prefix = Hamster::Set[])
+                              prefix = Hamster::SortedSet[])
           tree.heads.
             reject { |item, head| head.count < min_support }.
             each do  |item, head|
