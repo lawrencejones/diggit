@@ -7,6 +7,9 @@ module Diggit
         def initialize(frequent_itemsets, min_confidence: 0.75)
           @frequent_itemsets = frequent_itemsets
           @min_confidence = min_confidence
+          @itemset_support = frequent_itemsets.map do |frequent_itemset|
+            [frequent_itemset[:items].hash, frequent_itemset[:support]]
+          end.to_h
         end
 
         # Suggests files that frequently change with the given `files` with a confidence
@@ -18,7 +21,7 @@ module Diggit
         #     }
         #
         def suggest(files)
-          files = Hamster::Set.new(files)
+          files = Hamster::SortedSet.new(files)
 
           relevant_itemsets(files).each_with_object({}) do |itemset, suggestions|
             antecedent = files.intersection(itemset[:items])
@@ -55,7 +58,7 @@ module Diggit
         end
 
         def support_for(items)
-          frequent_itemsets.find { |is| is[:items] == items }.fetch(:support)
+          @itemset_support[items.hash] || 0
         end
       end
     end
