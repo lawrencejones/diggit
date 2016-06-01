@@ -32,6 +32,32 @@ namespace :analysis do
     puts('Done!')
   end
 
+  desc 'Prints the pulls where created_at does not reflect the final commit'
+  task :verify_last_analysis, [:gh_path] do |_, args|
+    require 'diggit/models/project'
+    require 'diggit/models/pull_analysis'
+    require 'diggit/github/client'
+
+    project = Project.find_by(gh_path: args.fetch(:gh_path))
+    pulls = PullAnalysis.for_project(args.fetch(:gh_path)).pluck('DISTINCT pull').sort
+    gh_client = Diggit::Github.client_for(project)
+
+    pulls.each do |pull|
+      pr = gh_client.pull(project.gh_path, pull)
+      next unless pr.state == 'closed'
+
+      close_head = pr.head.sha.first(7)
+      last_analysis_head = PullAnalysis.
+        where(project: project, pull: pull).
+        order(:created_at).last.head.first(7)
+
+      unless close_head == last_analysis_head
+        puts("  - #{project.gh_path}/pull/#{pull} #{last_analysis_head} #{close_head}")
+      end
+    end
+    puts('Done!')
+  end
+
   desc 'Re-enqueues analysis for pulls missing reporters'
   task :backfill do
     require 'diggit/analysis/pipeline'
