@@ -194,6 +194,7 @@ GEM
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     stackprof (0.2.9)
+    terminal-table (1.5.2)
     thread_safe (0.3.5)
     timecop (0.8.1)
     tzinfo (1.2.2)
@@ -254,6 +255,7 @@ DEPENDENCIES
   simplecov
   sshkey
   stackprof
+  terminal-table
   timecop
   unirest
 

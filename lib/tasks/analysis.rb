@@ -54,4 +54,29 @@ namespace :analysis do
 
     puts('Done!')
   end
+
+  desc 'Examines the comments made to a pull request'
+  task :examine, [:gh_path, :pull] do |_, args|
+    require 'terminal-table'
+    require 'diggit/models/pull_analysis'
+
+    analyses = PullAnalysis.
+      for_project(args.fetch(:gh_path)).
+      where(pull: args.fetch(:pull)).
+      order(:created_at)
+
+    puts("Found #{analyses.count} analyses for this pull!")
+
+    comment_indexes = analyses.
+      flat_map(&:comments).
+      map { |comment| comment.slice('report', 'index') }.
+      uniq
+
+    rows = comment_indexes.map do |comment|
+      ["#{comment['report']}##{comment['index']}", *analyses.map do |a|
+        a.comments.any? { |c| c.slice('report', 'index') == comment } ? 'X' : ''
+      end]
+    end
+    puts(Terminal::Table.new(rows: rows))
+  end
 end
