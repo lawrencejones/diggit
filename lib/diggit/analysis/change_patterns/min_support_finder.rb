@@ -32,14 +32,14 @@ module Diggit
         attr_reader :algorithm, :changesets, :current_files
 
         def generate_support
-          INITIAL_SUPPORT.downto(2).each do |min_support|
+          INITIAL_SUPPORT.downto(5).each do |min_support|
             files_included = benchmark(min_support)
 
             return min_support + 1 if files_included.nil? # timed out
             return min_support if files_included > FILES_INCLUDED_THRESHOLD
           end
 
-          2
+          5
         end
 
         def benchmark(min_support)
