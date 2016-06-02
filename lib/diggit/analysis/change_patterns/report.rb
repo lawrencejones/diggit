@@ -83,8 +83,10 @@ module Diggit
 
         def changesets
           @changesets ||= ChangesetGenerator.
-            # Use base to avoid including commits that may not be merged into master
-            new(repo, head: base, gh_path: gh_path).
+            # Use the master branch to avoid including commits that may not be merged
+            new(repo,
+                gh_path: gh_path,
+                head: repo.branches['origin/master'].try(:target).try(:oid) || base).
             changesets
         end
       end
