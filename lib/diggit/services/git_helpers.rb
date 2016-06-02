@@ -10,6 +10,10 @@ module Diggit
     module GitHelpers
       GIT_BINARY = 'git'.freeze
 
+      def initialize(repo)
+        @repo = repo
+      end
+
       # Runs the rev-list command, returning an array of commit shas that are ancestors of
       # the given commit, filtered by path if one is supplied.
       def rev_list(commit:, path: nil)
