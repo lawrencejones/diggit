@@ -2,28 +2,47 @@
 namespace :frequent_pattern do
   BENCHMARK_TASK_ARGS = [:support_range, :max_items, :no_of_changesets].freeze
 
-  def load_rails_changesets(limit = 10_000)
+  def load_repo_changesets(limit = 10_000)
     require 'rugged'
     require 'diggit/services/cache'
 
-    Diggit::Services::Cache.get('frequent_pattern/rails/changesets').
+    Diggit::Services::Cache.get('frequent_pattern/repo/changesets').
       map { |entry| entry[:changeset] }.
       first(limit)
   end
 
-  desc 'Walk rails repository to fill changeset cache'
-  task :walk_rails, [:rails_path] do |_, args|
+  desc 'Walk repository to fill changeset cache'
+  task :generate_changesets, [:repo_path] do |_, args|
     require 'diggit/analysis/change_patterns/changeset_generator'
 
-    puts('Loading rails repo...')
-    rails_path = File.join(Rake.application.original_dir, args.fetch(:rails_path))
-    rails = Rugged::Repository.new(rails_path)
+    puts('Loading repo...')
+    repo_path = File.join(Rake.application.original_dir, args.fetch(:repo_path))
+    repo = Rugged::Repository.new(repo_path)
 
     puts('Walking commit history...')
+    Diggit::Services::Cache.delete('frequent_pattern/repo/changesets')
     changesets = Diggit::Analysis::ChangePatterns::ChangesetGenerator.
-      new(rails, gh_path: 'frequent_pattern/rails').changesets
+      new(repo, gh_path: 'frequent_pattern/repo').changesets
 
     puts("Loaded #{changesets.size} changesets into cache!")
+  end
+
+  desc 'Loads repo frequent itemsets into cache'
+  task :generate_itemsets, [:min_support, :max_items, :no_of_changesets] do |_, args|
+    require 'diggit/services/cache'
+    require 'diggit/analysis/change_patterns/fp_growth'
+
+    changesets = load_repo_changesets(args.fetch(:no_of_changesets, 10_000).to_i)
+    puts("Loaded #{changesets.size} changesets!")
+
+    patterns = Diggit::Analysis::ChangePatterns::FpGrowth.
+      new(changesets,
+          min_support: args.fetch(:min_support, 5).to_i,
+          max_items: args.fetch(:max_items, 25).to_i).frequent_itemsets
+    puts("Found #{patterns.size} frequent itemsets!")
+
+    Diggit::Services::Cache.store('frequent_pattern/repo/itemsets', patterns.as_json)
+    puts('Done!')
   end
 
   desc 'Benchmarks file suggestion'
@@ -33,7 +52,7 @@ namespace :frequent_pattern do
     require 'diggit/services/cache'
     require 'diggit/analysis/change_patterns/file_suggester'
 
-    itemsets = Diggit::Services::Cache.get('frequent_pattern/rails/itemsets').
+    itemsets = Diggit::Services::Cache.get('frequent_pattern/repo/itemsets').
       map { |is| { items: Hamster::SortedSet.new(is['items']), support: is['support'] } }
     puts("Loaded #{itemsets.size} changesets!")
 
@@ -50,25 +69,7 @@ namespace :frequent_pattern do
     puts("#{run_time}\n")
   end
 
-  desc 'Loads rails frequent itemsets into cache'
-  task :generate_rails_itemsets do
-    require 'diggit/services/cache'
-    require 'diggit/analysis/change_patterns/fp_growth'
-
-    changesets = load_rails_changesets(10_000)
-    puts("Loaded #{changesets.size} changesets!")
-
-    patterns = Diggit::Analysis::ChangePatterns::FpGrowth.
-      new(changesets,
-          min_support: 5,
-          max_items: 25).frequent_itemsets
-    puts("Found #{patterns.size} frequent itemsets!")
-
-    Diggit::Services::Cache.store('frequent_pattern/rails/itemsets', patterns.as_json)
-    puts('Done!')
-  end
-
-  # Runs and profiles blocks that generate frequent pattern sets from the rails
+  # Runs and profiles blocks that generate frequent pattern sets from the repo
   # changesets.
   def benchmark_fp_discovery(algorithm, args, _dump_dir)
     require 'yaml'
@@ -82,7 +83,7 @@ namespace :frequent_pattern do
     no_of_changesets = args.fetch(:no_of_changesets, 10_000).to_i
     patterns = nil
 
-    changesets = load_rails_changesets(no_of_changesets)
+    changesets = load_repo_changesets(no_of_changesets)
     puts("Loaded #{changesets.size} changesets!")
 
     support_range.to_a.reverse.each do |min_support|
