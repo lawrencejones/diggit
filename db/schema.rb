@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160525122444) do
+ActiveRecord::Schema.define(version: 20160602135423) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 20160525122444) do
     t.binary   "gh_token_initialization_vector"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "min_support",                                default: 0,     null: false
   end
 
   add_index "projects", ["gh_path"], name: "index_projects_on_gh_path", unique: true, using: :btree
