@@ -68,29 +68,46 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
   let(:repo) { change_patterns_test_repo }
   let(:gh_path) { 'owner/repo' }
 
+  let!(:project) do
+    FactoryGirl.create(:project, gh_path: gh_path, min_support: project_min_support)
+  end
+  let(:project_min_support) { 1 }
+
   before do
-    allow(described_class).to receive(:min_support_for).and_return(min_support)
     stub_const("#{described_class}::MIN_CONFIDENCE", min_confidence)
     stub_const("#{described_class}::MAX_CHANGESET_SIZE", max_changeset_size)
   end
 
-  let(:min_support) { 1 }
   let(:min_confidence) { 0.5 }
   let(:max_changeset_size) { 10 }
+  let(:files_in_last_commit) do
+    %w(Gemfile app.rb app_controller.rb app_template.html).freeze
+  end
 
-  describe '.min_support_for' do
-    before { allow(described_class).to receive(:min_support_for).and_call_original }
+  describe '.min_support' do
+    subject(:min_support) { report.send(:min_support) }
 
-    it 'yields 5 for changesets sizes < 5,000' do
-      expect(described_class.min_support_for(3_000)).to equal(5)
+    context 'when project already has min_support value' do
+      let(:project_min_support) { 1 }
+
+      it { is_expected.to be(project.min_support) }
     end
 
-    it 'linearly interpolates by the thousand up to 10,000' do
-      expect(described_class.min_support_for(7_500)).to equal(7)
-    end
+    context 'when project does not have calibrated min_support' do
+      let(:project_min_support) { 0 }
+      let(:finder) { Diggit::Analysis::ChangePatterns::MinSupportFinder }
 
-    it 'caps out at 10 for anything over 10,000' do
-      expect(described_class.min_support_for(12_000)).to equal(10)
+      it 'computes min support using MinSupportFinder, saving to project' do
+        expect(finder).
+          to receive(:new).
+          with(Diggit::Analysis::ChangePatterns::FpGrowth,
+               anything, match_array(files_in_last_commit)).
+          and_return(instance_double(finder, support: 5))
+        expect { min_support }.
+          to change { project.reload.min_support }.
+          from(0).to(5)
+        expect(min_support).to be(5)
+      end
     end
   end
 
@@ -98,8 +115,11 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
     subject(:comments) { report.comments }
     let(:controller_comment) { comments.find { |c| c[:index] == 'app_controller.rb' } }
 
+    # Setting this means we won't call into MinSupportFinder
+    let(:project_min_support) { 2 }
+
     context 'when there is insufficient support' do
-      let(:min_support) { 5 }
+      let(:project_min_support) { 5 }
 
       it { is_expected.to be_empty }
     end

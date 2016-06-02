@@ -45,6 +45,29 @@ namespace :frequent_pattern do
     puts('Done!')
   end
 
+  desc 'Computes the min_support parameter for cached changesets'
+  task :compute_min_support, [:repo_path, :no_of_changesets] do |_, args|
+    require 'diggit/analysis/change_patterns/min_support_finder'
+    require 'diggit/services/git_helpers'
+    require 'diggit/analysis/change_patterns/fp_growth'
+
+    include Diggit::Analysis::ChangePatterns
+    include Diggit::Services
+
+    repo = Rugged::Repository.new(args.fetch(:repo_path))
+    files_in_repo = Class.new.include(GitHelpers).new(repo).ls_files(repo.last_commit)
+    puts("Found #{files_in_repo.size} files in last commit of repo!")
+
+    changesets = load_repo_changesets(args.fetch(:no_of_changesets).to_i)
+    puts("Loaded #{changesets.size} changesets!")
+
+    Diggit.instance_variable_set(:@logger, Logger.new(STDOUT))
+    finder = MinSupportFinder.new(FpGrowth, changesets, files_in_repo)
+    support = finder.support
+
+    puts("Determined support to be #{support}!")
+  end
+
   desc 'Benchmarks file suggestion'
   task :benchmark_file_suggestion do
     require 'benchmark'
@@ -54,7 +77,7 @@ namespace :frequent_pattern do
 
     itemsets = Diggit::Services::Cache.get('frequent_pattern/repo/itemsets').
       map { |is| { items: Hamster::SortedSet.new(is['items']), support: is['support'] } }
-    puts("Loaded #{itemsets.size} changesets!")
+    puts("Loaded #{itemsets.size} itemsets!")
 
     suggester = Diggit::Analysis::ChangePatterns::FileSuggester.new(itemsets)
     files = ['activerecord/lib/active_record/connection_adapters/abstract_adapter.rb',

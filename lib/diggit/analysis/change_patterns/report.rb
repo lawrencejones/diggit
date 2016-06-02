@@ -1,8 +1,10 @@
 require_relative '../../services/git_helpers'
 require_relative '../../logger'
+require_relative '../../models/project'
 require_relative 'file_suggester'
 require_relative 'changeset_generator'
 require_relative 'fp_growth'
+require_relative 'min_support_finder'
 
 module Diggit
   module Analysis
@@ -10,15 +12,6 @@ module Diggit
       class Report
         MIN_CONFIDENCE = 0.75 # required confidence that files are coupled
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
-
-        # Scale the required minimum support by the number of changesets we have available
-        def self.min_support_for(no_of_changesets)
-          case no_of_changesets
-          when 0..5_000      then 5
-          when 5_000..10_000 then no_of_changesets / 1_000
-          else                    10
-          end
-        end
 
         include Services::GitHelpers
         include InstanceLogger
@@ -28,6 +21,7 @@ module Diggit
           @base = conf.fetch(:base)
           @head = conf.fetch(:head)
           @gh_path = conf.fetch(:gh_path)
+          @project = Project.find_by!(gh_path: @gh_path)
 
           @logger_prefix = "[#{gh_path}]"
         end
@@ -38,7 +32,7 @@ module Diggit
 
         private
 
-        attr_reader :base, :head, :gh_path
+        attr_reader :base, :head, :gh_path, :project
 
         def generate_comments
           likely_missing_files.map do |file, confidence:, antecedent:|
@@ -67,10 +61,24 @@ module Diggit
         def frequent_itemsets
           FpGrowth.
             new(changesets,
-                min_support: self.class.min_support_for(changesets.size),
+                min_support: min_support,
                 max_items: MAX_CHANGESET_SIZE).
             frequent_itemsets.
             tap { |itemsets| info { "Found #{itemsets.count} frequent itemsets!" } }
+        end
+
+        # Use the minimum support parameter saved to the project, else generate one
+        def min_support
+          if project.min_support == 0
+            info { 'Finding appropriate min_support parameter...' }
+            min_support = MinSupportFinder.
+              new(FpGrowth, changesets, ls_files(repo.last_commit)).
+              support
+            info { "Updating project with min_support=#{min_support}..." }
+            project.update!(min_support: min_support)
+          end
+
+          project.min_support
         end
 
         def changesets
