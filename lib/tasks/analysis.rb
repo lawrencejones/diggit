@@ -6,6 +6,17 @@ namespace :analysis do
       uniq
   end
 
+  desc 'Flushes redis cache and resets min_support params'
+  task :reset do
+    require 'diggit/models/project'
+    require 'diggit/services/cache'
+
+    puts("Flushing redis cache: #{Diggit::Services::Cache.conn.flushall}")
+
+    updated = Project.update_all(min_support: 0)
+    puts("Reset min_support on #{updated} projects")
+  end
+
   desc 'Runs an analysis on the given pull'
   task :run, [:gh_path, :pull] do |_, args|
     require 'diggit/github/client'
