@@ -8,6 +8,7 @@ module Diggit
     module RefactorDiligence
       class Report
         TIMES_INCREASED_THRESHOLD = 3
+        MIN_METHOD_SIZE = 6
 
         include Services::GitHelpers
 
@@ -43,10 +44,13 @@ module Diggit
 
         # Filters for methods that have increased in size beyond the threshold, and saw
         # their last size increase happen in this diff.
+        #
+        # Only count commits where method size is above MIN_METHOD_SIZE
         def methods_over_threshold
           @methods_over_threshold ||= method_size_history.
-            select { |_, history| history.size > TIMES_INCREASED_THRESHOLD }.
-            select { |_, history| commits_in_diff.include?(history.first[1].oid) }
+            select { |_, history| commits_in_diff.include?(history.first[1].oid) }.
+            each   { |_, history| history.select! { |(size)| size > MIN_METHOD_SIZE } }.
+            select { |_, history| history.size > TIMES_INCREASED_THRESHOLD }
         end
 
         # Parses all the changed files changed in head to identify the location of each
@@ -63,7 +67,7 @@ module Diggit
         end
 
         def method_size_history
-          @method_size_history ||= MethodSizeHistory.
+          MethodSizeHistory.
             new(repo, head: head, files: parseable_files_changed).
             history
         end
