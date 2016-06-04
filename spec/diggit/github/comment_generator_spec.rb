@@ -21,7 +21,7 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
       generator.add_comment('hello')
       generator.add_comment('world')
 
-      expect(client).to receive(:add_comment).with(repo, pull, "hello\nworld")
+      expect(client).to receive(:add_comment).with(repo, pull, "hello\n\nworld")
       generator.push
     end
 
@@ -45,7 +45,7 @@ RSpec.describe(Diggit::Github::CommentGenerator) do
 
         expect(client).
           to receive(:create_pull_comment).
-          with(repo, pull, "hello\nworld", 'head-sha', 'Gemfile.rb', 7)
+          with(repo, pull, "hello\n\nworld", 'head-sha', 'Gemfile.rb', 7)
         generator.push
       end
     end

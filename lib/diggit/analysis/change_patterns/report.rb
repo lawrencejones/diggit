@@ -38,7 +38,7 @@ module Diggit
           likely_missing_files.map do |file, confidence:, antecedent:|
             { report: 'ChangePatterns',
               index: file,
-              location: "#{file}:1",
+              location: nil, # aggregate comments for this reporter
               message: "Expected `#{file}` to change, as it was modified in "\
                        "#{(100 * confidence).to_i}% of past changes involving "\
                        "#{antecedent.map { |changed| "`#{changed}`" }.join(' ')}",
