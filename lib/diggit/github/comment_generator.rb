@@ -16,10 +16,10 @@ module Diggit
 
       # Batch and send comments to github
       def push
-        @client.add_comment(repo, pull, comments.join("\n")) unless comments.empty?
+        @client.add_comment(repo, pull, comments.join("\n\n")) unless comments.empty?
         comments_by_file.each do |file_diff_index, comments|
           file, diff_index = parse_location(file_diff_index)
-          body = comments.join("\n")
+          body = comments.join("\n\n")
 
           @client.create_pull_comment(repo, pull, body, diff.head, file, diff_index)
         end

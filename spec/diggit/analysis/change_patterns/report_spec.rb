@@ -141,7 +141,7 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
         expect(controller_comment).to include(
           report: 'ChangePatterns',
           index: 'app_controller.rb',
-          location: 'app_controller.rb:1',
+          location: nil,
           message: /was modified in 75% of past changes involving/,
           meta: {
             missing_file: 'app_controller.rb',
