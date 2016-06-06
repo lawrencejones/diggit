@@ -15,6 +15,10 @@ module Diggit
       Diggit.logger
     end
 
+    def self.included(base)
+      base.extend(InstanceLogger)
+    end
+
     def log_payload(message)
       { thread: Thread.current.object_id, pid: Process.pid,
         class: self.class.to_s, message: message }

@@ -15,12 +15,12 @@ module Diggit
         ChangePatterns::Report,
       ].freeze
 
-      DIGGIT_CONFIG_FILE = '.diggit.yml'
+      DIGGIT_CONFIG_FILE = '.diggit.yml'.freeze
       MAX_FILES_CHANGED = 25
 
       # [ 'RefactorDiligence', 'Complexity', ... ]
       def self.reporters
-        REPORTERS.map { |r| r.parent.name.demodulize }
+        REPORTERS.map { |report| report::NAME }
       end
 
       class BadGitHistory < StandardError; end
@@ -45,9 +45,8 @@ module Diggit
           repo.reset(head, :hard)
           report.
             new(repo,
-                base: base, head: head,
-                gh_path: gh_path,
-                config: reporter_config.fetch(report, {})).
+                { base: base, head: head, gh_path: gh_path },
+                reporter_config.fetch(report::NAME, {}).symbolize_keys).
             comments
         end.flatten
       end
@@ -73,6 +72,11 @@ module Diggit
       end
 
       def reporter_config
+        if @gh_path == 'gocardless/payments-service'
+          # Special case gc
+          return { 'ChangePatterns' => { ignore: { 'Gemfile' => ['Gemfile.lock'] } } }
+        end
+
         @reporter_config ||= YAML.
           load(cat_file(commit: head, path: DIGGIT_CONFIG_FILE) || '{}')
       end

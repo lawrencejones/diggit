@@ -47,6 +47,10 @@ RSpec.describe(Diggit::Analysis::Complexity::Report) do
       end
   end
 
+  it 'defines a name' do
+    expect(described_class::NAME).to eql('Complexity')
+  end
+
   describe '.comments' do
     subject(:comments) { report.comments }
     let(:master_comment) { comments.find { |c| c[:meta][:file][/master.rb/] } }

@@ -141,6 +141,10 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
   let(:min_method_size) { 1 }
   let(:ignore) { [] }
 
+  it 'defines a name' do
+    expect(described_class::NAME).to eql('RefactorDiligence')
+  end
+
   describe '#comments' do
     subject(:comments) { report.comments }
 

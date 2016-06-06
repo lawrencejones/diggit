@@ -6,6 +6,7 @@ module Diggit
   module Analysis
     module Complexity
       class Report
+        NAME = 'Complexity'.freeze
         IGNORED_EXTENSIONS = %w(.json .xml .yml .yaml).freeze
         CHANGE_WINDOW = 3
         CHANGE_THRESHOLD = 50.0
@@ -43,7 +44,7 @@ module Diggit
 
         def generate_comments
           paths_above_threshold.to_h.map do |path, (complexity_increase, head, base)|
-            { report: 'Complexity',
+            { report: self.class::NAME,
               index: path,
               location: "#{path}:1",
               message: "`#{path}` has increased in complexity by "\

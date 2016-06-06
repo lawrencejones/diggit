@@ -15,6 +15,17 @@ module Diggit
         FILES_INCLUDED_THRESHOLD = 0.3
         INITIAL_SUPPORT = 20
 
+        def self.find(project, changesets, current_files, algorithm = FpGrowth)
+          unless project.min_support > 0
+            info { 'Finding appropriate min_support parameter...' }
+            min_support = new(algorithm, changesets, current_files).support
+            info { "Updating project with min_support=#{min_support}..." }
+            project.update!(min_support: min_support)
+          end
+
+          project.min_support
+        end
+
         include InstanceLogger
 
         def initialize(algorithm, changesets, current_files)

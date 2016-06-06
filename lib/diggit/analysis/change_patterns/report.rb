@@ -10,6 +10,7 @@ module Diggit
   module Analysis
     module ChangePatterns
       class Report
+        NAME = 'ChangePatterns'.freeze
         MIN_CONFIDENCE = 0.75 # required confidence that files are coupled
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
 
@@ -39,7 +40,9 @@ module Diggit
 
         def generate_comments
           likely_missing_files.map do |file, confidence:, antecedent:|
-            { report: 'ChangePatterns',
+            next if ignored?(file, antecedent)
+
+            { report: self.class::NAME,
               index: file,
               location: nil, # aggregate comments for this reporter
               message: "Expected `#{file}` to change, as it was modified in "\
@@ -51,7 +54,7 @@ module Diggit
                 antecedent: antecedent.to_a,
               },
             }
-          end
+          end.compact
         end
 
         def likely_missing_files
@@ -70,18 +73,14 @@ module Diggit
             tap { |itemsets| info { "Found #{itemsets.count} frequent itemsets!" } }
         end
 
-        # Use the minimum support parameter saved to the project, else generate one
-        def min_support
-          if project.min_support == 0
-            info { 'Finding appropriate min_support parameter...' }
-            min_support = MinSupportFinder.
-              new(FpGrowth, changesets, ls_files(repo.last_commit)).
-              support
-            info { "Updating project with min_support=#{min_support}..." }
-            project.update!(min_support: min_support)
-          end
+        def ignored?(file, antecedent)
+          ignored_antecedent = Hamster::SortedSet.new(@ignore.fetch(file, []))
+          antecedent.intersection(ignored_antecedent).any?
+        end
 
-          project.min_support
+        def min_support
+          @min_support ||= MinSupportFinder.
+            find(project, changesets, ls_files(head))
         end
 
         def changesets

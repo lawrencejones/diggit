@@ -53,7 +53,32 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::MinSupportFinder) do
       and_return(grower)
   end
 
-  describe '.support' do
+  describe '.find' do
+    subject(:find) { described_class.find(project, changesets, current_files) }
+
+    context 'when project already has min_support value' do
+      let(:project) { FactoryGirl.build_stubbed(:project, min_support: 1) }
+
+      it { is_expected.to be(project.min_support) }
+    end
+
+    context 'when project does not have calibrated min_support' do
+      let(:project) { FactoryGirl.create(:project, min_support: 0) }
+
+      it 'computes min support using MinSupportFinder, saving to project' do
+        expect(described_class).
+          to receive(:new).
+          with(Diggit::Analysis::ChangePatterns::FpGrowth, changesets, current_files).
+          and_return(instance_double(described_class, support: 5))
+        expect { find }.
+          to change { project.reload.min_support }.
+          from(0).to(5)
+        expect(find).to be(5)
+      end
+    end
+  end
+
+  describe '#support' do
     context 'when limited by algorithm performance' do
       before do
         mock_grower(initial_support - 0, grower_instant_below_threshold)

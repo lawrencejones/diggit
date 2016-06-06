@@ -7,6 +7,7 @@ module Diggit
   module Analysis
     module RefactorDiligence
       class Report
+        NAME = 'RefactorDiligence'.freeze
         TIMES_INCREASED_THRESHOLD = 3
         MIN_METHOD_SIZE = 6
 
@@ -33,7 +34,7 @@ module Diggit
 
         def generate_comments
           methods_over_threshold.to_h.map do |method, history|
-            { report: 'RefactorDiligence',
+            { report: self.class::NAME,
               index: method,
               location: method_locations.fetch(method),
               message: "`#{method}` has increased in size the last "\
