@@ -60,7 +60,9 @@ end
 # rubocop:enable Metrics/MethodLength
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
-  subject(:report) { described_class.new(repo, head: head, base: base, gh_path: gh_path) }
+  subject(:report) do
+    described_class.new(repo, { head: head, base: base, gh_path: gh_path }, config)
+  end
 
   let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
   let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
@@ -73,42 +75,19 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
   end
   let(:project_min_support) { 1 }
 
-  before do
-    stub_const("#{described_class}::MIN_CONFIDENCE", min_confidence)
-    stub_const("#{described_class}::MAX_CHANGESET_SIZE", max_changeset_size)
-  end
-
+  let(:config) { { min_confidence: min_confidence, ignore: ignore } }
   let(:min_confidence) { 0.5 }
+  let(:ignore) { {} }
+
+  before { stub_const("#{described_class}::MAX_CHANGESET_SIZE", max_changeset_size) }
   let(:max_changeset_size) { 10 }
+
   let(:files_in_last_commit) do
     %w(Gemfile app.rb app_controller.rb app_template.html).freeze
   end
 
-  describe '.min_support' do
-    subject(:min_support) { report.send(:min_support) }
-
-    context 'when project already has min_support value' do
-      let(:project_min_support) { 1 }
-
-      it { is_expected.to be(project.min_support) }
-    end
-
-    context 'when project does not have calibrated min_support' do
-      let(:project_min_support) { 0 }
-      let(:finder) { Diggit::Analysis::ChangePatterns::MinSupportFinder }
-
-      it 'computes min support using MinSupportFinder, saving to project' do
-        expect(finder).
-          to receive(:new).
-          with(Diggit::Analysis::ChangePatterns::FpGrowth,
-               anything, match_array(files_in_last_commit)).
-          and_return(instance_double(finder, support: 5))
-        expect { min_support }.
-          to change { project.reload.min_support }.
-          from(0).to(5)
-        expect(min_support).to be(5)
-      end
-    end
+  it 'defines a name' do
+    expect(described_class::NAME).to eql('ChangePatterns')
   end
 
   describe '.comments' do
@@ -134,6 +113,30 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
       let(:max_changeset_size) { 1 }
 
       it { is_expected.to be_empty }
+    end
+
+    context 'when suggestion is in user defined ignore' do
+      let(:ignore) { { 'app_controller.rb' => ['app_template.html'] } }
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'when ignore antecedent is not for comment antecedent' do
+      let(:ignore) { { 'app_controller.rb' => ['not_app_template.html'] } }
+
+      it { is_expected.not_to be_empty }
+    end
+
+    context 'when min_support on project is 0' do
+      let(:project_min_support) { 0 }
+
+      it 'calls MinSupportFinder.find' do
+        expect(Diggit::Analysis::ChangePatterns::MinSupportFinder).
+          to receive(:find).
+          with(project, anything, files_in_last_commit).
+          and_return(2)
+        comments
+      end
     end
 
     context 'when sufficient support and confidence' do

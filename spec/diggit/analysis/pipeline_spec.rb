@@ -1,7 +1,7 @@
 require_relative 'temporary_analysis_repo'
 require 'diggit/analysis/pipeline'
 
-def pipeline_test_repo
+def pipeline_test_repo(&block)
   TemporaryAnalysisRepo.create do |repo|
     repo.write('file.c', <<-C)
     int main(int argc, char **argv) {
@@ -30,6 +30,8 @@ def pipeline_test_repo
       return 0;
     C
     repo.commit('third commit')
+
+    yield(repo) unless block.nil?
   end
 end
 
@@ -48,15 +50,16 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
     end.first.oid
   end
 
-  def mock_reporter(mock_comments, &block)
+  def mock_reporter(name, mock_comments, &block)
     Class.new do
-      define_method(:initialize) { |repo, conf| yield repo if block }
+      const_set(:NAME, name)
+      define_method(:initialize) { |repo, args, conf| yield repo if block }
       define_method(:comments) { mock_comments }
     end
   end
 
   let(:mutating_reporter) do
-    mock_reporter(['ran mutating_reporter']) do |repo|
+    mock_reporter('Mutating', ['ran mutating_reporter']) do |repo|
       File.write(File.join(repo.workdir, 'new_file'), 'contents')
       repo.index.add(path: 'new_file', mode: 0100644,
                      oid: Rugged::Blob.from_workdir(repo, 'new_file'))
@@ -72,7 +75,7 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
   end
 
   before { stub_const('Diggit::Analysis::Pipeline::REPORTERS', reporters) }
-  let(:reporters) { [mock_reporter(%w(1a 1b)), mock_reporter(%w(2a 2b))] }
+  let(:reporters) { [mock_reporter('A', %w(1a 1b)), mock_reporter('B', %w(2a 2b))] }
 
   context 'when the given HEAD sha is not in repo' do
     let(:head) { 'a' * 40 }
@@ -95,6 +98,28 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
       comments
     end
 
+    context 'when project defines reporter config' do
+      let(:repo) do
+        pipeline_test_repo do |repo|
+          repo.write('.diggit.yml', <<-YAML)
+          MockReporter:
+            user_config_key: value
+          YAML
+          repo.commit('Adds .diggit.yml')
+        end
+      end
+      let(:reporters) { [reporter] }
+      let(:reporter) { mock_reporter('MockReporter', ['ran mock reporter']) }
+
+      it 'initializes reporter with reporter config' do
+        expect(reporter).
+          to receive(:new).
+          with(repo, anything, user_config_key: 'value').
+          and_call_original
+        comments
+      end
+    end
+
     context 'when diff changes too many files' do
       before { stub_const("#{described_class}::MAX_FILES_CHANGED", 1) }
 
@@ -111,7 +136,7 @@ RSpec.describe(Diggit::Analysis::Pipeline) do
     context 'with bad mutating reporters' do
       let(:reporters) { [mutating_reporter, verifying_reporter] }
       let(:verifying_reporter) do
-        mock_reporter(['ran_verifying_reporter']) do |repo|
+        mock_reporter('Verifying', ['ran_verifying_reporter']) do |repo|
           expect(repo.head.target.oid).to eql(head)
           expect(File.exist?(File.join(repo.workdir, 'new_file'))).to be(false)
         end

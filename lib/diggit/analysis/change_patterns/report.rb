@@ -10,19 +10,23 @@ module Diggit
   module Analysis
     module ChangePatterns
       class Report
+        NAME = 'ChangePatterns'.freeze
         MIN_CONFIDENCE = 0.75 # required confidence that files are coupled
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
 
         include Services::GitHelpers
         include InstanceLogger
 
-        def initialize(repo, conf)
+        def initialize(repo, args, config)
           @repo = repo
-          @base = conf.fetch(:base)
-          @head = conf.fetch(:head)
-          @gh_path = conf.fetch(:gh_path)
-          @project = Project.find_by!(gh_path: @gh_path)
+          @base = args.fetch(:base)
+          @head = args.fetch(:head)
+          @gh_path = args.fetch(:gh_path)
 
+          @min_confidence = config.fetch(:min_confidence, MIN_CONFIDENCE)
+          @ignore = config.fetch(:ignore, {})
+
+          @project = Project.find_by!(gh_path: @gh_path)
           @logger_prefix = "[#{gh_path}]"
         end
 
@@ -36,7 +40,9 @@ module Diggit
 
         def generate_comments
           likely_missing_files.map do |file, confidence:, antecedent:|
-            { report: 'ChangePatterns',
+            next if ignored?(file, antecedent)
+
+            { report: self.class::NAME,
               index: file,
               location: nil, # aggregate comments for this reporter
               message: "Expected `#{file}` to change, as it was modified in "\
@@ -48,13 +54,13 @@ module Diggit
                 antecedent: antecedent.to_a,
               },
             }
-          end
+          end.compact
         end
 
         def likely_missing_files
           FileSuggester.
             new(frequent_itemsets,
-                min_confidence: MIN_CONFIDENCE).
+                min_confidence: @min_confidence).
             suggest(files_modified(base: base, head: head))
         end
 
@@ -67,18 +73,14 @@ module Diggit
             tap { |itemsets| info { "Found #{itemsets.count} frequent itemsets!" } }
         end
 
-        # Use the minimum support parameter saved to the project, else generate one
-        def min_support
-          if project.min_support == 0
-            info { 'Finding appropriate min_support parameter...' }
-            min_support = MinSupportFinder.
-              new(FpGrowth, changesets, ls_files(repo.last_commit)).
-              support
-            info { "Updating project with min_support=#{min_support}..." }
-            project.update!(min_support: min_support)
-          end
+        def ignored?(file, antecedent)
+          ignored_antecedent = Hamster::SortedSet.new(@ignore.fetch(file, []))
+          antecedent.intersection(ignored_antecedent).any?
+        end
 
-          project.min_support
+        def min_support
+          @min_support ||= MinSupportFinder.
+            find(project, changesets, ls_files(head))
         end
 
         def changesets

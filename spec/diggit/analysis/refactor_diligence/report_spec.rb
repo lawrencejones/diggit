@@ -122,7 +122,7 @@ def refactor_diligence_test_repo
 end
 
 RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
-  subject(:report) { described_class.new(repo, base: base, head: head) }
+  subject(:report) { described_class.new(repo, { base: base, head: head }, config) }
   let(:repo) { refactor_diligence_test_repo }
 
   def branch_oid(branch)
@@ -132,12 +132,17 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
   let(:head) { branch_oid('feature') }
   let(:base) { branch_oid('master') }
 
+  let(:config) do
+    { min_method_size: min_method_size,
+      times_increased_threshold: threshold,
+      ignore: ignore }
+  end
   let(:threshold) { 2 }
   let(:min_method_size) { 1 }
+  let(:ignore) { [] }
 
-  before do
-    stub_const("#{described_class}::TIMES_INCREASED_THRESHOLD", threshold)
-    stub_const("#{described_class}::MIN_METHOD_SIZE", min_method_size)
+  it 'defines a name' do
+    expect(described_class::NAME).to eql('RefactorDiligence')
   end
 
   describe '#comments' do
@@ -206,6 +211,14 @@ RSpec.describe(Diggit::Analysis::RefactorDiligence::Report) do
     it 'does not include methods below threshold' do
       from_uri = comments.find { |c| c[:meta][:method_name][/from_uri/] }
       expect(from_uri).to be_nil
+    end
+
+    context 'when target file is in ignored' do
+      let(:ignore) { ['file.rb'] }
+
+      it 'does not comment' do
+        expect(socket_comment).to be_nil
+      end
     end
   end
 end

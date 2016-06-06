@@ -7,19 +7,25 @@ module Diggit
   module Analysis
     module RefactorDiligence
       class Report
+        NAME = 'RefactorDiligence'.freeze
         TIMES_INCREASED_THRESHOLD = 3
         MIN_METHOD_SIZE = 6
 
         include Services::GitHelpers
 
-        def initialize(repo, conf)
+        def initialize(repo, args, config)
           @repo = repo
-          @base = conf.fetch(:base)
-          @head = conf.fetch(:head)
+          @base = args.fetch(:base)
+          @head = args.fetch(:head)
+
+          @min_method_size = config.fetch(:min_method_size, MIN_METHOD_SIZE)
+          @times_increased_threshold = config.
+            fetch(:times_increased_threshold, TIMES_INCREASED_THRESHOLD)
+          @ignore = config.fetch(:ignore, [])
         end
 
         def comments
-          @comments ||= parseable_files_changed.empty? ? [] : generate_comments
+          @comments ||= tracked_paths.empty? ? [] : generate_comments
         end
 
         private
@@ -28,7 +34,7 @@ module Diggit
 
         def generate_comments
           methods_over_threshold.to_h.map do |method, history|
-            { report: 'RefactorDiligence',
+            { report: self.class::NAME,
               index: method,
               location: method_locations.fetch(method),
               message: "`#{method}` has increased in size the last "\
@@ -49,8 +55,8 @@ module Diggit
         def methods_over_threshold
           @methods_over_threshold ||= method_size_history.
             select { |_, history| commits_in_diff.include?(history.first[1].oid) }.
-            each   { |_, history| history.select! { |(size)| size > MIN_METHOD_SIZE } }.
-            select { |_, history| history.size > TIMES_INCREASED_THRESHOLD }
+            each   { |_, history| history.select! { |(size)| size > @min_method_size } }.
+            select { |_, history| history.size > @times_increased_threshold }
         end
 
         # Parses all the changed files changed in head to identify the location of each
@@ -59,7 +65,7 @@ module Diggit
         #   { 'method' => 'file.rb:4', ... }
         #
         def method_locations
-          @method_locations ||= parseable_files_changed.
+          @method_locations ||= tracked_paths.
             map { |file| [file, cat_file(commit: head, path: file)] }.
             map { |(file, contents)| MethodParser.parse(contents, file: file).methods }.
             inject(:merge).
@@ -68,7 +74,7 @@ module Diggit
 
         def method_size_history
           MethodSizeHistory.
-            new(repo, head: head, files: parseable_files_changed).
+            new(repo, head: head, files: tracked_paths).
             history
         end
 
@@ -76,12 +82,10 @@ module Diggit
           @commits_in_diff ||= commits_between(base, head).map(&:oid)
         end
 
-        def parseable_files_changed
-          @parseable_files_changed ||= repo.
-            diff(repo.merge_base(base, head), head).deltas.
-            reject { |delta| delta.status == :deleted }.
-            map { |delta| delta.new_file[:path] }.
-            select { |file| MethodParser.supported?(file) }
+        def tracked_paths
+          @tracked_paths ||= files_modified(base: base, head: head).
+            select { |file| MethodParser.supported?(file) }.
+            reject { |file| @ignore.include?(file) }
         end
       end
     end

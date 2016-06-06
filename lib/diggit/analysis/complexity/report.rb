@@ -6,7 +6,8 @@ module Diggit
   module Analysis
     module Complexity
       class Report
-        IGNORED_EXTENSIONS = %w(.json .xml .yaml).freeze
+        NAME = 'Complexity'.freeze
+        IGNORED_EXTENSIONS = %w(.json .xml .yml .yaml).freeze
         CHANGE_WINDOW = 3
         CHANGE_THRESHOLD = 50.0
 
@@ -23,10 +24,14 @@ module Diggit
                                     include_seconds: false)
         end
 
-        def initialize(repo, conf)
+        def initialize(repo, args, config)
           @repo = repo
-          @base = conf.fetch(:base)
-          @head = conf.fetch(:head)
+          @base = args.fetch(:base)
+          @head = args.fetch(:head)
+
+          @change_window = config.fetch(:change_window, CHANGE_WINDOW)
+          @change_threshold = config.fetch(:change_threshold, CHANGE_THRESHOLD)
+          @ignore = config.fetch(:ignore, [])
         end
 
         def comments
@@ -39,7 +44,7 @@ module Diggit
 
         def generate_comments
           paths_above_threshold.to_h.map do |path, (complexity_increase, head, base)|
-            { report: 'Complexity',
+            { report: self.class::NAME,
               index: path,
               location: "#{path}:1",
               message: "`#{path}` has increased in complexity by "\
@@ -58,12 +63,12 @@ module Diggit
         # complexity history.
         def paths_above_threshold
           path_complexity_change.select do |_, (complexity_increase)|
-            complexity_increase >= CHANGE_THRESHOLD
+            complexity_increase >= @change_threshold
           end
         end
 
         # Computes how much the complexity of the path has increased, in percentage,
-        # over the last CHANGE_WINDOW changes.
+        # over the last @change_window changes.
         #
         #   { 'file.rb' => [56.8, latest_commitish, lowest_committish] }
         #
@@ -97,7 +102,7 @@ module Diggit
         #
         def path_complexity_history
           @path_complexity_history ||= path_changes.map do |path, changes|
-            [path, changes.first(CHANGE_WINDOW).map do |commit|
+            [path, changes.first(@change_window).map do |commit|
               file_content = cat_file(path: path, commit: commit) || ''
               [commit, self.class.compute_complexity(file_content)]
             end]
@@ -119,13 +124,10 @@ module Diggit
           end.reject { |_, history| history.empty? }
         end
 
-        # All paths that should be scanned for complexity growth.
         def tracked_paths
-          @tracked_paths ||= repo.
-            diff(repo.merge_base(base, head), head).deltas.
-            reject { |delta| delta.status == :deleted }.
-            map { |delta| delta.new_file[:path] }.
-            reject { |path| IGNORED_EXTENSIONS.include?(File.extname(path)) }
+          @tracked_paths ||= files_modified(base: base, head: head).
+            reject { |path| IGNORED_EXTENSIONS.include?(File.extname(path)) }.
+            reject { |path| @ignore.include?(path) }
         end
       end
     end
