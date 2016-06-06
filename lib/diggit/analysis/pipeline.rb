@@ -15,6 +15,7 @@ module Diggit
         ChangePatterns::Report,
       ].freeze
 
+      DIGGIT_CONFIG_FILE = '.diggit.yml'
       MAX_FILES_CHANGED = 25
 
       # [ 'RefactorDiligence', 'Complexity', ... ]
@@ -42,7 +43,12 @@ module Diggit
         REPORTERS.map do |report|
           info { "#{report}..." }
           repo.reset(head, :hard)
-          report.new(repo, base: base, head: head, gh_path: gh_path).comments
+          report.
+            new(repo,
+                base: base, head: head,
+                gh_path: gh_path,
+                config: reporter_config.fetch(report, {})).
+            comments
         end.flatten
       end
 
@@ -64,6 +70,11 @@ module Diggit
 
       def no_files_changed
         @no_files_changed = files_modified(base: base, head: head).count
+      end
+
+      def reporter_config
+        @reporter_config ||= YAML.
+          load(cat_file(commit: head, path: DIGGIT_CONFIG_FILE) || '{}')
       end
     end
   end

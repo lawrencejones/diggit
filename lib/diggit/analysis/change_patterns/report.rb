@@ -16,13 +16,16 @@ module Diggit
         include Services::GitHelpers
         include InstanceLogger
 
-        def initialize(repo, conf)
+        def initialize(repo, args, config)
           @repo = repo
-          @base = conf.fetch(:base)
-          @head = conf.fetch(:head)
-          @gh_path = conf.fetch(:gh_path)
-          @project = Project.find_by!(gh_path: @gh_path)
+          @base = args.fetch(:base)
+          @head = args.fetch(:head)
+          @gh_path = args.fetch(:gh_path)
 
+          @min_confidence = config.fetch(:min_confidence, MIN_CONFIDENCE)
+          @ignore = config.fetch(:ignore, {})
+
+          @project = Project.find_by!(gh_path: @gh_path)
           @logger_prefix = "[#{gh_path}]"
         end
 
@@ -54,7 +57,7 @@ module Diggit
         def likely_missing_files
           FileSuggester.
             new(frequent_itemsets,
-                min_confidence: MIN_CONFIDENCE).
+                min_confidence: @min_confidence).
             suggest(files_modified(base: base, head: head))
         end
 

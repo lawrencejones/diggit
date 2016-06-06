@@ -60,7 +60,9 @@ end
 # rubocop:enable Metrics/MethodLength
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
-  subject(:report) { described_class.new(repo, head: head, base: base, gh_path: gh_path) }
+  subject(:report) do
+    described_class.new(repo, { head: head, base: base, gh_path: gh_path }, config)
+  end
 
   let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
   let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
@@ -73,13 +75,13 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::Report) do
   end
   let(:project_min_support) { 1 }
 
-  before do
-    stub_const("#{described_class}::MIN_CONFIDENCE", min_confidence)
-    stub_const("#{described_class}::MAX_CHANGESET_SIZE", max_changeset_size)
-  end
-
+  let(:config) { { min_confidence: min_confidence, ignore: ignore } }
   let(:min_confidence) { 0.5 }
+  let(:ignore) { {} }
+
+  before { stub_const("#{described_class}::MAX_CHANGESET_SIZE", max_changeset_size) }
   let(:max_changeset_size) { 10 }
+
   let(:files_in_last_commit) do
     %w(Gemfile app.rb app_controller.rb app_template.html).freeze
   end

@@ -24,12 +24,19 @@ def complexity_test_repo
 end
 
 RSpec.describe(Diggit::Analysis::Complexity::Report) do
-  subject(:report) { described_class.new(repo, base: base, head: head) }
+  subject(:report) { described_class.new(repo, { base: base, head: head }, config) }
 
   let(:head) { repo.branches.find { |b| b.name == 'feature' }.target.oid }
   let(:base) { repo.branches.find { |b| b.name == 'master' }.target.oid }
 
   let(:repo) { complexity_test_repo }
+
+  let(:config) do
+    { change_window: change_window, change_threshold: change_threshold, ignore: ignore }
+  end
+  let(:change_threshold) { 50.0 }
+  let(:change_window) { 3 }
+  let(:ignore) { [] }
 
   # Stub the complexity scores, to allow testing detection logic without contrived
   # code examples
@@ -82,6 +89,21 @@ RSpec.describe(Diggit::Analysis::Complexity::Report) do
               head: /^\S{40}$/, base: /^\S{40}$/
             }
           )
+        end
+
+        context 'when user defined threshold is greater than change' do
+          let(:change_threshold) { 75.0 }
+          it { is_expected.to be_empty }
+        end
+
+        context 'when user defined window is smalled than current' do
+          let(:change_window) { 2 }
+          it { is_expected.to be_empty }
+        end
+
+        context 'and file is in ignore list' do
+          let(:ignore) { ['master.rb'] }
+          it { is_expected.to be_empty }
         end
       end
 
