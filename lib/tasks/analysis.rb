@@ -69,32 +69,6 @@ namespace :analysis do
     puts('Done!')
   end
 
-  desc 'Prints the pulls where created_at does not reflect the final commit'
-  task :verify_last_analysis, [:gh_path] do |_, args|
-    require 'diggit/models/project'
-    require 'diggit/models/pull_analysis'
-    require 'diggit/github/client'
-
-    project = Project.find_by(gh_path: args.fetch(:gh_path))
-    pulls = PullAnalysis.for_project(args.fetch(:gh_path)).pluck('DISTINCT pull').sort
-    gh_client = Diggit::Github.client_for(project)
-
-    pulls.each do |pull|
-      pr = gh_client.pull(project.gh_path, pull)
-      next unless pr.state == 'closed'
-
-      close_head = pr.head.sha.first(7)
-      last_analysis_head = PullAnalysis.
-        where(project: project, pull: pull).
-        order(:created_at).last.head.first(7)
-
-      unless close_head == last_analysis_head
-        puts("  - #{project.gh_path}/pull/#{pull} #{last_analysis_head} #{close_head}")
-      end
-    end
-    puts('Done!')
-  end
-
   desc 'Re-enqueues analysis for pulls missing reporters'
   task :backfill do
     require 'diggit/analysis/pipeline'
@@ -170,6 +144,50 @@ namespace :analysis do
 
     puts("Found #{analyses.count} analyses for this pull!")
     puts(Terminal::Table.new(rows: analysis_comment_rows(analyses)))
+  end
+
+  desc 'Generate analysis duration statistics'
+  task :duration_stats do
+    require 'terminal-table'
+    require 'descriptive-statistics'
+    require 'rugged'
+    require 'diggit/models/pull_analysis'
+    require 'diggit/models/project'
+    require 'diggit/services/git_helpers'
+
+    # Project, No of Files, Analyses, Duration{avg,90th,max}
+    def initial_rows
+      [['Project', 'Files', 'Commits', 'Analyses', 'Avg', 'STD', '90%th', 'Max'],
+       :separator]
+    end
+
+    def git_counts(project)
+      app_root = Rake.application.original_dir
+      cache_path = File.join(app_root, 'tmp/project_cache', project.gh_path)
+
+      return [nil, nil] unless Dir.exist?(cache_path)
+      rugged = Rugged::Repository.new(cache_path)
+      repo = Class.new.include(Diggit::Services::GitHelpers).new(rugged)
+
+      no_of_files = repo.ls_files(rugged.branches['origin/master'].target).count
+      no_of_commits = repo.send(:command, 'rev-list', '--all', '--count').to_i
+
+      [no_of_files, no_of_commits]
+    end
+
+    PullAnalysis.with_comments.where('duration > 0').pluck('DISTINCT project_id').
+      each_with_object(initial_rows) do |project_id, rows|
+        project = Project.find(project_id)
+        analyses = PullAnalysis.where(project: project)
+        durations = analyses.where('duration > 0').pluck(:duration)
+        stats = DescriptiveStatistics::Stats.new(durations)
+
+        rows << [project.gh_path, *git_counts(project), analyses.count,
+                 stats.mean.to_f.round(3),
+                 stats.standard_deviation.to_f.round(3),
+                 stats.value_from_percentile(90).to_f.round(3),
+                 stats.max.to_f.round(3)]
+      end.tap { |rows| puts(Terminal::Table.new(rows: rows)) }
   end
 
   desc 'Generates stats about analysis comments'
