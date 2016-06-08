@@ -169,7 +169,11 @@ namespace :analysis do
       rugged = Rugged::Repository.new(cache_path)
       repo = Class.new.include(Diggit::Services::GitHelpers).new(rugged)
 
-      no_of_files = repo.ls_files(rugged.branches['origin/master'].target).count
+      master = %w(master trunk devel).
+        map { |b| rugged.branches["origin/#{b}"] }.
+        compact.first
+
+      no_of_files = repo.ls_files(master.target).count
       no_of_commits = repo.send(:command, 'rev-list', '--all', '--count').to_i
 
       [no_of_files, no_of_commits]
@@ -187,6 +191,33 @@ namespace :analysis do
                  stats.standard_deviation.to_f.round(3),
                  stats.value_from_percentile(90).to_f.round(3),
                  stats.max.to_f.round(3)]
+      end.tap { |rows| puts(Terminal::Table.new(rows: rows)) }
+  end
+
+  desc 'Generate hit rates for pulls'
+  task :hit_rates do
+    require 'terminal-table'
+    require 'descriptive-statistics'
+    require 'rugged'
+    require 'diggit/models/pull_analysis'
+    require 'diggit/models/project'
+
+    def initial_rows
+      [['Project', 'Pulls w/ Comments', 'Total Pulls', 'Hit Rate'], :separator]
+    end
+
+    PullAnalysis.with_comments.pluck('DISTINCT project_id').
+      each_with_object(initial_rows) do |project_id, rows|
+        project = Project.find(project_id)
+        analyses = PullAnalysis.where(project: project)
+
+        total_pulls = analyses.pluck('DISTINCT pull').count
+        pulls_with_comments = analyses.with_comments.pluck('DISTINCT pull').count
+
+        rows << [project.gh_path,
+                 pulls_with_comments,
+                 total_pulls,
+                 "#{100 * pulls_with_comments / total_pulls}%"]
       end.tap { |rows| puts(Terminal::Table.new(rows: rows)) }
   end
 
