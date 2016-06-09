@@ -17,14 +17,14 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FpGrowth) do
       %i(b c e g),
       %i(c d f),
       %i(a b d),
-      %i(a b c d e f), # to be filtered
     ]
   end
 
-  let(:conf) { { min_support: min_support, min_items: min_items, max_items: max_items } }
+  let(:conf) do
+    { min_support: min_support, constraint: constraint }
+  end
   let(:min_support) { 3 }
-  let(:min_items) { 1 }
-  let(:max_items) { 5 }
+  let(:constraint) { nil }
 
   # Tags in form '[item:count]'
   def find_node(heads, node_tag, parent_tag = nil)
@@ -42,10 +42,6 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FpGrowth) do
       expect(database.inject(:+)).not_to include(:f, :g)
     end
 
-    it 'removes changesets that have > max_items' do
-      expect(database).not_to include(%i(f e d c b a))
-    end
-
     it 'sorts each itemset in reverse frequency order' do
       expect(database).to include(%i(d a), %i(b c))
     end
@@ -60,6 +56,14 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::FpGrowth) do
     it { is_expected.to include(items: match_array([:c, :d]), support: 3) }
     it { is_expected.to include(items: match_array([:c, :b]), support: 3) }
     it { is_expected.to include(items: match_array([:d, :b]), support: 5) }
+
+    context 'with constraint' do
+      let(:constraint) { [:a] }
+
+      it 'does not return unrelated itemsets' do
+        is_expected.not_to include(hash_including(items: match_array([:c, :d])))
+      end
+    end
   end
 
   describe '.initial_tree' do

@@ -254,8 +254,10 @@ namespace :analysis do
       report_counts = counter
 
       # Compute stats per pull and aggregate
-      project_analyses.with_comments.group_by(&:pull).each do |pull, analyses|
-        next unless analyses.count > args.fetch(:min_analyses, 0)
+      project_analyses.group_by(&:pull).each do |pull, analyses|
+        next unless analyses.count > args.fetch(:min_analyses, 0).to_i
+        next unless analyses.flat_map(&:comments).any?
+
         stats = Diggit::Services::PullCommentStats.new(project, pull)
         report_counts.each do |reporter, count|
           count[:total] += stats.comments.select { |c| c['report'] == reporter }.size

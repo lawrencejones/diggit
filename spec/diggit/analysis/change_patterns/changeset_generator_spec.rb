@@ -19,17 +19,18 @@ def changeset_generator_test_repo
 end
 
 RSpec.describe(Diggit::Analysis::ChangePatterns::ChangesetGenerator) do
-  subject(:generator) { described_class.new(repo, gh_path: gh_path) }
+  subject(:generator) { described_class.new(repo, gh_path: gh_path, head: head) }
   let(:repo) { changeset_generator_test_repo }
   let(:gh_path) { 'owner/repo' }
+  let(:head) { nil }
 
   describe '.changesets' do
     subject(:changesets) { generator.changesets }
     let(:cached) { Diggit::Services::Cache.get('owner/repo/changesets') }
 
     it { is_expected.to include(match_array(%w(a b))) }
-    it { is_expected.to include(match_array(%w(a c))) }
-    it { is_expected.to include(match_array(%w(d e))) }
+    it { is_expected.to include(match_array(%w(a c to_be_deleted))) }
+    it { is_expected.to include(match_array(%w(d e to_be_deleted))) }
 
     it 'does not include commits that have no changes' do
       is_expected.not_to include([])
@@ -43,19 +44,14 @@ RSpec.describe(Diggit::Analysis::ChangePatterns::ChangesetGenerator) do
                 %w(a b)])
     end
 
-    it 'removes files from changesets that are no longer present in repo head' do
-      changesets.each { |cs| expect(cs).not_to include('to_be_deleted') }
-    end
-
     it 'does not include merge commits'
 
-    context 'when no of changesets exceeds MAX_CHANGESETS' do
-      before { stub_const("#{described_class}::MAX_CHANGESETS", 1) }
+    context 'with given head' do
+      let(:head) { repo.last_commit.parents.first.oid }
 
-      it 'persists MAX_CHANGESETS most recent changesets' do
-        changesets
-        expect(cached.size).to be(1)
-        expect(cached.first).to include(changeset: %w(d e to_be_deleted))
+      it 'returns only changesets from before head' do
+        expect(changesets.size).to be(2)
+        expect(changesets).not_to include(%w(d e))
       end
     end
 

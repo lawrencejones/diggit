@@ -5,16 +5,13 @@ module Diggit
   module Analysis
     module ChangePatterns
       class FpGrowth
-        def initialize(itemsets,
-                       min_support: 1,
-                       min_items: 1, max_items: 25)
+        def initialize(itemsets, min_support:, constraint: nil)
           @min_support = min_support
-          @database = preprocess(itemsets.select do |itemset|
-            itemset.size.between?(min_items, max_items)
-          end)
+          @database = preprocess(itemsets)
+          @constraint = generate_constraint(constraint)
         end
 
-        attr_reader :database, :min_support
+        attr_reader :database, :min_support, :constraint
 
         class Node
           def initialize(item, count = 0)
@@ -67,14 +64,22 @@ module Diggit
         # Recurse through the initial tree to identify the frequent itemsets that appear
         # with > min_support.
         def frequent_itemsets(tree = initial_tree,
-                              itemsets = Set.new,
-                              prefix = Hamster::SortedSet[])
+                              itemsets = Set[],
+                              prefix = SortedSet[],
+                              seen_target = false)
+
           tree.heads.
             reject { |item, head| head.count < min_support }.
             each do  |item, head|
-              itemset = { items: prefix.add(item), support: head.count }
+              itemset = { items: prefix + [item], support: head.count }
               itemsets.add(itemset)
-              frequent_itemsets(project_tree(tree, item), itemsets, itemset[:items])
+
+              have_seen_target = seen_target || constraint[item]
+              projected = project_tree(tree, item)
+
+              if have_seen_target || target?(projected)
+                frequent_itemsets(projected, itemsets, itemset[:items], have_seen_target)
+              end
             end
 
           itemsets
@@ -147,10 +152,25 @@ module Diggit
           end
         end
 
+        # Here we apply our filtering, enabling us to use the constraint to determine if
+        # trees should be projected.
+        def target?(tree)
+          return true if constraint.nil?
+
+          tree.heads.values.any? { |head| constraint[head.item] }
+        end
+
         def frequency_count(itemsets)
           itemsets.each_with_object(counter) do |items, counter|
             items.each { |item| counter[item] += 1 }
           end
+        end
+
+        def generate_constraint(constraint_items)
+          constraint = (constraint_items || []).map { |item| [item, true] }.to_h
+          constraint.default = true if constraint_items.nil?
+
+          constraint
         end
 
         def counter
