@@ -222,7 +222,7 @@ namespace :analysis do
   end
 
   desc 'Generates stats about analysis comments'
-  task :stats do
+  task :stats, [:min_analyses] do |_, args|
     require 'terminal-table'
     require 'diggit/analysis/pipeline'
     require 'diggit/models/pull_analysis'
@@ -246,7 +246,7 @@ namespace :analysis do
 
     # Project,    Pulls, Totals,      Reporter
     # owner/repo, 5,     15/60 (25%), 15/60 (25%)
-    Project.order(:gh_path).each_with_object(initial_rows) do |project, rows|
+    Project.order('LOWER(gh_path)').each_with_object(initial_rows) do |project, rows|
       project_analyses = PullAnalysis.where(project: project)
       next if project_analyses.with_comments.empty?
 
@@ -255,6 +255,7 @@ namespace :analysis do
 
       # Compute stats per pull and aggregate
       project_analyses.with_comments.group_by(&:pull).each do |pull, analyses|
+        next unless analyses.count > args.fetch(:min_analyses, 0)
         stats = Diggit::Services::PullCommentStats.new(project, pull)
         report_counts.each do |reporter, count|
           count[:total] += stats.comments.select { |c| c['report'] == reporter }.size
