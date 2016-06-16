@@ -3,7 +3,6 @@ require_relative '../../logger'
 require_relative '../../models/project'
 require_relative 'file_suggester'
 require_relative 'changeset_generator'
-require_relative 'fp_growth'
 require_relative 'min_support_finder'
 
 module Diggit
@@ -13,6 +12,7 @@ module Diggit
         NAME = 'ChangePatterns'.freeze
         MIN_CONFIDENCE = 0.75 # required confidence that files are coupled
         MAX_CHANGESET_SIZE = 25 # exclude changesets of > items
+        MAX_CHANGESETS = 10_000 # use this number of changesets in analysis
 
         include Services::GitHelpers
         include InstanceLogger
@@ -59,18 +59,10 @@ module Diggit
 
         def likely_missing_files
           FileSuggester.
-            new(frequent_itemsets,
-                min_confidence: @min_confidence).
-            suggest(files_modified(base: base, head: head))
-        end
-
-        def frequent_itemsets
-          FpGrowth.
-            new(changesets,
-                min_support: min_support,
-                max_items: MAX_CHANGESET_SIZE).
-            frequent_itemsets.
-            tap { |itemsets| info { "Found #{itemsets.count} frequent itemsets!" } }
+            new(changesets, files_modified(base: base, head: head),
+                max_items: MAX_CHANGESET_SIZE,
+                min_support: min_support).
+            suggest(@min_confidence)
         end
 
         def ignored?(file, antecedent)
@@ -89,7 +81,13 @@ module Diggit
             new(repo,
                 gh_path: gh_path,
                 head: repo.branches['origin/master'].try(:target).try(:oid) || base).
-            changesets
+            changesets.
+            first(MAX_CHANGESETS).
+            map { |cs| cs & files_in_head }
+        end
+
+        def files_in_head
+          @files_in_head ||= ls_files(head)
         end
       end
     end

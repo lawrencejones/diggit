@@ -5,6 +5,7 @@ require_relative 'lib/tasks/integ'
 require_relative 'lib/tasks/one_off'
 require_relative 'lib/tasks/frequent_pattern'
 require_relative 'lib/tasks/analysis'
+require_relative 'lib/tasks/file_suggestions'
 
 task :init do
   require 'diggit/system'
